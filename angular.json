@@ -116,6 +116,46 @@
           }
         }
       }
+    },
+    "ng-vdom": {
+      "root": "projects/ng-vdom",
+      "sourceRoot": "projects/ng-vdom/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-vdom/tsconfig.lib.json",
+            "project": "projects/ng-vdom/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/ng-vdom/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-vdom/src/test.ts",
+            "tsConfig": "projects/ng-vdom/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-vdom/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-vdom/tsconfig.lib.json",
+              "projects/ng-vdom/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "ng-vdom-doc"
