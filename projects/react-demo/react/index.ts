@@ -1,3 +1,3 @@
-export * from './hello-world'
-export * from './introducing-jsx'
-export * from './rendering-elements'
+import './hello-world'
+import './introducing-jsx'
+import './rendering-elements'

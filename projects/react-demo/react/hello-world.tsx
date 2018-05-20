@@ -1,3 +1,8 @@
 import React from 'react'
+import { render } from 'ng-vdom/bootstrap'
+import { generate } from '../utils/element'
 
-export const hello_world_0 = <h1>Hello, world!</h1>
+render(
+  <h1>Hello, world!</h1>,
+  generate()
+)

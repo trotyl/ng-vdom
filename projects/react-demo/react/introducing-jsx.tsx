@@ -1,4 +1,6 @@
 import React from 'react'
+import { render } from 'ng-vdom/bootstrap'
+import { generate } from '../utils/element'
 
 interface User {
   firstName: string
@@ -14,8 +16,9 @@ const sampleUser = {
   lastName: 'Perez'
 }
 
-export const introducing_jsx_0 = (
+render(
   <h1>
     Hello, {formatName(sampleUser)}!
-  </h1>
+  </h1>,
+  generate()
 )
