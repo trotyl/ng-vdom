@@ -14,7 +14,7 @@ const sampleUser = {
   lastName: 'Perez'
 }
 
-export const IntroducingJSX_0 = (
+export const introducing_jsx_0 = (
   <h1>
     Hello, {formatName(sampleUser)}!
   </h1>
