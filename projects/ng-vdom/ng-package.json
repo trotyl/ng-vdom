@@ -3,6 +3,7 @@
   "dest": "../../dist/ng-vdom",
   "deleteDestPath": false,
   "lib": {
-    "entryFile": "src/public_api.ts"
+    "entryFile": "src/public_api.ts",
+    "umdId": "ng.vdom"
   }
 }

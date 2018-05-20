@@ -2,6 +2,6 @@
  * Public API Surface of ng-vdom
  */
 
-export * from './lib/ng-vdom.service'
-export * from './lib/ng-vdom.component'
-export * from './lib/ng-vdom.module'
+export * from './lib/vdom'
+export * from './lib/vdom-outlet'
+export * from './lib/vdom.module'

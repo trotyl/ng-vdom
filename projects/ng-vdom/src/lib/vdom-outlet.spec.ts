@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { NgVdomComponent } from './ng-vdom.component'
+import { VDomOutlet } from './vdom-outlet'
 
-describe('NgVdomComponent', () => {
-  let component: NgVdomComponent
-  let fixture: ComponentFixture<NgVdomComponent>
+describe('VDomComponent', () => {
+  let component: VDomOutlet
+  let fixture: ComponentFixture<VDomOutlet>
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ NgVdomComponent ]
+      declarations: [ VDomOutlet ]
     })
     .compileComponents()
   }))
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(NgVdomComponent)
+    fixture = TestBed.createComponent(VDomOutlet)
     component = fixture.componentInstance
     fixture.detectChanges()
   })

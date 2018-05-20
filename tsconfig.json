@@ -8,7 +8,10 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "strict": true,
     "target": "es5",
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -17,9 +20,9 @@
       "dom"
     ],
     "paths": {
-      "ng-vdom": [
-        "dist/ng-vdom"
-      ]
+      "ng-vdom": ["dist/ng-vdom"],
+      "ng-vdom/bootstrap": ["dist/ng-vdom/bootstrap"],
+      "react-demo": ["dist/react-demo"]
     }
   }
 }
