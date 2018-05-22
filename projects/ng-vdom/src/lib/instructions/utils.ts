@@ -31,8 +31,14 @@ function keyOf(node: ReactNode): string | number | null {
   return !!node && (typeof node === 'object') && ('key' in node) ? node.key : null
 }
 
+const componentCounter = new WeakMap<Type<any>, number>()
+
 function stringifyComponentType(type: Type<any>): string {
-  throw new Error(`Component not supported yet`)
+  if (!componentCounter.has(type)) {
+    componentCounter.set(type, 0)
+  }
+  const count = componentCounter.get(type)!
+  return `${type.name}_${count}`
 }
 
 function stringifyNodeType(node: ReactNode): string {
