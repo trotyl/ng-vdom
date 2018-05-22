@@ -1,8 +1,8 @@
 import { Renderer2, KeyValueDiffers, KeyValueDiffer } from '@angular/core'
 import { ReactNode, CSSProperties } from 'react'
-import { getEvents, getProps } from './registry'
+import { renderer, getEvents, getProps } from './registry'
 
-export function patchEvent(prop: string, handler: ((event: any) => void) | null, host: Element, renderer: Renderer2): void {
+export function patchEvent(prop: string, handler: ((event: any) => void) | null, host: Element): void {
   const eventName = prop.slice(2).toLowerCase()
 
   const events = getEvents(host)
@@ -16,22 +16,22 @@ export function patchEvent(prop: string, handler: ((event: any) => void) | null,
   }
 }
 
-export function patchStyle(styles: CSSProperties, host: Element, renderer: Renderer2): void {
+export function patchStyle(styles: CSSProperties, host: Element): void {
   // TODO: Diff styles
   renderer.setProperty(host, 'style', styles)
 }
 
-export function patchProp(prop: string, value: any, host: Element, renderer: Renderer2): void {
+export function patchProp(prop: string, value: any, host: Element): void {
   if (prop.startsWith('on')) {
-    patchEvent(prop, value, host, renderer)
+    patchEvent(prop, value, host)
   } else if (prop === 'style') {
-    patchStyle(value, host, renderer)
+    patchStyle(value, host)
   } else {
     renderer.setProperty(host, prop, value)
   }
 }
 
-export function mountProps<P>(props: P, host: Element, renderer: Renderer2): void {
+export function mountProps<P>(props: P, host: Element): void {
   const differ = getProps(host)
 
   const changes = differ.diff(props as any)

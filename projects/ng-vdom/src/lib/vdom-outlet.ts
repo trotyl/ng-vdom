@@ -2,7 +2,7 @@ import { isDevMode, Component, ElementRef, Input, KeyValueDiffers, SimpleChanges
 import { ReactNode, ReactElement, DOMElement, ComponentElement, HTMLAttributes } from 'react'
 import { mount } from './instructions/mount'
 import { patch } from './instructions/patch'
-import { init, getVNode } from './instructions/registry'
+import { init, setVNode, getVNode } from './instructions/registry'
 
 @Component({
   selector: 'vdom-outlet',
@@ -12,7 +12,6 @@ export class VDomOutlet implements DoCheck {
   @Input() element: ReactElement<any> | null = null
   @Input() context: object = {}
 
-  private renderer: Renderer2
   private node: Node | null = null
 
   constructor(
@@ -21,16 +20,18 @@ export class VDomOutlet implements DoCheck {
     kDiffers: KeyValueDiffers,
     iDiffers: IterableDiffers,
   ) {
-    this.renderer = rendererFactory.createRenderer(null, null)
-
-    init(kDiffers, iDiffers)
+    init(kDiffers, iDiffers, rendererFactory.createRenderer(null, null))
   }
 
   ngDoCheck(): void {
     if (!this.node && this.element) {
-      this.node = mount(this.element, this.elementRef.nativeElement, this.renderer)
+      this.node = mount(this.element, this.elementRef.nativeElement)
     } else if (this.node && this.element !== getVNode(this.elementRef.nativeElement)) {
-      this.node = patch(this.element, this.node, this.elementRef.nativeElement, this.renderer)
+      this.node = patch(this.element, this.node, this.elementRef.nativeElement)
+    }
+
+    if (this.node) {
+      setVNode(this.node, this.element)
     }
   }
 }

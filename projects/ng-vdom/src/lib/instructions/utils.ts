@@ -1,22 +1,26 @@
-import { ReactNode, DOMElement, ComponentElement, Component } from 'react'
+import { ReactNode, DOMElement, ComponentElement, Component, ComponentClass, StatelessComponent } from 'react'
 import { Type } from '@angular/core'
 
-export function isDomElement(element: ReactNode): element is DOMElement<any, any> {
+export function isDOMElement(element: ReactNode): element is DOMElement<any, any> {
   return !!element && (typeof element === 'object') && ('type' in element) && (typeof element.type === 'string')
 }
 
-export function isComponent(element: ReactNode): element is ComponentElement<any, any> {
+export function isComponentElement(element: ReactNode): element is ComponentElement<any, any> {
   return !!element && (typeof element === 'object') && ('type' in element) && (typeof element.type === 'function')
 }
 
-export function isText(element: ReactNode): element is string | number | boolean {
+export function isTextElement(element: ReactNode): element is string | number | boolean {
   return (typeof element === 'string') || (typeof element === 'number') || (typeof element === 'boolean')
 }
 
+export function isClassComponent(type: ComponentClass<any> | StatelessComponent<any>): type is ComponentClass<any> {
+  return type.prototype && type.prototype.render
+}
+
 export function nodeTypeOf(node: ReactNode): any {
-  if (isDomElement(node) || isComponent(node)) {
+  if (isDOMElement(node) || isComponentElement(node)) {
     return node.type
-  } else if (isText(node)) {
+  } else if (isTextElement(node)) {
     return '$$text'
   } else {
     return node
@@ -32,11 +36,11 @@ function stringifyComponentType(type: Type<any>): string {
 }
 
 function stringifyNodeType(node: ReactNode): string {
-  if (isDomElement(node)) {
+  if (isDOMElement(node)) {
     return `$$element_${node.type}`
-  } else if (isComponent(node)) {
+  } else if (isComponentElement(node)) {
     return `$$component_${stringifyComponentType(node.type)}`
-  } else if (isText(node)) {
+  } else if (isTextElement(node)) {
     return `$$text`
   } else {
     return `$$unknown`

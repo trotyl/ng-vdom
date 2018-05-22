@@ -1,9 +1,10 @@
-import { KeyValueDiffer, KeyValueDiffers, IterableDiffers, IterableDiffer } from '@angular/core'
+import { KeyValueDiffer, KeyValueDiffers, IterableDiffers, IterableDiffer, Renderer2 } from '@angular/core'
 import { ReactNode, ReactElement } from 'react'
 import { trackByKey } from './utils'
 
 let keyValueDiffers: KeyValueDiffers | null = null
 let iterableDiffers: IterableDiffers | null = null
+export let renderer: Renderer2 = null!
 
 const eventsRegistry = new WeakMap<Element, { [name: string]: () => void }>()
 const propsRegistry = new WeakMap<Element, KeyValueDiffer<string, any>>()
@@ -11,9 +12,10 @@ const childrenRegistry = new WeakMap<Element, IterableDiffer<ReactNode>>()
 const vNodeRegistry = new WeakMap<Node, ReactNode>()
 const childNodesRegistry = new WeakMap<Element, Node[]>()
 
-export function init(kDiffers: KeyValueDiffers, iDiffers: IterableDiffers): void {
+export function init(kDiffers: KeyValueDiffers, iDiffers: IterableDiffers, r: Renderer2): void {
   keyValueDiffers = kDiffers
   iterableDiffers = iDiffers
+  renderer = r
 }
 
 export function getEvents(host: Element): { [name: string]: () => void } {
