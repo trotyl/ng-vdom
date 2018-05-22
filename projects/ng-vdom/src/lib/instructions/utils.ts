@@ -1,4 +1,5 @@
 import { ReactNode, DOMElement, ComponentElement, Component } from 'react'
+import { Type } from '@angular/core'
 
 export function isDomElement(element: ReactNode): element is DOMElement<any, any> {
   return !!element && (typeof element === 'object') && ('type' in element) && (typeof element.type === 'string')
@@ -10,6 +11,55 @@ export function isComponent(element: ReactNode): element is ComponentElement<any
 
 export function isText(element: ReactNode): element is string | number | boolean {
   return (typeof element === 'string') || (typeof element === 'number') || (typeof element === 'boolean')
+}
+
+export function nodeTypeOf(node: ReactNode): any {
+  if (isDomElement(node) || isComponent(node)) {
+    return node.type
+  } else if (isText(node)) {
+    return '$$text'
+  } else {
+    return node
+  }
+}
+
+function keyOf(node: ReactNode): string | number | null {
+  return !!node && (typeof node === 'object') && ('key' in node) ? node.key : null
+}
+
+function stringifyComponentType(type: Type<any>): string {
+  throw new Error(`Component not supported yet`)
+}
+
+function stringifyNodeType(node: ReactNode): string {
+  if (isDomElement(node)) {
+    return `$$element_${node.type}`
+  } else if (isComponent(node)) {
+    return `$$component_${stringifyComponentType(node.type)}`
+  } else if (isText(node)) {
+    return `$$text`
+  } else {
+    return `$$unknown`
+  }
+}
+
+let typeCounter: { [name: string]: number } = Object.create(null)
+
+function indexOfType(index: number, type: string): number {
+  if (index === 0) {
+    typeCounter = Object.create(null)
+  }
+  if (!(type in typeCounter)) {
+    typeCounter[type] = -1
+  }
+  return ++typeCounter[type]
+}
+
+export function trackByKey(index: number, node: ReactNode): string {
+  const nodeType = stringifyNodeType(node)
+  const key = keyOf(node)
+  const suffix = key == null ? `index_${indexOfType(index, nodeType)}` : `key_${key}`
+  return `${nodeType}_${suffix}`
 }
 
 export function createClassComponentInstance(element: ComponentElement<any, any>): Component {

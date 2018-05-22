@@ -1,15 +1,21 @@
 import { platformBrowser } from '@angular/platform-browser'
 import { Component, ComponentState, ReactElement } from 'react'
 import { VDomBootstrapModule } from './bootstrap.module'
-import { optionQueue } from './data'
+import { optionQueue, outletRegistry } from './data'
 
 // TOOD: support other overloads
 export function render<P>(element: ReactElement<P>, container: Element | null, callback?: () => void): Component<P, ComponentState> | Element | void {
-  optionQueue.push({ element, container })
+  if (container && outletRegistry.has(container)) {
+    const [component, app] = outletRegistry.get(container)!
+    component.instance.element = element
+    app.tick()
+  } else {
+    optionQueue.push({ element, container })
 
-  platformBrowser()
-    .bootstrapModuleFactory(VDomBootstrapModule.ngFactory)
-    .then(() => {
-      if (callback) { callback() }
-    })
+    platformBrowser()
+      .bootstrapModuleFactory(VDomBootstrapModule.ngFactory, { ngZone: 'noop' })
+      .then(() => {
+        if (callback) { callback() }
+      })
+  }
 }

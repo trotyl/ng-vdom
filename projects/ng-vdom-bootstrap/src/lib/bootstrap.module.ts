@@ -1,8 +1,8 @@
-import { ApplicationRef, ComponentFactoryResolver, Inject, Injector, NgModule, NgModuleFactory } from '@angular/core'
+import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Inject, Injector, NgModule, NgModuleFactory, NgZone } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
 import { ReactElement } from 'react'
 import { VDomModule, VDomOutlet } from 'ng-vdom'
-import { optionQueue } from './data'
+import { optionQueue, outletRegistry } from './data'
 
 @NgModule({
   imports: [ BrowserModule, VDomModule ],
@@ -13,6 +13,7 @@ export class VDomBootstrapModule {
   constructor(
     private injector: Injector,
     private resolver: ComponentFactoryResolver,
+    private ngZone: NgZone,
   ) { }
 
   ngDoBootstrap(app: ApplicationRef): void {
@@ -31,8 +32,11 @@ export class VDomBootstrapModule {
     }
 
     const componentFactory = this.resolver.resolveComponentFactory(VDomOutlet)
-    const componentRef = componentFactory.create(this.injector, undefined, option.container)
-    componentRef.instance.element = option.element
-    app.attachView(componentRef.hostView)
+    const component = componentFactory.create(this.injector, undefined, option.container)
+    app.attachView(component.hostView)
+    outletRegistry.set(option.container, [component, app])
+
+    component.instance.element = option.element
+    app.tick()
   }
 }

@@ -1,24 +1,18 @@
-import { Renderer2 } from '@angular/core'
+import { Renderer2, KeyValueDiffers, KeyValueDiffer } from '@angular/core'
 import { ReactNode, CSSProperties } from 'react'
-
-const eventsRegistry = new WeakMap<Element, { [name: string]: () => void }>()
+import { getEvents, getProps } from './registry'
 
 export function patchEvent(prop: string, handler: ((event: any) => void) | null, host: Element, renderer: Renderer2): void {
-  const eventName = prop.substr(2).toLowerCase()
+  const eventName = prop.slice(2).toLowerCase()
 
-  if (!eventsRegistry.has(host)) {
-    eventsRegistry.set(host, {})
-  }
-
-  const events = eventsRegistry.get(host)!
+  const events = getEvents(host)
   if (eventName in events) {
-    const dispose = events[eventName]
-    dispose()
+    events[eventName]()
+    delete events[eventName]
   }
 
   if (handler) {
-    const dispose = renderer.listen(host, eventName, handler)
-    events[eventName] = dispose
+    events[eventName] = renderer.listen(host, eventName, handler)
   }
 }
 
@@ -37,8 +31,11 @@ export function patchProp(prop: string, value: any, host: Element, renderer: Ren
   }
 }
 
-export function mountProps(props: { [prop: string]: any }, host: Element, renderer: Renderer2): void {
-  for (const prop of Object.keys(props)) {
-    patchProp(prop, props[prop], host, renderer)
+export function mountProps<P>(props: P, host: Element, renderer: Renderer2): void {
+  const differ = getProps(host)
+
+  const changes = differ.diff(props as any)
+  if (changes) {
+    changes.forEachAddedItem(record => renderer.setProperty(host, record.key, record.currentValue))
   }
 }
