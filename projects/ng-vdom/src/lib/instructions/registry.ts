@@ -1,59 +1,38 @@
-import { KeyValueDiffer, KeyValueDiffers, IterableDiffers, IterableDiffer, Renderer2 } from '@angular/core'
-import { ReactNode, ReactElement } from 'react'
-import { trackByKey } from './utils'
+import { KeyValueDiffer, IterableDiffer } from '@angular/core'
+import { ReactNode } from 'react'
+import { ComponentVNode, ElementVNode } from '../definitions/vnode'
 
-let keyValueDiffers: KeyValueDiffers | null = null
-let iterableDiffers: IterableDiffers | null = null
-export let renderer: Renderer2 = null!
-
-const eventsRegistry = new WeakMap<Element, { [name: string]: () => void }>()
-const propsRegistry = new WeakMap<Element, KeyValueDiffer<string, any>>()
-const childrenRegistry = new WeakMap<Element, IterableDiffer<ReactNode>>()
-const vNodeRegistry = new WeakMap<Node, ReactNode>()
-const childNodesRegistry = new WeakMap<Element, Node[]>()
-
-export function init(kDiffers: KeyValueDiffers, iDiffers: IterableDiffers, r: Renderer2): void {
-  keyValueDiffers = kDiffers
-  iterableDiffers = iDiffers
-  renderer = r
+export interface ComponentMeta {
+  input: ReactNode
+  propDiffer: KeyValueDiffer<string, any>
 }
 
-export function getEvents(host: Element): { [name: string]: () => void } {
-  if (!eventsRegistry.has(host)) {
-    eventsRegistry.set(host, {})
-  }
-  return eventsRegistry.get(host)!
+export interface Events {
+  [name: string]: () => void
 }
 
-export function getProps(host: Element): KeyValueDiffer<string, any> {
-  if (!propsRegistry.has(host)) {
-    propsRegistry.set(host, keyValueDiffers!.find({}).create())
-  }
-  return propsRegistry.get(host)!
+export interface ElementMeta {
+  events: Events
+  propDiffer: KeyValueDiffer<string, any>
+  childDiffer: IterableDiffer<ReactNode>
+  childNodes: Node[]
 }
 
-export function getChildren(host: Element): IterableDiffer<ReactNode> {
-  if (!childrenRegistry.has(host)) {
-    childrenRegistry.set(host, iterableDiffers!.find([]).create(trackByKey))
-  }
-  return childrenRegistry.get(host)!
+const componentMetaRegistry = new WeakMap<ComponentVNode, ComponentMeta>()
+const elementMetaRegistry = new WeakMap<ElementVNode, ElementMeta>()
+
+export function setComponentMeta(vNode: ComponentVNode, meta: ComponentMeta): void {
+  componentMetaRegistry.set(vNode, meta)
 }
 
-export function setVNode<T extends Node>(host: T, vNode: ReactNode): T {
-  vNodeRegistry.set(host, vNode)
-  return host
+export function getComponentMeta(vNode: ComponentVNode): ComponentMeta {
+  return componentMetaRegistry.get(vNode)!
 }
 
-export function getVNode(host: Node): ReactNode {
-  if (!vNodeRegistry.has(host)) {
-    vNodeRegistry.set(host, null)
-  }
-  return vNodeRegistry.get(host)!
+export function setElementMeta(vNode: ElementVNode, meta: ElementMeta): void {
+  elementMetaRegistry.set(vNode, meta)
 }
 
-export function getChildNodes(host: Element): Node[] {
-  if (!childNodesRegistry.has(host)) {
-    childNodesRegistry.set(host, [])
-  }
-  return childNodesRegistry.get(host)!
+export function getElementMeta(vNode: ElementVNode): ElementMeta {
+  return elementMetaRegistry.get(vNode)!
 }
