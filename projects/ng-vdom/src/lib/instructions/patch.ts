@@ -12,13 +12,13 @@ export function replaceWithNewNode(lastVNode: ReactNode, nextVNode: ReactNode, h
   throw new Error(`...`)
 }
 
-export function patch(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, container: Element): Node {
+export function patch(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, container: Element, lifecycle: Function[]): Node {
   if (nodeTypeOf(lastVNode) !== nodeTypeOf(nextVNode)) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container)
   } else if (isDOMElement(nextVNode)) {
-    return patchElement(lastVNode as ElementVNode, nextVNode, host as Element, container)
+    return patchElement(lastVNode as ElementVNode, nextVNode, host as Element, container, lifecycle)
   } else if (isComponentElement(nextVNode)) {
-    return patchComponent(lastVNode as ComponentVNode, nextVNode, host, container)
+    return patchComponent(lastVNode as ComponentVNode, nextVNode, host, container, lifecycle)
   } else if (isTextElement(nextVNode)) {
     return patchText(lastVNode as TextVNode, nextVNode, host as Text, container)
   } else {
@@ -26,7 +26,7 @@ export function patch(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, co
   }
 }
 
-export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, host: Element, container: Element): Node {
+export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, host: Element, container: Element, lifecycle: Function[]): Node {
   if (lastVNode.type !== nextVNode.type) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container)
   }
@@ -46,7 +46,7 @@ export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, h
     if (lastChildren !== nextChildren) {
       const boxedLastChildren = Array.isArray(lastChildren) ? lastChildren : [lastChildren]
       const boxedNextChildren = Array.isArray(nextChildren) ? nextChildren : [nextChildren]
-      childNodes = patchChildren(boxedLastChildren, boxedNextChildren, childDiffer, childNodes, host)
+      childNodes = patchChildren(boxedLastChildren, boxedNextChildren, childDiffer, childNodes, host, lifecycle)
     }
   }
 
@@ -55,32 +55,32 @@ export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, h
   return host
 }
 
-export function patchChildren(lastChildren: ReactNode[], nextChildren: ReactNode[], childDiffer: IterableDiffer<ReactNode>, childNodes: Node[], container: Element): Node[] {
+export function patchChildren(lastChildren: ReactNode[], nextChildren: ReactNode[], childDiffer: IterableDiffer<ReactNode>, childNodes: Node[], container: Element, lifecycle: Function[]): Node[] {
   const changes = childDiffer.diff(nextChildren)
 
   if (changes) {
     changes.forEachOperation(({ item, previousIndex, currentIndex }, temporaryPreviousIndex, temporaryCurrentIndex) => {
       if (previousIndex == null) {
-        const node = mount(item, null)
+        const node = mount(item, null, lifecycle)
         insert(node, temporaryCurrentIndex!, childNodes, container)
       } else if (temporaryCurrentIndex == null) {
         remove(temporaryPreviousIndex!, childNodes, container)
       } else {
         const node = remove(temporaryPreviousIndex!, childNodes, container)
         insert(node, temporaryCurrentIndex, childNodes, container)
-        patch(lastChildren[previousIndex], nextChildren[currentIndex!], childNodes[temporaryCurrentIndex], container)
+        patch(lastChildren[previousIndex], nextChildren[currentIndex!], childNodes[temporaryCurrentIndex], container, lifecycle)
       }
     })
 
     changes.forEachIdentityChange(({ item, previousIndex, currentIndex }) => {
-      patch(lastChildren[previousIndex!], item, childNodes[currentIndex!], container)
+      patch(lastChildren[previousIndex!], item, childNodes[currentIndex!], container, lifecycle)
     })
   }
 
   return childNodes
 }
 
-export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVNode, host: Node, container: Element): Node {
+export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVNode, host: Node, container: Element, lifecycle: Function[]): Node {
 
   if (lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container)
@@ -112,7 +112,7 @@ export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVN
   }
 
   setComponentMeta(nextVNode, { input: nextInput, propDiffer, instance })
-  return patch(lastInput, nextInput, host, container)
+  return patch(lastInput, nextInput, host, container, lifecycle)
 }
 
 export function patchText(lastVNode: TextVNode, nextVNode: TextVNode, host: Text, container: Element): Node {

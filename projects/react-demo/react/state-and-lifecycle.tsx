@@ -73,6 +73,51 @@ function demo_2() {
   )
 }
 
+function demo_3() {
+  const container = generate()
+
+  class Clock extends React.Component<any, { date: Date }> {
+    timerID!: number
+
+    constructor(props: any) {
+      super(props)
+      this.state = {date: new Date()}
+    }
+
+    componentDidMount() {
+      this.timerID = setInterval(
+        () => this.tick(),
+        1000
+      )
+    }
+
+    componentWillUnmount() {
+      clearInterval(this.timerID)
+    }
+
+    tick() {
+      this.setState({
+        date: new Date()
+      })
+    }
+
+    render() {
+      return (
+        <div>
+          <h1>Hello, world!</h1>
+          <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+        </div>
+      )
+    }
+  }
+
+  render(
+    <Clock />,
+    container
+  )
+}
+
 demo_0()
 demo_1()
 demo_2()
+demo_3()
