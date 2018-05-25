@@ -110,6 +110,10 @@ export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVN
 }
 
 export function patchText(lastVNode: TextVNode, nextVNode: TextVNode, host: Text, container: Element): Node {
+  if (lastVNode === nextVNode) {
+    return host
+  }
+
   const nextText = `${nextVNode}`
   if (!host) {
     throw new Error(`Missing text node`)
