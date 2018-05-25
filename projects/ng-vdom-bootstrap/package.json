@@ -1,6 +1,5 @@
 {
   "name": "ng-vdom-bootstrap",
-  "version": "0.0.0",
   "main": "../bundles/ng-vdom-bootstrap.umd.js",
   "module": "fesm5/bootstrap.js",
   "es2015": "fesm2015/bootstrap.js",
