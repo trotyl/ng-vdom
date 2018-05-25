@@ -1,6 +1,7 @@
 # NgVdom
 
 Major rewrite in progress.
+Logic organization inspired by [Inferno](https://github.com/infernojs/inferno/).
 
 ## Usage
 
