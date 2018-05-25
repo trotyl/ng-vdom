@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser'
 import { NgModule } from '@angular/core'
+import { VDomModule } from 'ng-vdom'
 
 import { AppComponent } from './app.component'
 
@@ -8,7 +9,8 @@ import { AppComponent } from './app.component'
     AppComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    VDomModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

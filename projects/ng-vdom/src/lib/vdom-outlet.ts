@@ -7,7 +7,7 @@ import { mount } from './instructions/mount'
 import { patch } from './instructions/patch'
 
 @Component({
-  selector: 'vdom-outlet',
+  selector: 'v-outlet',
   template: ``,
 })
 export class VDomOutlet implements DoCheck, Updater {

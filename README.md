@@ -16,3 +16,25 @@ render(
   document.querySelector('root')
 )
 ```
+
+Render Virtual DOM inside Angular:
+
+```tsx
+import { Component, NgModule } from '@angular/core'
+import { VDomModule } from 'ng-vdom'
+
+@Component({
+  template: `
+    <v-outlet [element]="element"></v-outlet>
+  `
+})
+export class AppComponent {
+  element = <h1>Hello World</h1>
+}
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [ VDomModule ],
+})
+export class AppModule { }
+```
