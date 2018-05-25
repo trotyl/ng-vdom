@@ -1,7 +1,8 @@
-import { ElementRef, Renderer2, KeyValueDiffers, IterableDiffer } from '@angular/core'
-import { ReactElement, ReactNode, DOMElement, HTMLAttributes, ComponentElement, ReactChild, SFCElement, StatelessComponent } from 'react'
+import { ElementRef, Renderer2, KeyValueDiffers, IterableDiffer, KeyValueDiffer } from '@angular/core'
+import { ReactElement, ReactNode, DOMElement, HTMLAttributes, ComponentElement, ReactChild, SFCElement, StatelessComponent, ComponentClass, Component } from 'react'
 import { TextVNode, ComponentVNode, ElementVNode } from '../definitions/vnode'
 import { mountProps } from './props'
+import { createClassComponentInstance } from '../utils/component'
 import { getRenderer } from '../utils/context'
 import { createChildDiffer, createPropDiffer } from '../utils/diff'
 import { isComponentElement, isDOMElement, isTextElement, isClassComponentElement } from '../utils/vnode'
@@ -67,20 +68,23 @@ export function mountArrayChildren(vNodes: ReactNode[], differ: IterableDiffer<R
 }
 
 export function mountComponent(vNode: ComponentVNode, container: Element | null): Node {
-  // TODO: add support for class component
-
   const type = vNode.type
   const props = vNode.props
 
+  let input: ReactNode
+  let propDiffer: KeyValueDiffer<string, any> | null = null
+  let instance: Component<any, any> | null = null
   if (isClassComponentElement(type)) {
-    throw new Error(`Class component not supported yet`)
+    instance = createClassComponentInstance(type, props)
+    input = instance.render()
   } else {
-    const input = type(props)
-    const propDiffer = createPropDiffer()
+    input = type(props)
+    propDiffer = createPropDiffer()
     propDiffer.diff(props)
-    setComponentMeta(vNode, { input, propDiffer })
-    return mount(input, container)
   }
+
+  setComponentMeta(vNode, { input, propDiffer, instance })
+  return mount(input, container)
 }
 
 export function mountText(vNode: TextVNode, container: Element | null): Node {

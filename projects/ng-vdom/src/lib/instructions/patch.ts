@@ -86,24 +86,33 @@ export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVN
     return replaceWithNewNode(lastVNode, nextVNode, host, container)
   }
 
-  const { input: lastInput, propDiffer } = getComponentMeta(lastVNode)
+  const { input: lastInput, propDiffer, instance } = getComponentMeta(lastVNode)
   const type = nextVNode.type
   const props = nextVNode.props
 
+  let nextInput = lastInput
+  let noChange = false
+
   if (isClassComponentElement(type)) {
-    throw new Error(`Class component not supported yet`)
+    instance!.props = props
+    nextInput = instance!.render()
   } else {
-    const changes = propDiffer.diff(nextVNode.props)
+    const changes = propDiffer!.diff(nextVNode.props)
 
     if (changes) {
-      const nextInput = type(props)
-      setComponentMeta(nextVNode, { input: nextInput, propDiffer })
-      return patch(lastInput, nextInput, host, container)
+      nextInput = type(props)
+    } else {
+      noChange = true
     }
+  }
 
-    setComponentMeta(nextVNode, { input: lastInput, propDiffer })
+  if (noChange) {
+    setComponentMeta(nextVNode, { input: lastInput, propDiffer, instance })
     return host
   }
+
+  setComponentMeta(nextVNode, { input: nextInput, propDiffer, instance })
+  return patch(lastInput, nextInput, host, container)
 }
 
 export function patchText(lastVNode: TextVNode, nextVNode: TextVNode, host: Text, container: Element): Node {

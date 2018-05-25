@@ -1,10 +1,11 @@
 import { KeyValueDiffer, IterableDiffer } from '@angular/core'
-import { ReactNode } from 'react'
+import { ReactNode, ComponentClass, Component } from 'react'
 import { ComponentVNode, ElementVNode } from '../definitions/vnode'
 
 export interface ComponentMeta {
   input: ReactNode
-  propDiffer: KeyValueDiffer<string, any>
+  propDiffer: KeyValueDiffer<string, any> | null
+  instance: Component<any, any> | null
 }
 
 export interface Events {
