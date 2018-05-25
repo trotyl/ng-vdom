@@ -100,5 +100,73 @@ function demo_1() {
   )
 }
 
+function demo_2() {
+  function Mailbox(props: { unreadMessages: string[] }) {
+    const unreadMessages = props.unreadMessages
+    return (
+      <div>
+        <h1>Hello!</h1>
+        {unreadMessages.length > 0 &&
+          <h2>
+            You have {unreadMessages.length} unread messages.
+          </h2>
+        }
+      </div>
+    )
+  }
+
+  const messages = ['React', 'Re: React', 'Re:Re: React']
+  render(
+    <Mailbox unreadMessages={messages} />,
+    generate()
+  )
+}
+
+function demo_3() {
+  function WarningBanner(props: { warn: boolean }) {
+    if (!props.warn) {
+      return null
+    }
+
+    return (
+      <div className="warning">
+        Warning!
+      </div>
+    )
+  }
+
+  class Page extends React.Component<any, { showWarning: boolean }> {
+    constructor(props: any) {
+      super(props)
+      this.state = {showWarning: true}
+      this.handleToggleClick = this.handleToggleClick.bind(this)
+    }
+
+    handleToggleClick() {
+      this.setState(prevState => ({
+        showWarning: !prevState.showWarning
+      }))
+    }
+
+    render() {
+      return (
+        <div>
+          <WarningBanner warn={this.state.showWarning} />
+          <button onClick={this.handleToggleClick}>
+            {this.state.showWarning ? 'Hide' : 'Show'}
+          </button>
+        </div>
+      )
+    }
+  }
+
+  render(
+    <Page />,
+    generate()
+  )
+}
+
 demo_0()
 demo_1()
+demo_2()
+demo_3()

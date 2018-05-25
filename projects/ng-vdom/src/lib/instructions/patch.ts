@@ -19,6 +19,14 @@ export function replaceWithNewNode(lastVNode: ReactNode, nextVNode: ReactNode, l
 }
 
 export function patch(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, container: Element, lifecycle: Function[]): Node {
+  // TODO: properly handle null value
+  if (lastVNode == null) {
+    lastVNode = ''
+  }
+  if (nextVNode == null) {
+    nextVNode = ''
+  }
+
   if (nodeTypeOf(lastVNode) !== nodeTypeOf(nextVNode)) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
   } else if (isDOMElement(nextVNode)) {
