@@ -49,8 +49,6 @@ function demo_1() {
 }
 
 function demo_2() {
-  const container = generate()
-
   class Clock extends React.Component<any, { date: Date }> {
     constructor(props: any) {
       super(props)
@@ -69,13 +67,11 @@ function demo_2() {
 
   render(
     <Clock />,
-    container
+    generate()
   )
 }
 
 function demo_3() {
-  const container = generate()
-
   class Clock extends React.Component<any, { date: Date }> {
     timerID!: number
 
@@ -113,13 +109,11 @@ function demo_3() {
 
   render(
     <Clock />,
-    container
+    generate()
   )
 }
 
 function demo_4() {
-  const container = generate()
-
   function FormattedDate(props: { date: Date }) {
     return <h2>It is {props.date.toLocaleTimeString()}.</h2>
   }
@@ -161,13 +155,11 @@ function demo_4() {
 
   render(
     <Clock />,
-    container
+    generate()
   )
 }
 
 function demo_5() {
-  const container = generate()
-
   function FormattedDate(props: { date: Date }) {
     return <h2>It is {props.date.toLocaleTimeString()}.</h2>
   }
@@ -217,7 +209,7 @@ function demo_5() {
     )
   }
 
-  render(<App />, container)
+  render(<App />, generate())
 }
 
 demo_0()
