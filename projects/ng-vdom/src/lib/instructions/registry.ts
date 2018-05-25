@@ -16,11 +16,11 @@ export interface ElementMeta {
   events: Events
   propDiffer: KeyValueDiffer<string, any>
   childDiffer: IterableDiffer<ReactNode>
-  childNodes: Node[]
 }
 
 const componentMetaRegistry = new WeakMap<ComponentVNode, ComponentMeta>()
 const elementMetaRegistry = new WeakMap<ElementVNode, ElementMeta>()
+const childNodesRegistry = new WeakMap<Element, Node[]>()
 
 export function setComponentMeta(vNode: ComponentVNode, meta: ComponentMeta): void {
   componentMetaRegistry.set(vNode, meta)
@@ -36,4 +36,12 @@ export function setElementMeta(vNode: ElementVNode, meta: ElementMeta): void {
 
 export function getElementMeta(vNode: ElementVNode): ElementMeta {
   return elementMetaRegistry.get(vNode)!
+}
+
+export function setChildNodes(container: Element, childNodes: Node[]): void {
+  childNodesRegistry.set(container, childNodes)
+}
+
+export function getChildNodes(container: Element): Node[] {
+  return childNodesRegistry.get(container)!
 }

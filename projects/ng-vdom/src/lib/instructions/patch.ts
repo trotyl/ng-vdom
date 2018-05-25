@@ -5,16 +5,22 @@ import { getRenderer } from '../utils/context'
 import { isDOMElement, isComponentElement, nodeTypeOf, isTextElement, isClassComponentElement } from '../utils/vnode'
 import { mount } from './mount'
 import { patchProp } from './props'
-import { getElementMeta, getComponentMeta, setElementMeta, setComponentMeta } from './registry'
+import { getElementMeta, getComponentMeta, setElementMeta, setComponentMeta, getChildNodes, setChildNodes } from './registry'
+import { unmount } from './unmount'
 
-export function replaceWithNewNode(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, container: Element): Node {
-  // TODO: support replace node
-  throw new Error(`...`)
+export function replaceWithNewNode(lastVNode: ReactNode, nextVNode: ReactNode, lastHost: Node, container: Element, lifecycle: Function[]): Node {
+  const nodes = getChildNodes(container)
+  unmount(lastVNode)
+  const index = nodes.indexOf(lastHost)
+  remove(index, nodes, container)
+  const newNode = mount(nextVNode, null, lifecycle)
+  insert(newNode, index, nodes, container)
+  return newNode
 }
 
 export function patch(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, container: Element, lifecycle: Function[]): Node {
   if (nodeTypeOf(lastVNode) !== nodeTypeOf(nextVNode)) {
-    return replaceWithNewNode(lastVNode, nextVNode, host, container)
+    return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
   } else if (isDOMElement(nextVNode)) {
     return patchElement(lastVNode as ElementVNode, nextVNode, host as Element, container, lifecycle)
   } else if (isComponentElement(nextVNode)) {
@@ -28,11 +34,11 @@ export function patch(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, co
 
 export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, host: Element, container: Element, lifecycle: Function[]): Node {
   if (lastVNode.type !== nextVNode.type) {
-    return replaceWithNewNode(lastVNode, nextVNode, host, container)
+    return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
   }
 
-  const { events, propDiffer, childDiffer, childNodes: lastChildNodes } = getElementMeta(lastVNode)
-  let childNodes = lastChildNodes
+  const { events, propDiffer, childDiffer } = getElementMeta(lastVNode)
+  let childNodes = getChildNodes(host)
 
   const { children: lastChildren, className: lastClassName } = lastVNode.props
   const { children: nextChildren, className: nextClassName, ...nextProps } = nextVNode.props
@@ -48,7 +54,8 @@ export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, h
   const boxedNextChildren = Array.isArray(nextChildren) ? nextChildren : [nextChildren]
   childNodes = patchChildren(boxedLastChildren, boxedNextChildren, childDiffer, childNodes, host, lifecycle)
 
-  setElementMeta(nextVNode, { events, propDiffer, childDiffer, childNodes })
+  setElementMeta(nextVNode, { events, propDiffer, childDiffer })
+  setChildNodes(host, childNodes)
 
   return host
 }
@@ -85,7 +92,7 @@ export function patchChildren(lastChildren: ReactNode[], nextChildren: ReactNode
 export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVNode, host: Node, container: Element, lifecycle: Function[]): Node {
 
   if (lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
-    return replaceWithNewNode(lastVNode, nextVNode, host, container)
+    return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
   }
 
   const { input: lastInput, propDiffer, instance } = getComponentMeta(lastVNode)
@@ -131,11 +138,11 @@ function remove(previousIndex: number, childNodes: Node[], container: Element): 
 }
 
 function insert(node: Node, currentIndex: number, childNodes: Node[], container: Element): void {
-  if (currentIndex! === childNodes.length - 1) {
+  if (currentIndex === childNodes.length) {
     getRenderer().appendChild(container, node)
     childNodes.push(node)
   } else {
-    const nextNode = childNodes[currentIndex + 1]
+    const nextNode = childNodes[currentIndex]
     getRenderer().insertBefore(container, node, nextNode)
     childNodes.splice(currentIndex, 0, node)
   }

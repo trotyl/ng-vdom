@@ -7,7 +7,7 @@ import { getRenderer, updater } from '../utils/context'
 import { createChildDiffer, createPropDiffer } from '../utils/diff'
 import { isFunction } from '../utils/lang'
 import { isComponentElement, isDOMElement, isTextElement, isClassComponentElement } from '../utils/vnode'
-import { setElementMeta, setComponentMeta } from './registry'
+import { setElementMeta, setComponentMeta, setChildNodes } from './registry'
 
 export function mount(node: ReactNode, container: Element | null, lifecycle: Function[]): Node {
   if (isDOMElement(node)) {
@@ -49,7 +49,8 @@ export function mountElement(vNode: ElementVNode, container: Element | null, lif
 
   const events = Object.create(null)
   mountProps(props, propDiffer, el, events)
-  setElementMeta(vNode, { events, propDiffer, childDiffer, childNodes })
+  setElementMeta(vNode, { events, propDiffer, childDiffer })
+  setChildNodes(el, childNodes)
 
   return el
 }
