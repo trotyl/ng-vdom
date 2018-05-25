@@ -48,5 +48,31 @@ function demo_1() {
   setInterval(tick, 1000)
 }
 
+function demo_2() {
+  const container = generate()
+
+  class Clock extends React.Component<any, { date: Date }> {
+    constructor(props: any) {
+      super(props)
+      this.state = {date: new Date()}
+    }
+
+    render() {
+      return (
+        <div>
+          <h1>Hello, world!</h1>
+          <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+        </div>
+      )
+    }
+  }
+
+  render(
+    <Clock />,
+    container
+  )
+}
+
 demo_0()
 demo_1()
+demo_2()
