@@ -117,7 +117,112 @@ function demo_3() {
   )
 }
 
+function demo_4() {
+  const container = generate()
+
+  function FormattedDate(props: { date: Date }) {
+    return <h2>It is {props.date.toLocaleTimeString()}.</h2>
+  }
+
+  class Clock extends React.Component<any, { date: Date }> {
+    timerID!: number
+
+    constructor(props: any) {
+      super(props)
+      this.state = {date: new Date()}
+    }
+
+    componentDidMount() {
+      this.timerID = setInterval(
+        () => this.tick(),
+        1000
+      )
+    }
+
+    componentWillUnmount() {
+      clearInterval(this.timerID)
+    }
+
+    tick() {
+      this.setState({
+        date: new Date()
+      })
+    }
+
+    render() {
+      return (
+        <div>
+          <h1>Hello, world!</h1>
+          <FormattedDate date={this.state.date} />
+        </div>
+      )
+    }
+  }
+
+  render(
+    <Clock />,
+    container
+  )
+}
+
+function demo_5() {
+  const container = generate()
+
+  function FormattedDate(props: { date: Date }) {
+    return <h2>It is {props.date.toLocaleTimeString()}.</h2>
+  }
+
+  class Clock extends React.Component<any, { date: Date }> {
+    timerID!: number
+
+    constructor(props: any) {
+      super(props)
+      this.state = {date: new Date()}
+    }
+
+    componentDidMount() {
+      this.timerID = setInterval(
+        () => this.tick(),
+        1000
+      )
+    }
+
+    componentWillUnmount() {
+      clearInterval(this.timerID)
+    }
+
+    tick() {
+      this.setState({
+        date: new Date()
+      })
+    }
+
+    render() {
+      return (
+        <div>
+          <h1>Hello, world!</h1>
+          <FormattedDate date={this.state.date} />
+        </div>
+      )
+    }
+  }
+
+  function App() {
+    return (
+      <div>
+        <Clock />
+        <Clock />
+        <Clock />
+      </div>
+    )
+  }
+
+  render(<App />, container)
+}
+
 demo_0()
 demo_1()
 demo_2()
 demo_3()
+demo_4()
+demo_5()

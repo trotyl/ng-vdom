@@ -34,21 +34,19 @@ export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, h
   const { events, propDiffer, childDiffer, childNodes: lastChildNodes } = getElementMeta(lastVNode)
   let childNodes = lastChildNodes
 
-  if (lastVNode.props !== nextVNode.props) {
-    const { children: lastChildren, className: lastClassName } = lastVNode.props
-    const { children: nextChildren, className: nextClassName, ...nextProps } = nextVNode.props
+  const { children: lastChildren, className: lastClassName } = lastVNode.props
+  const { children: nextChildren, className: nextClassName, ...nextProps } = nextVNode.props
 
+  if (lastVNode.props !== nextVNode.props) {
     const changes = propDiffer.diff(nextProps)
     if (changes) {
       changes.forEachItem(record => patchProp(record.key, record.currentValue, host, events))
     }
-
-    if (lastChildren !== nextChildren) {
-      const boxedLastChildren = Array.isArray(lastChildren) ? lastChildren : [lastChildren]
-      const boxedNextChildren = Array.isArray(nextChildren) ? nextChildren : [nextChildren]
-      childNodes = patchChildren(boxedLastChildren, boxedNextChildren, childDiffer, childNodes, host, lifecycle)
-    }
   }
+
+  const boxedLastChildren = Array.isArray(lastChildren) ? lastChildren : [lastChildren]
+  const boxedNextChildren = Array.isArray(nextChildren) ? nextChildren : [nextChildren]
+  childNodes = patchChildren(boxedLastChildren, boxedNextChildren, childDiffer, childNodes, host, lifecycle)
 
   setElementMeta(nextVNode, { events, propDiffer, childDiffer, childNodes })
 
@@ -75,6 +73,10 @@ export function patchChildren(lastChildren: ReactNode[], nextChildren: ReactNode
     changes.forEachIdentityChange(({ item, previousIndex, currentIndex }) => {
       patch(lastChildren[previousIndex!], item, childNodes[currentIndex!], container, lifecycle)
     })
+  } else {
+    for (let i = 0; i < nextChildren.length; i++) {
+      patch(nextChildren[i], nextChildren[i], childNodes[i], container, lifecycle)
+    }
   }
 
   return childNodes
@@ -91,7 +93,6 @@ export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVN
   const props = nextVNode.props
 
   let nextInput = lastInput
-  let noChange = false
 
   if (isClassComponentElement(type)) {
     instance!.props = props
@@ -101,14 +102,7 @@ export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVN
 
     if (changes) {
       nextInput = type(props)
-    } else {
-      noChange = true
     }
-  }
-
-  if (noChange) {
-    setComponentMeta(nextVNode, { input: lastInput, propDiffer, instance })
-    return host
   }
 
   setComponentMeta(nextVNode, { input: nextInput, propDiffer, instance })
