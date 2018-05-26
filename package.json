@@ -8,7 +8,11 @@
     "test": "ng test --single-run --code-coverage --progress=false",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "start:demo": "webpack-dev-server --config projects/react-demo/webpack.config.js"
+    "start:demo": "webpack-dev-server --config projects/react-demo/webpack.config.js",
+    "build:lib:core": "ng build ng-vdom",
+    "build:lib:bootstrap": "./build_bootstrap.sh",
+    "build:lib": "yarn build:lib:core && yarn build:lib:bootstrap",
+    "postbuild:lib": "cp README.md dist/ng-vdom/"
   },
   "private": true,
   "dependencies": {
