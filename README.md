@@ -18,8 +18,6 @@ render(
 )
 ```
 
-[Online Demo](https://stackblitz.com/edit/angular-vjj9vt?file=src%2Fapp%2Fclock.ts).
-
 Render Virtual DOM inside Angular:
 
 ```tsx
@@ -41,3 +39,5 @@ export class AppComponent {
 })
 export class AppModule { }
 ```
+
+[Online Demo](https://stackblitz.com/edit/angular-vjj9vt?file=src%2Fapp%2Fclock.ts).
