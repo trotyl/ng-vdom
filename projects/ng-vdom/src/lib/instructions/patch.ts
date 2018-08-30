@@ -1,5 +1,5 @@
-import { KeyValueDiffers, Renderer2, IterableChangeRecord, IterableDiffer } from '@angular/core'
-import { ReactNode, DOMElement, HTMLAttributes, ComponentElement, SFCElement } from 'react'
+import { IterableDiffer } from '@angular/core'
+import { ReactNode } from 'react'
 import { TextVNode, ComponentVNode, ElementVNode } from '../definitions/vnode'
 import { getRenderer } from '../utils/context'
 import { isDOMElement, isComponentElement, nodeTypeOf, isTextElement, isClassComponentElement } from '../utils/vnode'
@@ -48,7 +48,7 @@ export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, h
   const { events, propDiffer, childDiffer } = getElementMeta(lastVNode)
   let childNodes = getChildNodes(host)
 
-  const { children: lastChildren, className: lastClassName } = lastVNode.props
+  const { children: lastChildren } = lastVNode.props
   const { children: nextChildren, className: nextClassName, ...nextProps } = nextVNode.props
 
   if (lastVNode.props !== nextVNode.props) {

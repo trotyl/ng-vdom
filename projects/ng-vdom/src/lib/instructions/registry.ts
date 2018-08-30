@@ -1,5 +1,5 @@
 import { KeyValueDiffer, IterableDiffer } from '@angular/core'
-import { ReactNode, ComponentClass, Component } from 'react'
+import { ReactNode, Component } from 'react'
 import { ComponentVNode, ElementVNode } from '../definitions/vnode'
 
 export interface ComponentMeta {

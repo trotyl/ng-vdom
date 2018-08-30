@@ -1,4 +1,4 @@
-import { ReactNode, ReactElement, ReactText, ComponentElement, ComponentType, ComponentClass } from 'react'
+import { ReactNode, ReactElement, ReactText, ComponentType, ComponentClass } from 'react'
 import { ElementVNode, ComponentVNode } from '../definitions/vnode'
 import { isObject, isFunction } from './lang'
 

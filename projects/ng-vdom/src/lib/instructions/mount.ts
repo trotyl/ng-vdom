@@ -1,5 +1,5 @@
-import { ElementRef, Renderer2, KeyValueDiffers, IterableDiffer, KeyValueDiffer } from '@angular/core'
-import { ReactElement, ReactNode, DOMElement, HTMLAttributes, ComponentElement, ReactChild, SFCElement, StatelessComponent, ComponentClass, Component } from 'react'
+import { IterableDiffer, KeyValueDiffer } from '@angular/core'
+import { ReactNode, Component } from 'react'
 import { TextVNode, ComponentVNode, ElementVNode } from '../definitions/vnode'
 import { mountProps } from './props'
 import { createClassComponentInstance } from '../utils/component'

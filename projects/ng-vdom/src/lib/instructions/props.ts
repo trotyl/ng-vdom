@@ -1,6 +1,5 @@
-import { Renderer2, KeyValueDiffers, KeyValueDiffer } from '@angular/core'
-import { ReactNode, CSSProperties } from 'react'
-import { ElementVNode } from '../definitions/vnode'
+import { KeyValueDiffer } from '@angular/core'
+import { CSSProperties } from 'react'
 import { getRenderer } from '../utils/context'
 import { Events } from './registry'
 

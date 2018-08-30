@@ -1,5 +1,5 @@
-import { isDevMode, Component, ElementRef, Input, KeyValueDiffers, SimpleChanges, Renderer2, RendererFactory2, DoCheck, IterableDiffers } from '@angular/core'
-import { ReactNode, ReactElement, DOMElement, ComponentElement, HTMLAttributes } from 'react'
+import { Component, ElementRef, Input, KeyValueDiffers, RendererFactory2, DoCheck, IterableDiffers } from '@angular/core'
+import { ReactElement } from 'react'
 import { Updater } from './definitions/updater'
 import { init, setCurrentUpdater } from './utils/context'
 import { isFunction } from './utils/lang'
