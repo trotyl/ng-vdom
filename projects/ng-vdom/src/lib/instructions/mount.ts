@@ -3,7 +3,7 @@ import { ReactNode, Component } from 'react'
 import { TextVNode, ComponentVNode, ElementVNode } from '../definitions/vnode'
 import { mountProps } from './props'
 import { createClassComponentInstance } from '../utils/component'
-import { getRenderer, updater } from '../utils/context'
+import { getCurrentRenderer, getCurrentUpdater } from '../utils/context'
 import { createChildDiffer, createPropDiffer } from '../utils/diff'
 import { isFunction } from '../utils/lang'
 import { isComponentElement, isDOMElement, isTextElement, isClassComponentElement } from '../utils/vnode'
@@ -26,7 +26,7 @@ export function mount(node: ReactNode, container: Element | null, lifecycle: Fun
 }
 
 export function mountElement(vNode: ElementVNode, container: Element | null, lifecycle: Function[]): Node {
-  const renderer = getRenderer()
+  const renderer = getCurrentRenderer()
   const childDiffer = createChildDiffer()
   const propDiffer = createPropDiffer()
 
@@ -92,7 +92,7 @@ export function mountComponent(vNode: ComponentVNode, container: Element | null,
 }
 
 export function overrideClassMethods(instance: Component<any, any>): void {
-  const boundUpdater = updater
+  const boundUpdater = getCurrentUpdater()
   instance.setState = function (state: any, callback?: () => void) {
     boundUpdater.enqueueSetState(this, state, callback)
   }
@@ -105,7 +105,7 @@ export function mountClassComponentCallbacks(instance: Component<any, any>, life
 }
 
 export function mountText(vNode: TextVNode, container: Element | null): Node {
-  const renderer = getRenderer()
+  const renderer = getCurrentRenderer()
 
   const text = renderer.createText(`${vNode}`) as Text
 

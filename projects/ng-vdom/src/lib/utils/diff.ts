@@ -1,6 +1,6 @@
 import { KeyValueDiffer, IterableDiffer } from '@angular/core'
 import { ReactNode, ComponentType } from 'react'
-import { keyValueDiffers, iterableDiffers } from './context'
+import { getCurrentKeyValueDiffers, getCurrentIterableDiffers } from './context'
 import { isDOMElement, isComponentElement, isTextElement } from './vnode'
 
 function keyOf(node: ReactNode): string | number | null {
@@ -49,9 +49,9 @@ export function trackByKey(index: number, node: ReactNode): string {
 }
 
 export function createPropDiffer(): KeyValueDiffer<string, any> {
-  return keyValueDiffers!.find({}).create()
+  return getCurrentKeyValueDiffers().find({}).create()
 }
 
 export function createChildDiffer(): IterableDiffer<ReactNode> {
-  return iterableDiffers!.find([]).create(trackByKey)
+  return getCurrentIterableDiffers().find([]).create(trackByKey)
 }

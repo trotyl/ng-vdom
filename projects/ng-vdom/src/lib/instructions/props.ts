@@ -1,6 +1,6 @@
 import { KeyValueDiffer } from '@angular/core'
 import { CSSProperties } from 'react'
-import { getRenderer } from '../utils/context'
+import { getCurrentRenderer } from '../utils/context'
 import { Events } from './registry'
 
 export type EventHandler = (event: any) => void
@@ -14,13 +14,13 @@ export function patchEvent(prop: string, handler: EventHandler | null, host: Ele
   }
 
   if (handler) {
-    events[eventName] = getRenderer().listen(host, eventName, handler)
+    events[eventName] = getCurrentRenderer().listen(host, eventName, handler)
   }
 }
 
 export function patchStyle(styles: CSSProperties, host: Element): void {
   // TODO: Diff styles
-  getRenderer().setProperty(host, 'style', styles)
+  getCurrentRenderer().setProperty(host, 'style', styles)
 }
 
 export function patchProp(prop: string, value: any, host: Element, events: Events): void {
@@ -29,7 +29,7 @@ export function patchProp(prop: string, value: any, host: Element, events: Event
   } else if (prop === 'style') {
     patchStyle(value, host)
   } else {
-    getRenderer().setProperty(host, prop, value)
+    getCurrentRenderer().setProperty(host, prop, value)
   }
 }
 

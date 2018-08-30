@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, KeyValueDiffers, RendererFactory2, DoCheck, IterableDiffers } from '@angular/core'
 import { ReactElement } from 'react'
 import { Updater } from './definitions/updater'
-import { init, setCurrentUpdater } from './utils/context'
+import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdater } from './utils/context'
 import { isFunction } from './utils/lang'
 import { mount } from './instructions/mount'
 import { patch } from './instructions/patch'
@@ -25,7 +25,9 @@ export class VDomOutlet implements DoCheck, Updater {
     kDiffers: KeyValueDiffers,
     iDiffers: IterableDiffers,
   ) {
-    init(kDiffers, iDiffers, rendererFactory.createRenderer(null, null))
+    setCurrentIterableDiffers(iDiffers)
+    setCurrentKeyValueDiffers(kDiffers)
+    setCurrentRenderer(rendererFactory.createRenderer(null, null))
   }
 
   ngDoCheck(): void {

@@ -1,7 +1,7 @@
 import { IterableDiffer } from '@angular/core'
 import { ReactNode } from 'react'
 import { TextVNode, ComponentVNode, ElementVNode } from '../definitions/vnode'
-import { getRenderer } from '../utils/context'
+import { getCurrentRenderer } from '../utils/context'
 import { isDOMElement, isComponentElement, nodeTypeOf, isTextElement, isClassComponentElement } from '../utils/vnode'
 import { mount } from './mount'
 import { patchProp } from './props'
@@ -133,25 +133,25 @@ export function patchText(lastVNode: TextVNode, nextVNode: TextVNode, host: Text
   if (!host) {
     throw new Error(`Missing text node`)
   }
-  getRenderer().setValue(host, nextText)
+  getCurrentRenderer().setValue(host, nextText)
 
   return host
 }
 
 function remove(previousIndex: number, childNodes: Node[], container: Element): Node {
   const node = childNodes[previousIndex]
-  getRenderer().removeChild(container, node)
+  getCurrentRenderer().removeChild(container, node)
   childNodes.splice(previousIndex, 1)
   return node
 }
 
 function insert(node: Node, currentIndex: number, childNodes: Node[], container: Element): void {
   if (currentIndex === childNodes.length) {
-    getRenderer().appendChild(container, node)
+    getCurrentRenderer().appendChild(container, node)
     childNodes.push(node)
   } else {
     const nextNode = childNodes[currentIndex]
-    getRenderer().insertBefore(container, node, nextNode)
+    getCurrentRenderer().insertBefore(container, node, nextNode)
     childNodes.splice(currentIndex, 0, node)
   }
 }
