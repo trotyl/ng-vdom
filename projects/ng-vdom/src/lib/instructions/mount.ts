@@ -1,7 +1,7 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
 import { getCurrentRenderer, getCurrentUpdateQueue } from '../entities/context'
 import { createChildDiffer, createPropDiffer } from '../entities/diff'
-import { createClassComponentInstance, isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, Component, ComponentElement, ComponentLifecycle, NativeElement, VNode, VText } from '../entities/types'
+import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, Component, ComponentElement, ComponentLifecycle, NativeElement, VNode, VText } from '../entities/types'
 import { mountProps } from './props'
 import { setChildNodes, setComponentMeta, setElementMeta } from './registry'
 
@@ -71,7 +71,7 @@ export function mountComponent(vNode: ComponentElement, container: Element | nul
   let propDiffer: KeyValueDiffer<string, any> | null = null
   let instance: Component<any, any> | null = null
   if (isClassComponent(type)) {
-    instance = createClassComponentInstance(type, props)
+    instance = new type(props)
     overrideClassMethods(instance)
     input = instance.render()
     mountClassComponentCallbacks(instance, lifecycle)

@@ -1,5 +1,5 @@
-import { BrowserModule } from '@angular/platform-browser'
 import { NgModule } from '@angular/core'
+import { BrowserModule } from '@angular/platform-browser'
 import { VDomModule } from 'ng-vdom'
 
 import { AppComponent } from './app.component'
