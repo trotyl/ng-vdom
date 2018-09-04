@@ -13,12 +13,12 @@ function formatName(user: User) {
 
 const sampleUser = {
   firstName: 'Harper',
-  lastName: 'Perez'
+  lastName: 'Perez',
 }
 
 render(
   <h1>
     Hello, {formatName(sampleUser)}!
   </h1>,
-  generate()
+  generate(),
 )

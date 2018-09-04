@@ -17,7 +17,7 @@ function demo_0() {
   function tick() {
     render(
       <Clock date={new Date()} />,
-      container
+      container,
     )
   }
 
@@ -41,7 +41,7 @@ function demo_1() {
   function tick() {
     render(
       <Clock date={new Date()} />,
-      container
+      container,
     )
   }
 
@@ -67,7 +67,7 @@ function demo_2() {
 
   render(
     <Clock />,
-    generate()
+    generate(),
   )
 }
 
@@ -83,7 +83,7 @@ function demo_3() {
     componentDidMount() {
       this.timerID = window.setInterval(
         () => this.tick(),
-        1000
+        1000,
       )
     }
 
@@ -93,7 +93,7 @@ function demo_3() {
 
     tick() {
       this.setState({
-        date: new Date()
+        date: new Date(),
       })
     }
 
@@ -109,7 +109,7 @@ function demo_3() {
 
   render(
     <Clock />,
-    generate()
+    generate(),
   )
 }
 
@@ -129,7 +129,7 @@ function demo_4() {
     componentDidMount() {
       this.timerID = window.setInterval(
         () => this.tick(),
-        1000
+        1000,
       )
     }
 
@@ -139,7 +139,7 @@ function demo_4() {
 
     tick() {
       this.setState({
-        date: new Date()
+        date: new Date(),
       })
     }
 
@@ -155,7 +155,7 @@ function demo_4() {
 
   render(
     <Clock />,
-    generate()
+    generate(),
   )
 }
 
@@ -175,7 +175,7 @@ function demo_5() {
     componentDidMount() {
       this.timerID = window.setInterval(
         () => this.tick(),
-        1000
+        1000,
       )
     }
 
@@ -185,7 +185,7 @@ function demo_5() {
 
     tick() {
       this.setState({
-        date: new Date()
+        date: new Date(),
       })
     }
 

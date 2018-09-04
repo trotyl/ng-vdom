@@ -10,7 +10,7 @@ function demo_0() {
   const element = <Welcome name="Sara" />
   render(
     element,
-    generate()
+    generate(),
   )
 }
 
@@ -31,7 +31,7 @@ function demo_1() {
 
   render(
     <App />,
-    generate()
+    generate(),
   )
 }
 
@@ -76,7 +76,7 @@ function demo_2() {
       text={comment.text}
       author={comment.author}
     />,
-    generate()
+    generate(),
   )
 }
 
@@ -131,7 +131,7 @@ function demo_3() {
       text={comment.text}
       author={comment.author}
     />,
-    generate()
+    generate(),
   )
 }
 

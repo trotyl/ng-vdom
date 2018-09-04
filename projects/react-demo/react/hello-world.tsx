@@ -4,5 +4,5 @@ import { generate } from '../utils/element'
 
 render(
   <h1>Hello, world!</h1>,
-  generate()
+  generate(),
 )

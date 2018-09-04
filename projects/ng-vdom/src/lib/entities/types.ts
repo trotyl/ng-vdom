@@ -80,7 +80,7 @@ export abstract class Component<P = any, S = any> implements ComponentLifecycle<
    */
   setState<K extends keyof S>(
     partialState: ((prevState: Readonly<S>, props: Readonly<P>) => (Pick<S, K> | S | null)) | (Pick<S, K> | S | null),
-    callback?: () => void
+    callback?: () => void,
   ): void {
     getCurrentUpdateQueue().enqueueSetState(this, partialState, callback, 'setState')
   }

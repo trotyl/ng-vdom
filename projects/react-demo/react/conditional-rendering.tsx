@@ -22,7 +22,7 @@ function demo_0() {
   render(
     // Try changing to isLoggedIn={true}:
     <Greeting isLoggedIn={false} />,
-    generate()
+    generate(),
   )
 }
 
@@ -96,7 +96,7 @@ function demo_1() {
 
   render(
     <LoginControl />,
-    generate()
+    generate(),
   )
 }
 
@@ -118,7 +118,7 @@ function demo_2() {
   const messages = ['React', 'Re: React', 'Re:Re: React']
   render(
     <Mailbox unreadMessages={messages} />,
-    generate()
+    generate(),
   )
 }
 
@@ -144,7 +144,7 @@ function demo_3() {
 
     handleToggleClick() {
       this.setState(prevState => ({
-        showWarning: !prevState.showWarning
+        showWarning: !prevState.showWarning,
       }))
     }
 
@@ -162,7 +162,7 @@ function demo_3() {
 
   render(
     <Page />,
-    generate()
+    generate(),
   )
 }
 

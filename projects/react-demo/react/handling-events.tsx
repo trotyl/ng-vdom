@@ -14,7 +14,7 @@ function demo_0() {
 
     handleClick() {
       this.setState(prevState => ({
-        isToggleOn: !prevState.isToggleOn
+        isToggleOn: !prevState.isToggleOn,
       }))
     }
 
@@ -29,7 +29,7 @@ function demo_0() {
 
   render(
     <Toggle />,
-    generate()
+    generate(),
   )
 }
 

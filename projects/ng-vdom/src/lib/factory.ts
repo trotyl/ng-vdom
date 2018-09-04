@@ -5,7 +5,7 @@ export function createElement<P>(type: ComponentType<P> | string, props?: P | nu
   return {
     type,
     props: { ...props || {}, children },
-    key: props != null && 'key' in props ? (props as any).key : undefined
+    key: props != null && 'key' in props ? (props as any).key : undefined,
   }
 }
 

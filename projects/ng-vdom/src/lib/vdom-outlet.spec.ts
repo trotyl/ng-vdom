@@ -8,7 +8,7 @@ describe('VDomComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ VDomOutlet ]
+      declarations: [ VDomOutlet ],
     })
     .compileComponents()
   }))
