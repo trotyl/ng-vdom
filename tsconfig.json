@@ -12,6 +12,7 @@
     "target": "es5",
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "typeRoots": [
       "node_modules/@types"
     ],

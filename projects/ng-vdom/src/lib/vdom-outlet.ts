@@ -1,8 +1,8 @@
-import { Component, ElementRef, Input, KeyValueDiffers, RendererFactory2, DoCheck, IterableDiffers } from '@angular/core'
-import { ReactElement } from 'react'
-import { Updater } from './definitions/updater'
-import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdater } from './utils/context'
-import { isFunction } from './utils/lang'
+import { Component, DoCheck, ElementRef, Input, IterableDiffers, KeyValueDiffers, RendererFactory2 } from '@angular/core'
+import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdateQueue } from './entities/context'
+import { isFunction } from './entities/lang'
+import { Component as VComponent, VNode } from './entities/types'
+import { UpdateQueue } from './entities/update-queue'
 import { mount } from './instructions/mount'
 import { patch } from './instructions/patch'
 
@@ -10,12 +10,12 @@ import { patch } from './instructions/patch'
   selector: 'v-outlet',
   template: ``,
 })
-export class VDomOutlet implements DoCheck, Updater {
-  @Input() element: ReactElement<any> | null = null
+export class VDomOutlet implements DoCheck, UpdateQueue {
+  @Input() element: VNode | null = null
   @Input() context: object = {}
 
   private node: Node | null = null
-  private lastElement: ReactElement<any> | null = null
+  private lastElement: VNode | null = null
   private queue: Function[] = []
   private pendingSchedule: number | null = null
 
@@ -40,7 +40,11 @@ export class VDomOutlet implements DoCheck, Updater {
     }
   }
 
-  enqueueSetState<S>(instance: React.Component<any, S, any>, partialState: S, callback?: (() => void) | undefined): void {
+  enqueueForceUpdate(publicInstance: object, callback?: (() => void) | undefined, callerName?: string | undefined): void {
+    throw new Error('Not implemented!')
+  }
+
+  enqueueSetState<S>(instance: VComponent, partialState: S, callback?: (() => void) | undefined): void {
     this.queue.push(() => {
       if (isFunction(partialState)) {
         partialState = partialState(instance.state)
@@ -63,20 +67,20 @@ export class VDomOutlet implements DoCheck, Updater {
   }
 
   private tick(mountMode: boolean = false): void {
-    const previousUpdater = setCurrentUpdater(this)
+    const previousUpdateQueue = setCurrentUpdateQueue(this)
 
     const lifecycle: Function[] = []
 
     if (mountMode) {
-      this.node = mount(this.element, this.elementRef.nativeElement, lifecycle)
+      this.node = mount(this.element!, this.elementRef.nativeElement, lifecycle)
     } else {
-      this.node = patch(this.lastElement, this.element, this.node!, this.elementRef.nativeElement, lifecycle)
+      this.node = patch(this.lastElement!, this.element!, this.node!, this.elementRef.nativeElement, lifecycle)
     }
 
     for (let i = 0; i < lifecycle.length; i++) {
       lifecycle[i]()
     }
 
-    setCurrentUpdater(previousUpdater)
+    setCurrentUpdateQueue(previousUpdateQueue)
   }
 }

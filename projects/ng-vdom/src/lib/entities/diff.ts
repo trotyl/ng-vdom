@@ -1,10 +1,10 @@
-import { KeyValueDiffer, IterableDiffer } from '@angular/core'
-import { ReactNode, ComponentType } from 'react'
-import { getCurrentKeyValueDiffers, getCurrentIterableDiffers } from './context'
-import { isDOMElement, isComponentElement, isTextElement } from './vnode'
+import { IterableDiffer, KeyValueDiffer } from '@angular/core'
+import { getCurrentIterableDiffers, getCurrentKeyValueDiffers } from './context'
+import { isObject } from './lang'
+import { isComponentElement, isNativeElement, isVElement, isVText, ComponentType, VNode } from './types'
 
-function keyOf(node: ReactNode): string | number | null {
-  return !!node && (typeof node === 'object') && ('key' in node) ? node.key : null
+function keyOf(node: VNode): string | number | null {
+  return isObject(node) && node.key ? node.key : null
 }
 
 const componentCounter = new WeakMap<ComponentType<any>, number>()
@@ -14,15 +14,19 @@ function stringifyComponentType(type: ComponentType<any>): string {
     componentCounter.set(type, 0)
   }
   const count = componentCounter.get(type)!
-  return `${type.name}_${count}`
+  return `${(type as Function).name}_${count}`
 }
 
-function stringifyNodeType(node: ReactNode): string {
-  if (isDOMElement(node)) {
-    return `$$element_${node.type}`
-  } else if (isComponentElement(node)) {
-    return `$$component_${stringifyComponentType(node.type)}`
-  } else if (isTextElement(node)) {
+function stringifyNodeType(node: VNode): string {
+  if (isVElement(node)) {
+    if (isNativeElement(node)) {
+      return `$$element_${node.type}`
+    } else if (isComponentElement(node)) {
+      return `$$component_${stringifyComponentType(node.type)}`
+    } else {
+      return `$$unknown`
+    }
+  } else if (isVText(node)) {
     return `$$text`
   } else {
     return `$$unknown`
@@ -41,7 +45,7 @@ function indexOfType(index: number, type: string): number {
   return ++typeCounter[type]
 }
 
-export function trackByKey(index: number, node: ReactNode): string {
+export function trackByKey(index: number, node: VNode): string {
   const nodeType = stringifyNodeType(node)
   const key = keyOf(node)
   const suffix = key == null ? `index_${indexOfType(index, nodeType)}` : `key_${key}`
@@ -52,6 +56,6 @@ export function createPropDiffer(): KeyValueDiffer<string, any> {
   return getCurrentKeyValueDiffers().find({}).create()
 }
 
-export function createChildDiffer(): IterableDiffer<ReactNode> {
+export function createChildDiffer(): IterableDiffer<VNode> {
   return getCurrentIterableDiffers().find([]).create(trackByKey)
 }

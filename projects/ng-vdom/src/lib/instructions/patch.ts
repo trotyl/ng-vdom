@@ -1,14 +1,12 @@
 import { IterableDiffer } from '@angular/core'
-import { ReactNode } from 'react'
-import { TextVNode, ComponentVNode, ElementVNode } from '../definitions/vnode'
-import { getCurrentRenderer } from '../utils/context'
-import { isDOMElement, isComponentElement, nodeTypeOf, isTextElement, isClassComponentElement } from '../utils/vnode'
+import { getCurrentRenderer } from '../entities/context'
+import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, nodeTypeOf, ComponentElement, NativeElement, VNode, VText } from '../entities/types'
 import { mount } from './mount'
 import { patchProp } from './props'
-import { getElementMeta, getComponentMeta, setElementMeta, setComponentMeta, getChildNodes, setChildNodes } from './registry'
+import { getChildNodes, getComponentMeta, getElementMeta, setChildNodes, setComponentMeta, setElementMeta } from './registry'
 import { unmount } from './unmount'
 
-export function replaceWithNewNode(lastVNode: ReactNode, nextVNode: ReactNode, lastHost: Node, container: Element, lifecycle: Function[]): Node {
+export function replaceWithNewNode(lastVNode: VNode, nextVNode: VNode, lastHost: Node, container: Element, lifecycle: Function[]): Node {
   const nodes = getChildNodes(container)
   unmount(lastVNode)
   const index = nodes.indexOf(lastHost)
@@ -18,7 +16,7 @@ export function replaceWithNewNode(lastVNode: ReactNode, nextVNode: ReactNode, l
   return newNode
 }
 
-export function patch(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, container: Element, lifecycle: Function[]): Node {
+export function patch(lastVNode: VNode, nextVNode: VNode, host: Node, container: Element, lifecycle: Function[]): Node {
   // TODO: properly handle null value
   if (lastVNode == null) {
     lastVNode = ''
@@ -29,18 +27,22 @@ export function patch(lastVNode: ReactNode, nextVNode: ReactNode, host: Node, co
 
   if (nodeTypeOf(lastVNode) !== nodeTypeOf(nextVNode)) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
-  } else if (isDOMElement(nextVNode)) {
-    return patchElement(lastVNode as ElementVNode, nextVNode, host as Element, container, lifecycle)
-  } else if (isComponentElement(nextVNode)) {
-    return patchComponent(lastVNode as ComponentVNode, nextVNode, host, container, lifecycle)
-  } else if (isTextElement(nextVNode)) {
-    return patchText(lastVNode as TextVNode, nextVNode, host as Text, container)
+  } else if (isVElement(nextVNode)) {
+    if (isNativeElement(nextVNode)) {
+      return patchElement(lastVNode as NativeElement, nextVNode, host as Element, container, lifecycle)
+    } else if (isComponentElement(nextVNode)) {
+      return patchComponent(lastVNode as ComponentElement, nextVNode, host, container, lifecycle)
+    } else {
+      throw new Error(`...`)
+    }
+  } else if (isVText(nextVNode)) {
+    return patchText(lastVNode as VText, nextVNode, host as Text, container)
   } else {
     throw new Error(`...`)
   }
 }
 
-export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, host: Element, container: Element, lifecycle: Function[]): Node {
+export function patchElement(lastVNode: NativeElement, nextVNode: NativeElement, host: Element, container: Element, lifecycle: Function[]): Node {
   if (lastVNode.type !== nextVNode.type) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
   }
@@ -68,7 +70,7 @@ export function patchElement(lastVNode: ElementVNode, nextVNode: ElementVNode, h
   return host
 }
 
-export function patchChildren(lastChildren: ReactNode[], nextChildren: ReactNode[], childDiffer: IterableDiffer<ReactNode>, childNodes: Node[], container: Element, lifecycle: Function[]): Node[] {
+export function patchChildren(lastChildren: VNode[], nextChildren: VNode[], childDiffer: IterableDiffer<VNode>, childNodes: Node[], container: Element, lifecycle: Function[]): Node[] {
   const changes = childDiffer.diff(nextChildren)
 
   if (changes) {
@@ -97,7 +99,7 @@ export function patchChildren(lastChildren: ReactNode[], nextChildren: ReactNode
   return childNodes
 }
 
-export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVNode, host: Node, container: Element, lifecycle: Function[]): Node {
+export function patchComponent(lastVNode: ComponentElement, nextVNode: ComponentElement, host: Node, container: Element, lifecycle: Function[]): Node {
 
   if (lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
@@ -109,8 +111,8 @@ export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVN
 
   let nextInput = lastInput
 
-  if (isClassComponentElement(type)) {
-    instance!.props = props
+  if (isClassComponent(type)) {
+    (instance as any).props = props
     nextInput = instance!.render()
   } else {
     const changes = propDiffer!.diff(nextVNode.props)
@@ -124,7 +126,7 @@ export function patchComponent(lastVNode: ComponentVNode, nextVNode: ComponentVN
   return patch(lastInput, nextInput, host, container, lifecycle)
 }
 
-export function patchText(lastVNode: TextVNode, nextVNode: TextVNode, host: Text, container: Element): Node {
+export function patchText(lastVNode: VText, nextVNode: VText, host: Text, container: Element): Node {
   if (lastVNode === nextVNode) {
     return host
   }

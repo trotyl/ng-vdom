@@ -1,11 +1,10 @@
-import { KeyValueDiffer, IterableDiffer } from '@angular/core'
-import { ReactNode, Component } from 'react'
-import { ComponentVNode, ElementVNode } from '../definitions/vnode'
+import { IterableDiffer, KeyValueDiffer } from '@angular/core'
+import { Component, ComponentElement, NativeElement, VNode } from '../entities/types'
 
 export interface ComponentMeta {
-  input: ReactNode
+  input: VNode
   propDiffer: KeyValueDiffer<string, any> | null
-  instance: Component<any, any> | null
+  instance: Component | null
 }
 
 export interface Events {
@@ -15,26 +14,26 @@ export interface Events {
 export interface ElementMeta {
   events: Events
   propDiffer: KeyValueDiffer<string, any>
-  childDiffer: IterableDiffer<ReactNode>
+  childDiffer: IterableDiffer<VNode>
 }
 
-const componentMetaRegistry = new WeakMap<ComponentVNode, ComponentMeta>()
-const elementMetaRegistry = new WeakMap<ElementVNode, ElementMeta>()
+const componentMetaRegistry = new WeakMap<ComponentElement, ComponentMeta>()
+const elementMetaRegistry = new WeakMap<NativeElement, ElementMeta>()
 const childNodesRegistry = new WeakMap<Element, Node[]>()
 
-export function setComponentMeta(vNode: ComponentVNode, meta: ComponentMeta): void {
+export function setComponentMeta(vNode: ComponentElement, meta: ComponentMeta): void {
   componentMetaRegistry.set(vNode, meta)
 }
 
-export function getComponentMeta(vNode: ComponentVNode): ComponentMeta {
+export function getComponentMeta(vNode: ComponentElement): ComponentMeta {
   return componentMetaRegistry.get(vNode)!
 }
 
-export function setElementMeta(vNode: ElementVNode, meta: ElementMeta): void {
+export function setElementMeta(vNode: NativeElement, meta: ElementMeta): void {
   elementMetaRegistry.set(vNode, meta)
 }
 
-export function getElementMeta(vNode: ElementVNode): ElementMeta {
+export function getElementMeta(vNode: NativeElement): ElementMeta {
   return elementMetaRegistry.get(vNode)!
 }
 

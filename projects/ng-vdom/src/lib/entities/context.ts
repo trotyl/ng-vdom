@@ -1,11 +1,10 @@
-import { KeyValueDiffers, IterableDiffers, Renderer2 } from '@angular/core'
-import { Updater } from '../definitions/updater'
-import { noopUpdater } from './noop'
+import { IterableDiffers, KeyValueDiffers, Renderer2 } from '@angular/core'
+import { UpdateQueue } from './update-queue'
 
 let keyValueDiffers: KeyValueDiffers | null = null
 let iterableDiffers: IterableDiffers | null = null
 let renderer: Renderer2 | null = null
-let updater: Updater = noopUpdater
+let updateQueue: UpdateQueue | null = null
 
 export function setCurrentKeyValueDiffers(differs: KeyValueDiffers | null): KeyValueDiffers | null {
   const previous = keyValueDiffers
@@ -46,12 +45,15 @@ export function getCurrentRenderer(): Renderer2 {
   return renderer
 }
 
-export function setCurrentUpdater(newUpdater: Updater): Updater {
-  const oldUpdater = updater
-  updater = newUpdater
-  return oldUpdater
+export function setCurrentUpdateQueue(queue: UpdateQueue | null): UpdateQueue | null {
+  const previous = updateQueue
+  updateQueue = queue
+  return previous
 }
 
-export function getCurrentUpdater(): Updater {
-  return updater
+export function getCurrentUpdateQueue(): UpdateQueue {
+  if (updateQueue == null) {
+    throw new Error(`UpdateQueue not available!`)
+  }
+  return updateQueue
 }

@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'ng-vdom'
 import { render } from 'ng-vdom/bootstrap'
 import { generate } from '../utils/element'
 
@@ -81,7 +81,7 @@ function demo_3() {
     }
 
     componentDidMount() {
-      this.timerID = setInterval(
+      this.timerID = window.setInterval(
         () => this.tick(),
         1000
       )
@@ -127,7 +127,7 @@ function demo_4() {
     }
 
     componentDidMount() {
-      this.timerID = setInterval(
+      this.timerID = window.setInterval(
         () => this.tick(),
         1000
       )
@@ -173,7 +173,7 @@ function demo_5() {
     }
 
     componentDidMount() {
-      this.timerID = setInterval(
+      this.timerID = window.setInterval(
         () => this.tick(),
         1000
       )

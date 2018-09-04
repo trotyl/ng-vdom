@@ -1,3 +1,5 @@
+// tslint:disable:ordered-imports
+
 import './hello-world'
 import './introducing-jsx'
 import './rendering-elements'

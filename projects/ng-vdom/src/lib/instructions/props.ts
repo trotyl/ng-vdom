@@ -1,6 +1,5 @@
 import { KeyValueDiffer } from '@angular/core'
-import { CSSProperties } from 'react'
-import { getCurrentRenderer } from '../utils/context'
+import { getCurrentRenderer } from '../entities/context'
 import { Events } from './registry'
 
 export type EventHandler = (event: any) => void
@@ -18,7 +17,7 @@ export function patchEvent(prop: string, handler: EventHandler | null, host: Ele
   }
 }
 
-export function patchStyle(styles: CSSProperties, host: Element): void {
+export function patchStyle(styles: object, host: Element): void {
   // TODO: Diff styles
   getCurrentRenderer().setProperty(host, 'style', styles)
 }

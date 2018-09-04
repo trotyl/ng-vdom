@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'ng-vdom'
 import { render } from 'ng-vdom/bootstrap'
 import { generate } from '../utils/element'
 
