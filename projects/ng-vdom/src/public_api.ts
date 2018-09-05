@@ -2,6 +2,6 @@
  * Public API Surface of ng-vdom
  */
 
-export * from './lib/factory'
-export * from './lib/vdom-outlet'
-export * from './lib/vdom.module'
+export * from './factory'
+export * from './vdom-outlet'
+export * from './vdom.module'
