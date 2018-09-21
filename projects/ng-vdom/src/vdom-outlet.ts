@@ -1,17 +1,17 @@
 import { Component, DoCheck, ElementRef, Input, IterableDiffers, KeyValueDiffers, RendererFactory2 } from '@angular/core'
-import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdateQueue } from './entities/context'
-import { isFunction } from './entities/lang'
-import { Component as VComponent, VNode } from './entities/types'
-import { UpdateQueue } from './entities/update-queue'
 import { mount } from './instructions/mount'
 import { patch } from './instructions/patch'
+import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdateQueue } from './shared/context'
+import { isFunction } from './shared/lang'
+import { Component as VComponent, VNode } from './shared/types'
+import { UpdateQueue } from './shared/update-queue'
 
 @Component({
   selector: 'v-outlet',
   template: ``,
 })
 export class VDomOutlet implements DoCheck, UpdateQueue {
-  @Input() element: VNode | null = null
+  @Input() def: VNode | null = null
   @Input() context: object = {}
 
   private node: Node | null = null
@@ -31,12 +31,12 @@ export class VDomOutlet implements DoCheck, UpdateQueue {
   }
 
   ngDoCheck(): void {
-    if (!this.node && this.element) {
+    if (!this.node && this.def) {
       this.tick(true)
-      this.lastElement = this.element
-    } else if (this.node && this.element !== this.lastElement) {
+      this.lastElement = this.def
+    } else if (this.node && this.def !== this.lastElement) {
       this.tick()
-      this.lastElement = this.element
+      this.lastElement = this.def
     }
   }
 
@@ -72,9 +72,9 @@ export class VDomOutlet implements DoCheck, UpdateQueue {
     const lifecycle: Function[] = []
 
     if (mountMode) {
-      this.node = mount(this.element!, this.elementRef.nativeElement, lifecycle)
+      this.node = mount(this.def!, this.elementRef.nativeElement, lifecycle)
     } else {
-      this.node = patch(this.lastElement!, this.element!, this.node!, this.elementRef.nativeElement, lifecycle)
+      this.node = patch(this.lastElement!, this.def!, this.node!, this.elementRef.nativeElement, lifecycle)
     }
 
     for (let i = 0; i < lifecycle.length; i++) {

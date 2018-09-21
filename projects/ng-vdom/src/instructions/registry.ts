@@ -1,5 +1,5 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
-import { Component, ComponentElement, NativeElement, VNode } from '../entities/types'
+import { Component, ComponentElement, NativeElement, VNode } from '../shared/types'
 
 export interface ComponentMeta {
   input: VNode

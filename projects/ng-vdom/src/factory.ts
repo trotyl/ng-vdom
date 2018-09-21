@@ -1,12 +1,11 @@
-import { ComponentType, VElement } from './entities/types'
 import './jsx'
+import { ComponentType, VElement } from './shared/types'
 
-export function createElement<P>(type: ComponentType<P> | string, props?: P | null, ...children: any[]): VElement {
+export function createElement<P>(type: ComponentType<P> | string, props: P | null = null, ...children: any[]): VElement {
   return {
     type,
-    props: { ...props || {}, children },
-    key: props != null && 'key' in props ? (props as any).key : undefined,
+    props,
+    children,
+    key: props != null ? (props as any).key : undefined,
   }
 }
-
-export { Component } from './entities/types'

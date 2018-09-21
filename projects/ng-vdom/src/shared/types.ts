@@ -4,6 +4,16 @@ import { VNode } from './types'
 
 const EMPTY_OBJ = {}
 
+export type Key = string | number
+
+export interface Attributes {
+  key?: Key
+}
+
+export interface ClassAttributes extends Attributes {
+  ref?: any
+}
+
 export interface ErrorInfo {
   /**
    * Captures which component contained the exception, and its ancestors.
@@ -122,6 +132,7 @@ export type ComponentType<P = any> = ComponentClass<P> | StatelessComponent<P>
 export interface VElement<P = any> {
   type: ComponentType<P> | string
   props: P
+  children?: any[]
   key?: string | number
 }
 

@@ -1,5 +1,5 @@
 import { KeyValueDiffer } from '@angular/core'
-import { getCurrentRenderer } from '../entities/context'
+import { getCurrentRenderer } from '../shared/context'
 import { Events } from './registry'
 
 export type EventHandler = (event: any) => void

@@ -1,6 +1,6 @@
 import { IterableDiffer } from '@angular/core'
-import { getCurrentRenderer } from '../entities/context'
-import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, nodeTypeOf, ComponentElement, NativeElement, VNode, VText } from '../entities/types'
+import { getCurrentRenderer } from '../shared/context'
+import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, nodeTypeOf, ComponentElement, NativeElement, VNode, VText } from '../shared/types'
 import { mount } from './mount'
 import { patchProp } from './props'
 import { getChildNodes, getComponentMeta, getElementMeta, setChildNodes, setComponentMeta, setElementMeta } from './registry'

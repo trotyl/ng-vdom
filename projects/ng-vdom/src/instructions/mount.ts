@@ -1,7 +1,7 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
-import { getCurrentRenderer, getCurrentUpdateQueue } from '../entities/context'
-import { createChildDiffer, createPropDiffer } from '../entities/diff'
-import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, Component, ComponentElement, ComponentLifecycle, NativeElement, VNode, VText } from '../entities/types'
+import { getCurrentRenderer, getCurrentUpdateQueue } from '../shared/context'
+import { createChildDiffer, createPropDiffer } from '../shared/diff'
+import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, Component, ComponentElement, ComponentLifecycle, NativeElement, VNode, VText } from '../shared/types'
 import { mountProps } from './props'
 import { setChildNodes, setComponentMeta, setElementMeta } from './registry'
 
@@ -24,12 +24,8 @@ export function mountElement(vNode: NativeElement, container: Element | null, li
   const childDiffer = createChildDiffer()
   const propDiffer = createPropDiffer()
 
-  const { children, className, ...props } = vNode.props
+  const { props, children } = vNode
   const el = renderer.createElement(vNode.type) as Element
-
-  if (className != null && className !== '') {
-    renderer.setProperty(el, 'className', className)
-  }
 
   if (container) {
     renderer.appendChild(container, el)
