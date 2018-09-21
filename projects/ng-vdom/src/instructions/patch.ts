@@ -43,26 +43,20 @@ export function patch(lastVNode: VNode, nextVNode: VNode, host: Node, container:
 }
 
 export function patchElement(lastVNode: NativeElement, nextVNode: NativeElement, host: Element, container: Element, lifecycle: Function[]): Node {
-  if (lastVNode.type !== nextVNode.type) {
-    return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
-  }
-
   const { events, propDiffer, childDiffer } = getElementMeta(lastVNode)
   let childNodes = getChildNodes(host)
 
-  const { children: lastChildren } = lastVNode.props
-  const { children: nextChildren, className: nextClassName, ...nextProps } = nextVNode.props
+  const { children: lastChildren, props: lastProps } = lastVNode
+  const { children: nextChildren, props: nextProps } = nextVNode
 
-  if (lastVNode.props !== nextVNode.props) {
+  if (lastProps !== nextProps) {
     const changes = propDiffer.diff(nextProps)
     if (changes) {
       changes.forEachItem(record => patchProp(record.key, record.currentValue, host, events))
     }
   }
 
-  const boxedLastChildren = Array.isArray(lastChildren) ? lastChildren : [lastChildren]
-  const boxedNextChildren = Array.isArray(nextChildren) ? nextChildren : [nextChildren]
-  childNodes = patchChildren(boxedLastChildren, boxedNextChildren, childDiffer, childNodes, host, lifecycle)
+  childNodes = patchChildren(lastChildren, nextChildren, childDiffer, childNodes, host, lifecycle)
 
   setElementMeta(nextVNode, { events, propDiffer, childDiffer })
   setChildNodes(host, childNodes)
@@ -100,7 +94,6 @@ export function patchChildren(lastChildren: VNode[], nextChildren: VNode[], chil
 }
 
 export function patchComponent(lastVNode: ComponentElement, nextVNode: ComponentElement, host: Node, container: Element, lifecycle: Function[]): Node {
-
   if (lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
   }

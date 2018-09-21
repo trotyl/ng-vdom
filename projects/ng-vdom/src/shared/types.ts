@@ -1,6 +1,7 @@
 import { getCurrentUpdateQueue } from './context'
 import { isObject } from './lang'
 import { VNode } from './types'
+import { UpdateQueue } from './update-queue'
 
 const EMPTY_OBJ = {}
 
@@ -60,6 +61,7 @@ export interface ComponentLifecycle<P = any, S = any> {
 export abstract class Component<P = any, S = any> implements ComponentLifecycle<P, S> {
   state!: S
   refs: { [key: string]: any } = EMPTY_OBJ
+  updateQueue: UpdateQueue = getCurrentUpdateQueue()
 
   get isComponent(): boolean { return true }
 
@@ -92,7 +94,7 @@ export abstract class Component<P = any, S = any> implements ComponentLifecycle<
     partialState: ((prevState: Readonly<S>, props: Readonly<P>) => (Pick<S, K> | S | null)) | (Pick<S, K> | S | null),
     callback?: () => void,
   ): void {
-    getCurrentUpdateQueue().enqueueSetState(this, partialState, callback, 'setState')
+    this.updateQueue.enqueueSetState(this, partialState, callback, 'setState')
   }
 
   /**
@@ -108,7 +110,7 @@ export abstract class Component<P = any, S = any> implements ComponentLifecycle<
    * @param callback Called after update is complete.
    */
   forceUpdate(callback?: () => void) {
-    getCurrentUpdateQueue().enqueueForceUpdate(this, callback, 'forceUpdate')
+    this.updateQueue.enqueueForceUpdate(this, callback, 'forceUpdate')
   }
 
   abstract render(): VNode
@@ -132,7 +134,7 @@ export type ComponentType<P = any> = ComponentClass<P> | StatelessComponent<P>
 export interface VElement<P = any> {
   type: ComponentType<P> | string
   props: P
-  children?: any[]
+  children: any[]
   key?: string | number
 }
 

@@ -1,5 +1,5 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
-import { getCurrentRenderer, getCurrentUpdateQueue } from '../shared/context'
+import { getCurrentRenderer } from '../shared/context'
 import { createChildDiffer, createPropDiffer } from '../shared/diff'
 import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, Component, ComponentElement, ComponentLifecycle, NativeElement, VNode, VText } from '../shared/types'
 import { mountProps } from './props'
@@ -32,9 +32,8 @@ export function mountElement(vNode: NativeElement, container: Element | null, li
   }
 
   let childNodes: Node[] = []
-  if (children != null) {
-    const childrenInArray = Array.isArray(children) ? children : [children]
-    childNodes = mountArrayChildren(childrenInArray, childDiffer, el, lifecycle)
+  if (children.length > 0) {
+    childNodes = mountArrayChildren(children, childDiffer, el, lifecycle)
   }
 
   const events = Object.create(null)
@@ -47,14 +46,12 @@ export function mountElement(vNode: NativeElement, container: Element | null, li
 
 export function mountArrayChildren(vNodes: VNode[], differ: IterableDiffer<VNode>, container: Element, lifecycle: Function[]): Node[] {
   const childNodes: Node[] = []
-  const changes = differ.diff(vNodes)
+  const changes = differ.diff(vNodes)!
 
-  if (changes) {
-    changes.forEachAddedItem(record => {
-      const childNode = mount(record.item, container, lifecycle)
-      childNodes.push(childNode)
-    })
-  }
+  changes.forEachAddedItem(record => {
+    const childNode = mount(record.item, container, lifecycle)
+    childNodes.push(childNode)
+  })
 
   return childNodes
 }
@@ -68,7 +65,6 @@ export function mountComponent(vNode: ComponentElement, container: Element | nul
   let instance: Component<any, any> | null = null
   if (isClassComponent(type)) {
     instance = new type(props)
-    overrideClassMethods(instance)
     input = instance.render()
     mountClassComponentCallbacks(instance, lifecycle)
   } else {
@@ -79,13 +75,6 @@ export function mountComponent(vNode: ComponentElement, container: Element | nul
 
   setComponentMeta(vNode, { input, propDiffer, instance })
   return mount(input, container, lifecycle)
-}
-
-export function overrideClassMethods(instance: Component<any, any>): void {
-  const boundUpdater = getCurrentUpdateQueue()
-  instance.setState = function (state: any, callback?: () => void) {
-    boundUpdater.enqueueSetState(this, state, callback)
-  }
 }
 
 export function mountClassComponentCallbacks(instance: Component<any, any>, lifecycle: Function[]): void {

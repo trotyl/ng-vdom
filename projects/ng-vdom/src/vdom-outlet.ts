@@ -1,10 +1,18 @@
-import { Component, DoCheck, ElementRef, Input, IterableDiffers, KeyValueDiffers, RendererFactory2 } from '@angular/core'
+import { Component, DoCheck, ElementRef, Inject, InjectionToken, Input, IterableDiffers, KeyValueDiffers, RendererFactory2 } from '@angular/core'
 import { mount } from './instructions/mount'
 import { patch } from './instructions/patch'
+import { setChildNodes } from './instructions/registry'
 import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdateQueue } from './shared/context'
 import { isFunction } from './shared/lang'
 import { Component as VComponent, VNode } from './shared/types'
 import { UpdateQueue } from './shared/update-queue'
+
+export type TaskScheduler = (fn: () => void) => void
+
+export const TASK_SCHEDULER = new InjectionToken<TaskScheduler>('TaskScheduler', {
+  providedIn: 'root',
+  factory: () => (fn) => { requestAnimationFrame(fn) },
+})
 
 @Component({
   selector: 'v-outlet',
@@ -15,15 +23,17 @@ export class VDomOutlet implements DoCheck, UpdateQueue {
   @Input() context: object = {}
 
   private node: Node | null = null
+  // TODO: rename property to `previousDef`
   private lastElement: VNode | null = null
   private queue: Function[] = []
-  private pendingSchedule: number | null = null
+  private pendingSchedule = false
 
   constructor(
     rendererFactory: RendererFactory2,
     private elementRef: ElementRef,
     kDiffers: KeyValueDiffers,
     iDiffers: IterableDiffers,
+    @Inject(TASK_SCHEDULER) private scheduler: TaskScheduler,
   ) {
     setCurrentIterableDiffers(iDiffers)
     setCurrentKeyValueDiffers(kDiffers)
@@ -52,14 +62,14 @@ export class VDomOutlet implements DoCheck, UpdateQueue {
       Object.assign(instance.state, partialState)
     })
 
-    if (this.pendingSchedule == null) {
-      this.pendingSchedule = requestAnimationFrame(() => {
-
+    if (!this.pendingSchedule) {
+      this.pendingSchedule = true
+      this.scheduler(() => {
         for (let i = 0; i < this.queue.length; i++) {
           this.queue[i]()
         }
         this.queue = []
-        this.pendingSchedule = null
+        this.pendingSchedule = false
 
         this.tick()
       })
@@ -76,6 +86,7 @@ export class VDomOutlet implements DoCheck, UpdateQueue {
     } else {
       this.node = patch(this.lastElement!, this.def!, this.node!, this.elementRef.nativeElement, lifecycle)
     }
+    setChildNodes(this.elementRef.nativeElement, [this.node])
 
     for (let i = 0; i < lifecycle.length; i++) {
       lifecycle[i]()

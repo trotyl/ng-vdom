@@ -1,5 +1,5 @@
 import './jsx'
-import { ComponentType, VElement } from './shared/types'
+import { Component, ComponentType, VElement } from './shared/types'
 
 export function createElement<P>(type: ComponentType<P> | string, props: P | null = null, ...children: any[]): VElement {
   return {
@@ -9,3 +9,5 @@ export function createElement<P>(type: ComponentType<P> | string, props: P | nul
     key: props != null ? (props as any).key : undefined,
   }
 }
+
+export { Component }

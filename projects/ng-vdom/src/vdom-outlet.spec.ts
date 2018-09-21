@@ -1,9 +1,9 @@
 import { Component, DebugElement } from '@angular/core'
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 import { By } from '@angular/platform-browser'
-import { createElement } from './factory'
+import { createElement, Component as VComponent } from './factory'
 import { VNode } from './shared/types'
-import { VDomOutlet } from './vdom-outlet'
+import { TASK_SCHEDULER, VDomOutlet } from './vdom-outlet'
 import { VDomModule } from './vdom.module'
 
 @Component({
@@ -21,13 +21,18 @@ describe('VDomComponent', () => {
   let fixture: ComponentFixture<TestContainer>
 
   function assertResult(def: VNode | null, text: string) {
-    container.def = def
-
-    fixture.detectChanges()
-
-    expect(outlet.nativeElement.innerHTML).toBe(text)
+    setDef(def)
+    expect(getHtml()).toBe(text)
   }
 
+  function setDef(def: VNode | null): void {
+    container.def = def
+    fixture.detectChanges()
+  }
+
+  function getHtml(): string {
+    return outlet.nativeElement.innerHTML
+  }
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -36,6 +41,9 @@ describe('VDomComponent', () => {
       ],
       imports: [
         VDomModule,
+      ],
+      providers: [
+        { provide: TASK_SCHEDULER, useValue: (fn: Function) => fn() },
       ],
     })
     .compileComponents()
@@ -85,5 +93,89 @@ describe('VDomComponent', () => {
       createElement('p', null, createElement('span'), 'Foo', createElement('b')),
       `<p><span></span>Foo<b></b></p>`,
     )
+  })
+
+  it('should support replacing def in text', () => {
+    assertResult('Foo', 'Foo')
+    assertResult('Bar', 'Bar')
+  })
+
+  it('should support replacing def in element', () => {
+    assertResult(createElement('p'), '<p></p>')
+    assertResult(createElement('span'), '<span></span>')
+  })
+
+  it('should support replacing def in element with different property', () => {
+    assertResult(createElement('p', { className: 'foo' }), '<p class="foo"></p>')
+    assertResult(createElement('p', { className: 'bar' }), '<p class="bar"></p>')
+  })
+
+  it('should support replacing def in element with same children', () => {
+    assertResult(createElement('p', null, 2, 4), '<p>24</p>')
+    assertResult(createElement('p', null, 2, 4), '<p>24</p>')
+  })
+
+  it('should support replacing def in element with different children', () => {
+    assertResult(createElement('p', null, 'Foo', createElement('span'), createElement('b')), '<p>Foo<span></span><b></b></p>')
+    assertResult(createElement('p', null, createElement('span'), 2, 4), '<p><span></span>24</p>')
+  })
+
+  it('should support replacing def in different form', () => {
+    assertResult('Foo', 'Foo')
+    assertResult(createElement('p'), '<p></p>')
+  })
+
+  describe('Component', () => {
+    let forceUpdate = () => {}
+    let setState = (state: object) => {}
+
+    class FooComponent extends VComponent {
+      constructor(props: any) {
+        super(props)
+
+        this.state = { foo: 0 }
+
+        forceUpdate = this.forceUpdate.bind(this)
+        setState = this.setState.bind(this)
+      }
+
+      render() {
+        return createElement('p', null, `Foo: ${this.state.foo}`)
+      }
+    }
+
+    // TODO: add support
+    it('should not support forceUpdate', () => {
+      assertResult(createElement(FooComponent), '<p>Foo: 0</p>')
+      expect(() => forceUpdate()).toThrowError(/Not implemented/)
+    })
+
+    it('should support setState', () => {
+      assertResult(createElement(FooComponent), '<p>Foo: 0</p>')
+
+      setState({ foo: 1 })
+      fixture.detectChanges()
+
+      expect(getHtml()).toBe('<p>Foo: 1</p>')
+    })
+
+    it('should support setState as function', () => {
+      assertResult(createElement(FooComponent), '<p>Foo: 0</p>')
+
+      setState(() => ({ foo: 1 }))
+      fixture.detectChanges()
+
+      expect(getHtml()).toBe('<p>Foo: 1</p>')
+    })
+  })
+
+  describe('SFC', () => {
+    function FooComponent({ foo }: { foo: number }) {
+      return createElement('p', null, `Foo: ${foo}`)
+    }
+
+    it('should support SFC', () => {
+      assertResult(createElement(FooComponent, { foo: 0 }), '<p>Foo: 0</p>')
+    })
   })
 })

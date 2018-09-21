@@ -23,7 +23,7 @@ export function patchStyle(styles: object, host: Element): void {
 }
 
 export function patchProp(prop: string, value: any, host: Element, events: Events): void {
-  if (prop.startsWith('on')) {
+  if (prop[0] === 'o' && prop[1] === 'n') {
     patchEvent(prop, value, host, events)
   } else if (prop === 'style') {
     patchStyle(value, host)
