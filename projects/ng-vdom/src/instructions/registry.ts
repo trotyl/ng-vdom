@@ -1,5 +1,6 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
-import { Component, ComponentElement, NativeElement, VNode } from '../shared/types'
+import { Component } from '../shared/component'
+import { ComponentElement, NativeElement, StatelessComponentElement, VNode } from '../shared/node'
 
 export interface ComponentMeta {
   input: VNode
@@ -17,15 +18,15 @@ export interface ElementMeta {
   childDiffer: IterableDiffer<VNode>
 }
 
-const componentMetaRegistry = new WeakMap<ComponentElement, ComponentMeta>()
+const componentMetaRegistry = new WeakMap<ComponentElement | StatelessComponentElement, ComponentMeta>()
 const elementMetaRegistry = new WeakMap<NativeElement, ElementMeta>()
 const childNodesRegistry = new WeakMap<Element, Node[]>()
 
-export function setComponentMeta(vNode: ComponentElement, meta: ComponentMeta): void {
+export function setComponentMeta(vNode: ComponentElement | StatelessComponentElement, meta: ComponentMeta): void {
   componentMetaRegistry.set(vNode, meta)
 }
 
-export function getComponentMeta(vNode: ComponentElement): ComponentMeta {
+export function getComponentMeta(vNode: ComponentElement | StatelessComponentElement): ComponentMeta {
   return componentMetaRegistry.get(vNode)!
 }
 

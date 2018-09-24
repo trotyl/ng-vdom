@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build ng-vdom",
     "test": "ng test ng-vdom --no-watch --code-coverage --progress=false",
     "lint": "ng lint",
     "e2e": "ng e2e",

@@ -1,6 +1,6 @@
 import { IterableDiffer } from '@angular/core'
 import { getCurrentRenderer } from '../shared/context'
-import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, nodeTypeOf, ComponentElement, NativeElement, VNode, VText } from '../shared/types'
+import { isComponentElement, isComponentType, isNativeElement, isVElement, isVText, nodeTypeOf, ComponentElement, NativeElement, StatelessComponentElement, VNode, VText } from '../shared/node'
 import { mount } from './mount'
 import { patchProp } from './props'
 import { getChildNodes, getComponentMeta, getElementMeta, setChildNodes, setComponentMeta, setElementMeta } from './registry'
@@ -93,7 +93,7 @@ export function patchChildren(lastChildren: VNode[], nextChildren: VNode[], chil
   return childNodes
 }
 
-export function patchComponent(lastVNode: ComponentElement, nextVNode: ComponentElement, host: Node, container: Element, lifecycle: Function[]): Node {
+export function patchComponent(lastVNode: ComponentElement | StatelessComponentElement, nextVNode: ComponentElement | StatelessComponentElement, host: Node, container: Element, lifecycle: Function[]): Node {
   if (lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
     return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
   }
@@ -104,7 +104,7 @@ export function patchComponent(lastVNode: ComponentElement, nextVNode: Component
 
   let nextInput = lastInput
 
-  if (isClassComponent(type)) {
+  if (isComponentType(type)) {
     (instance as any).props = props
     nextInput = instance!.render()
   } else {

@@ -2,16 +2,21 @@ import { Component, DoCheck, ElementRef, Inject, InjectionToken, Input, Iterable
 import { mount } from './instructions/mount'
 import { patch } from './instructions/patch'
 import { setChildNodes } from './instructions/registry'
+import { Component as VComponent } from './shared/component'
 import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdateQueue } from './shared/context'
 import { isFunction } from './shared/lang'
-import { Component as VComponent, VNode } from './shared/types'
+import { VNode } from './shared/node'
 import { UpdateQueue } from './shared/update-queue'
 
 export type TaskScheduler = (fn: () => void) => void
 
+export function requestAnimationFrameSchedulerFactory(): TaskScheduler {
+  return requestAnimationFrame
+}
+
 export const TASK_SCHEDULER = new InjectionToken<TaskScheduler>('TaskScheduler', {
   providedIn: 'root',
-  factory: () => (fn) => { requestAnimationFrame(fn) },
+  factory: requestAnimationFrameSchedulerFactory,
 })
 
 @Component({
@@ -33,7 +38,7 @@ export class VDomOutlet implements DoCheck, UpdateQueue {
     private elementRef: ElementRef,
     kDiffers: KeyValueDiffers,
     iDiffers: IterableDiffers,
-    @Inject(TASK_SCHEDULER) private scheduler: TaskScheduler,
+    @Inject(TASK_SCHEDULER) private scheduler: any,
   ) {
     setCurrentIterableDiffers(iDiffers)
     setCurrentKeyValueDiffers(kDiffers)

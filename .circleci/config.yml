@@ -96,9 +96,33 @@ jobs:
 
       - run: yarn codecov
 
+  build:
+    docker:
+      - image: circleci/node:8.9-browsers
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "yarn.lock" }}
+          - v1-dependencies-
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+        
+      - run: yarn build
+
 workflows:
   version: 2
   pipeline:
     jobs:
       - lint
       - test
+      - build

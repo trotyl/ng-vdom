@@ -1,7 +1,9 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
+import { Component } from '../shared/component'
 import { getCurrentRenderer } from '../shared/context'
 import { createChildDiffer, createPropDiffer } from '../shared/diff'
-import { isClassComponent, isComponentElement, isNativeElement, isVElement, isVText, Component, ComponentElement, ComponentLifecycle, NativeElement, VNode, VText } from '../shared/types'
+import { ComponentLifecycle } from '../shared/lifecycle'
+import { isComponentElement, isComponentType, isNativeElement, isVElement, isVText, ComponentElement, NativeElement, StatelessComponentElement, VNode, VText } from '../shared/node'
 import { mountProps } from './props'
 import { setChildNodes, setComponentMeta, setElementMeta } from './registry'
 
@@ -56,14 +58,13 @@ export function mountArrayChildren(vNodes: VNode[], differ: IterableDiffer<VNode
   return childNodes
 }
 
-export function mountComponent(vNode: ComponentElement, container: Element | null, lifecycle: Function[]): Node {
-  const type = vNode.type
-  const props = vNode.props
+export function mountComponent(vNode: ComponentElement | StatelessComponentElement, container: Element | null, lifecycle: Function[]): Node {
+  const { type, props } = vNode
 
   let input: VNode
   let propDiffer: KeyValueDiffer<string, any> | null = null
   let instance: Component<any, any> | null = null
-  if (isClassComponent(type)) {
+  if (isComponentType(type)) {
     instance = new type(props)
     input = instance.render()
     mountClassComponentCallbacks(instance, lifecycle)

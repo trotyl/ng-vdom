@@ -2,7 +2,7 @@ import { Component, DebugElement } from '@angular/core'
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 import { By } from '@angular/platform-browser'
 import { createElement, Component as VComponent } from './factory'
-import { VNode } from './shared/types'
+import { VNode } from './shared/node'
 import { TASK_SCHEDULER, VDomOutlet } from './vdom-outlet'
 import { VDomModule } from './vdom.module'
 
@@ -143,6 +143,10 @@ describe('VDomComponent', () => {
         return createElement('p', null, `Foo: ${this.state.foo}`)
       }
     }
+
+    it('should support component as child', () => {
+      assertResult(createElement('div', null, 'start', createElement(FooComponent), 'end'), '<div>start<p>Foo: 0</p>end</div>')
+    })
 
     // TODO: add support
     it('should not support forceUpdate', () => {

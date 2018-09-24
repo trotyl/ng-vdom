@@ -1,13 +1,13 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
 import { getCurrentIterableDiffers, getCurrentKeyValueDiffers } from './context'
 import { isObject } from './lang'
-import { isComponentElement, isNativeElement, isVElement, isVText, ComponentType, VNode } from './types'
+import { isComponentElement, isNativeElement, isVElement, isVText, ComponentType, StatelessComponentType, VNode } from './node'
 
 function keyOf(node: VNode): string | number | null {
   return isObject(node) && node.key ? node.key : null
 }
 
-const componentCounter = new WeakMap<ComponentType<any>, number>()
+const componentCounter = new WeakMap<ComponentType | StatelessComponentType, number>()
 
 function stringifyComponentType(type: ComponentType<any>): string {
   if (!componentCounter.has(type)) {
