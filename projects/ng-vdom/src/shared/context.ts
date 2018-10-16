@@ -1,10 +1,13 @@
 import { IterableDiffers, KeyValueDiffers, Renderer2 } from '@angular/core'
+import { notAvailableError } from './error'
+import { TaskScheduler } from './schedule'
 import { UpdateQueue } from './update-queue'
 
 let keyValueDiffers: KeyValueDiffers | null = null
 let iterableDiffers: IterableDiffers | null = null
 let renderer: Renderer2 | null = null
 let updateQueue: UpdateQueue | null = null
+let lifeCycles: Array<() => void> = []
 
 export function setCurrentKeyValueDiffers(differs: KeyValueDiffers | null): KeyValueDiffers | null {
   const previous = keyValueDiffers
@@ -14,7 +17,7 @@ export function setCurrentKeyValueDiffers(differs: KeyValueDiffers | null): KeyV
 
 export function getCurrentKeyValueDiffers(): KeyValueDiffers {
   if (keyValueDiffers == null) {
-    throw new Error(`KeyValueDiffers not available!`)
+    return notAvailableError('KeyValueDiffers')
   }
   return keyValueDiffers
 }
@@ -27,7 +30,7 @@ export function setCurrentIterableDiffers(differs: IterableDiffers | null): Iter
 
 export function getCurrentIterableDiffers(): IterableDiffers {
   if (iterableDiffers == null) {
-    throw new Error(`IterableDiffers not available!`)
+    return notAvailableError('IterableDiffers')
   }
   return iterableDiffers
 }
@@ -40,7 +43,7 @@ export function setCurrentRenderer(r: Renderer2 | null): Renderer2 | null {
 
 export function getCurrentRenderer(): Renderer2 {
   if (renderer == null) {
-    throw new Error(`Renderer not available!`)
+    return notAvailableError('Renderer')
   }
   return renderer
 }
@@ -53,7 +56,33 @@ export function setCurrentUpdateQueue(queue: UpdateQueue | null): UpdateQueue | 
 
 export function getCurrentUpdateQueue(): UpdateQueue {
   if (updateQueue == null) {
-    throw new Error(`UpdateQueue not available!`)
+    return notAvailableError('UpdateQueue')
   }
   return updateQueue
+}
+
+export function queueLifeCycle(fn: () => void): void {
+  lifeCycles.push(fn)
+}
+
+export function runLifeCycle(): void {
+  for (const lifeCycle of lifeCycles) {
+    lifeCycle()
+  }
+}
+
+export function resetLifeCycle(): void {
+  lifeCycles = []
+}
+
+let currentScheduler: TaskScheduler = requestAnimationFrame
+
+export function setCurrentScheduler(scheduler: TaskScheduler): TaskScheduler {
+  const previous = currentScheduler
+  currentScheduler = scheduler
+  return previous
+}
+
+export function getCurrentScheduler(): TaskScheduler {
+  return currentScheduler
 }

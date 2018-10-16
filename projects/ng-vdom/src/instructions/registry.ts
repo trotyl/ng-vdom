@@ -1,5 +1,6 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
 import { Component } from '../shared/component'
+import { illegalStateError } from '../shared/error'
 import { ComponentElement, NativeElement, StatelessComponentElement, VNode } from '../shared/node'
 
 export interface ComponentMeta {
@@ -43,5 +44,8 @@ export function setChildNodes(container: Element, childNodes: Node[]): void {
 }
 
 export function getChildNodes(container: Element): Node[] {
+  if (!childNodesRegistry.has(container)) {
+    return illegalStateError('node has no children registered!')
+  }
   return childNodesRegistry.get(container)!
 }

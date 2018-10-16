@@ -138,7 +138,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/ng-vdom/src/test.ts",
+            "main": "projects/ng-vdom/test/test.ts",
             "tsConfig": "projects/ng-vdom/tsconfig.spec.json",
             "karmaConfig": "projects/ng-vdom/karma.conf.js"
           }

@@ -6,32 +6,14 @@ import { patchProp } from './props'
 import { getChildNodes, getComponentMeta, getElementMeta, setChildNodes, setComponentMeta, setElementMeta } from './registry'
 import { unmount } from './unmount'
 
-export function replaceWithNewNode(lastVNode: VNode, nextVNode: VNode, lastHost: Node, container: Element, lifecycle: Function[]): Node {
-  const nodes = getChildNodes(container)
-  unmount(lastVNode)
-  const index = nodes.indexOf(lastHost)
-  remove(index, nodes, container)
-  const newNode = mount(nextVNode, null, lifecycle)
-  insert(newNode, index, nodes, container)
-  return newNode
-}
-
-export function patch(lastVNode: VNode, nextVNode: VNode, host: Node, container: Element, lifecycle: Function[]): Node {
-  // TODO: properly handle null value
-  if (lastVNode == null) {
-    lastVNode = ''
-  }
-  if (nextVNode == null) {
-    nextVNode = ''
-  }
-
+export function patch(lastVNode: VNode, nextVNode: VNode, host: Node, container: Element): Node {
   if (nodeTypeOf(lastVNode) !== nodeTypeOf(nextVNode)) {
-    return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
+    return replaceWithNewNode(lastVNode, nextVNode, host, container)
   } else if (isVElement(nextVNode)) {
     if (isNativeElement(nextVNode)) {
-      return patchElement(lastVNode as NativeElement, nextVNode, host as Element, container, lifecycle)
+      return patchElement(lastVNode as NativeElement, nextVNode, host as Element, container)
     } else if (isComponentElement(nextVNode)) {
-      return patchComponent(lastVNode as ComponentElement, nextVNode, host, container, lifecycle)
+      return patchComponent(lastVNode as ComponentElement, nextVNode, host, container)
     } else {
       throw new Error(`...`)
     }
@@ -42,7 +24,17 @@ export function patch(lastVNode: VNode, nextVNode: VNode, host: Node, container:
   }
 }
 
-export function patchElement(lastVNode: NativeElement, nextVNode: NativeElement, host: Element, container: Element, lifecycle: Function[]): Node {
+function replaceWithNewNode(lastVNode: VNode, nextVNode: VNode, lastHost: Node, container: Element): Node {
+  const nodes = getChildNodes(container)
+  unmount(lastVNode, container)
+  const index = nodes.indexOf(lastHost)
+  remove(index, nodes, container)
+  const newNode = mount(nextVNode, null)
+  insert(newNode, index, nodes, container)
+  return newNode
+}
+
+function patchElement(lastVNode: NativeElement, nextVNode: NativeElement, host: Element, container: Element): Node {
   const { events, propDiffer, childDiffer } = getElementMeta(lastVNode)
   let childNodes = getChildNodes(host)
 
@@ -51,12 +43,14 @@ export function patchElement(lastVNode: NativeElement, nextVNode: NativeElement,
 
   if (lastProps !== nextProps) {
     const changes = propDiffer.diff(nextProps)
-    if (changes) {
-      changes.forEachItem(record => patchProp(record.key, record.currentValue, host, events))
+    if (changes != null) {
+      changes.forEachAddedItem(record => patchProp(record.key, record.currentValue, host, events))
+      changes.forEachChangedItem(record => patchProp(record.key, record.currentValue, host, events))
+      changes.forEachRemovedItem(record => patchProp(record.key, null, host, events))
     }
   }
 
-  childNodes = patchChildren(lastChildren, nextChildren, childDiffer, childNodes, host, lifecycle)
+  childNodes = patchChildren(lastChildren, nextChildren, childDiffer, childNodes, host)
 
   setElementMeta(nextVNode, { events, propDiffer, childDiffer })
   setChildNodes(host, childNodes)
@@ -64,38 +58,38 @@ export function patchElement(lastVNode: NativeElement, nextVNode: NativeElement,
   return host
 }
 
-export function patchChildren(lastChildren: VNode[], nextChildren: VNode[], childDiffer: IterableDiffer<VNode>, childNodes: Node[], container: Element, lifecycle: Function[]): Node[] {
+function patchChildren(lastChildren: VNode[], nextChildren: VNode[], childDiffer: IterableDiffer<VNode>, childNodes: Node[], container: Element): Node[] {
   const changes = childDiffer.diff(nextChildren)
 
   if (changes) {
     changes.forEachOperation(({ item, previousIndex, currentIndex }, temporaryPreviousIndex, temporaryCurrentIndex) => {
       if (previousIndex == null) {
-        const node = mount(item, null, lifecycle)
+        const node = mount(item, null)
         insert(node, temporaryCurrentIndex!, childNodes, container)
       } else if (temporaryCurrentIndex == null) {
         remove(temporaryPreviousIndex!, childNodes, container)
       } else {
         const node = remove(temporaryPreviousIndex!, childNodes, container)
         insert(node, temporaryCurrentIndex, childNodes, container)
-        patch(lastChildren[previousIndex], nextChildren[currentIndex!], childNodes[temporaryCurrentIndex], container, lifecycle)
+        patch(lastChildren[previousIndex], nextChildren[currentIndex!], childNodes[temporaryCurrentIndex], container)
       }
     })
 
     changes.forEachIdentityChange(({ item, previousIndex, currentIndex }) => {
-      patch(lastChildren[previousIndex!], item, childNodes[currentIndex!], container, lifecycle)
+      patch(lastChildren[previousIndex!], item, childNodes[currentIndex!], container)
     })
   } else {
     for (let i = 0; i < nextChildren.length; i++) {
-      patch(nextChildren[i], nextChildren[i], childNodes[i], container, lifecycle)
+      patch(nextChildren[i], nextChildren[i], childNodes[i], container)
     }
   }
 
   return childNodes
 }
 
-export function patchComponent(lastVNode: ComponentElement | StatelessComponentElement, nextVNode: ComponentElement | StatelessComponentElement, host: Node, container: Element, lifecycle: Function[]): Node {
+function patchComponent(lastVNode: ComponentElement | StatelessComponentElement, nextVNode: ComponentElement | StatelessComponentElement, host: Node, container: Element): Node {
   if (lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
-    return replaceWithNewNode(lastVNode, nextVNode, host, container, lifecycle)
+    return replaceWithNewNode(lastVNode, nextVNode, host, container)
   }
 
   const { input: lastInput, propDiffer, instance } = getComponentMeta(lastVNode)
@@ -116,10 +110,10 @@ export function patchComponent(lastVNode: ComponentElement | StatelessComponentE
   }
 
   setComponentMeta(nextVNode, { input: nextInput, propDiffer, instance })
-  return patch(lastInput, nextInput, host, container, lifecycle)
+  return patch(lastInput, nextInput, host, container)
 }
 
-export function patchText(lastVNode: VText, nextVNode: VText, host: Text, container: Element): Node {
+function patchText(lastVNode: VText, nextVNode: VText, host: Text, container: Element): Node {
   if (lastVNode === nextVNode) {
     return host
   }

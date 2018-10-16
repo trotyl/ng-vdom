@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core'
-import { VDomOutlet } from './vdom-outlet'
+import { VOutlet } from './integration/v-outlet'
 
 @NgModule({
-  declarations: [ VDomOutlet ],
-  exports: [ VDomOutlet ],
-  entryComponents: [ VDomOutlet ],
+  declarations: [ VOutlet ],
+  exports: [ VOutlet ],
 })
 export class VDomModule { }

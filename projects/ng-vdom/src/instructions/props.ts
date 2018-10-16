@@ -4,7 +4,21 @@ import { Events } from './registry'
 
 export type EventHandler = (event: any) => void
 
-export function patchEvent(prop: string, handler: EventHandler | null, host: Element, events: Events): void {
+export function patchProp(prop: string, value: any, host: Element, events: Events): void {
+  if (prop[0] === 'o' && prop[1] === 'n') {
+    patchEvent(prop, value, host, events)
+  } else if (prop === 'style') {
+    patchStyle(value, host)
+  } else {
+    getCurrentRenderer().setProperty(host, prop, value)
+
+    if (value == null) {
+      getCurrentRenderer().removeAttribute(host, prop)
+    }
+  }
+}
+
+function patchEvent(prop: string, handler: EventHandler | null, host: Element, events: Events): void {
   const eventName = prop.slice(2).toLowerCase()
 
   if (eventName in events) {
@@ -17,19 +31,9 @@ export function patchEvent(prop: string, handler: EventHandler | null, host: Ele
   }
 }
 
-export function patchStyle(styles: object, host: Element): void {
+function patchStyle(styles: object, host: Element): void {
   // TODO: Diff styles
   getCurrentRenderer().setProperty(host, 'style', styles)
-}
-
-export function patchProp(prop: string, value: any, host: Element, events: Events): void {
-  if (prop[0] === 'o' && prop[1] === 'n') {
-    patchEvent(prop, value, host, events)
-  } else if (prop === 'style') {
-    patchStyle(value, host)
-  } else {
-    getCurrentRenderer().setProperty(host, prop, value)
-  }
 }
 
 export function mountProps<P>(props: P, propDiffer: KeyValueDiffer<string, any>, host: Element, events: Events): void {

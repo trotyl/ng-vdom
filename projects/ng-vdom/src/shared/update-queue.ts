@@ -1,3 +1,5 @@
+import { Component } from './component'
+
 export interface UpdateQueue {
   /**
    * Forces an update. This should only be invoked when it is known with
@@ -13,7 +15,7 @@ export interface UpdateQueue {
    * @param callback Called after component is updated.
    * @param callerName Name of the calling function in the public API.
    */
-  enqueueForceUpdate(publicInstance: object, callback?: () => void, callerName?: string): void
+  enqueueForceUpdate(publicInstance: Component, callback?: () => void, callerName?: string): void
 
   /**
    * Sets a subset of the state. This only exists because _pendingState is
@@ -26,5 +28,5 @@ export interface UpdateQueue {
    * @param callback Called after component is updated.
    * @param callerName Name of the calling function in the public API.
    */
-  enqueueSetState(publicInstance: object, partialState: any, callback?: () => void, callerName?: string): void
+  enqueueSetState(publicInstance: Component, partialState: any, callback?: () => void, callerName?: string): void
 }

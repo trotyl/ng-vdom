@@ -58,7 +58,8 @@ export function isComponentElement(element: VElement): element is ComponentEleme
 }
 
 export function isComponentType(type: ComponentType | StatelessComponentType): type is ComponentType {
-  return !!(type as Function).prototype.isComponent
+  const prototype = type.prototype
+  return prototype != null ? !!prototype.isComponent : false
 }
 
 export function nodeTypeOf(node: VNode): any {
@@ -67,6 +68,6 @@ export function nodeTypeOf(node: VNode): any {
   } else if (isVText(node)) {
     return '$$text'
   } else {
-    throw new Error(`...`)
+    throw new Error(`Unsupported node type: ${node}`)
   }
 }

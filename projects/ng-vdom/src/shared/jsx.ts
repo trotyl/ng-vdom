@@ -1,6 +1,6 @@
 // tslint:disable:no-empty-interface
 
-import { Attributes, ClassAttributes, VElement } from './shared/node'
+import { Attributes, ClassAttributes, VElement } from './node'
 
 declare global {
   namespace JSX {

@@ -40,7 +40,7 @@
     "@types/node": "^10.10.3",
     "clean-webpack-plugin": "^0.1.19",
     "codecov": "^3.0.2",
-    "codelyzer": "^4.4.4",
+    "codelyzer": "^4.5.0",
     "html-webpack-plugin": "^3.2.0",
     "jasmine-core": "^3.2.1",
     "jasmine-spec-reporter": "~4.2.1",
