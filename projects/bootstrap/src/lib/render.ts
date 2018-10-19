@@ -1,5 +1,4 @@
 import { platformBrowser } from '@angular/platform-browser'
-import { Component, ComponentState, ReactElement } from 'react'
 import { VDomBootstrapModule } from './bootstrap.module'
 import { optionQueue, outletRegistry } from './data'
 

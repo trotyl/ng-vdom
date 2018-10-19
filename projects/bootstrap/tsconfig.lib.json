@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/tmp",
+    "outDir": "../../out-bootstrap",
     "target": "es2015",
     "module": "es2015",
     "moduleResolution": "node",

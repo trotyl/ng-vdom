@@ -1,6 +1,5 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Inject, Injector, NgModule, NgModuleFactory, NgZone } from '@angular/core'
+import { ApplicationRef, ComponentFactoryResolver, Injector, NgModule, NgModuleFactory, NgZone } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
-import { ReactElement } from 'react'
 import { VDomModule, VDomOutlet } from 'ng-vdom'
 import { optionQueue, outletRegistry } from './data'
 

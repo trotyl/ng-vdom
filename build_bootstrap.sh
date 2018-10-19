@@ -1,7 +1,7 @@
 rm -rf dist/tmp
 rm -rf dist/ng-vdom/bootstrap
-yarn ngc -p projects/ng-vdom-bootstrap/tsconfig.json
-mv dist/tmp/projects/ng-vdom-bootstrap/src/lib/bootstrap.module.js dist/tmp/projects/ng-vdom-bootstrap/src/lib/bootstrap.module.internal.js
+yarn ngc -p projects/bootstrap/tsconfig.lib.json
+mv dist/bootstrap-tmp/projects/ng-vdom-bootstrap/src/lib/bootstrap.module.js dist/tmp/projects/ng-vdom-bootstrap/src/lib/bootstrap.module.internal.js
 sed -i -e 's/bootstrap.module/bootstrap.module.internal/g' dist/tmp/projects/ng-vdom-bootstrap/src/lib/bootstrap.module.ngfactory.js
 printf 'import { VDomBootstrapModule } from "./bootstrap.module.internal";\nimport { VDomBootstrapModuleNgFactory } from "./bootstrap.module.ngfactory";\nVDomBootstrapModule.ngFactory = VDomBootstrapModuleNgFactory;\nexport * from "./bootstrap.module.internal";\n' > dist/tmp/projects/ng-vdom-bootstrap/src/lib/bootstrap.module.js
 mkdir -p dist/ng-vdom/bootstrap/lib

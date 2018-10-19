@@ -1,5 +1,4 @@
 import { ApplicationRef, ComponentRef } from '@angular/core'
-import { ReactElement } from 'react'
 import { VDomOutlet } from 'ng-vdom'
 
 export interface BootstrapOption {

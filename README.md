@@ -1,24 +1,28 @@
-# NgVdom
+# NG-VDOM
 
-Major rewrite in progress.
-Logic organization inspired by [Inferno](https://github.com/infernojs/inferno/).
+Virtual DOM extension for Angular, heavily inspired by [Inferno](https://github.com/infernojs/inferno/).
 
 ## Usage
 
-Global bootstrap without Angular API:
+Make an Angular Component with `render` function:
 
 ```tsx
-// Any react-compatible jsxFactory would be fine
-import * as React from 'react'
-import { render } from 'ng-vdom/bootstrap'
+import { Component } from '@angular/core'
+import { Renderable } from 'ng-vdom'
 
-render(
-  <h1>Hello World</h1>,
-  document.querySelector('root')
-)
+@Component({
+  template: ``
+})
+export class AppComponent extends Renderable {
+  render() {
+    return (
+      <h1>Hello World!</h1>
+    )
+  }
+}
 ```
 
-Render Virtual DOM inside Angular:
+Embedding Virtual DOM contents inside template
 
 ```tsx
 import { Component, NgModule } from '@angular/core'
@@ -26,7 +30,7 @@ import { VDomModule } from 'ng-vdom'
 
 @Component({
   template: `
-    <v-outlet [element]="element"></v-outlet>
+    <v-outlet [def]="element"></v-outlet>
   `
 })
 export class AppComponent {
@@ -34,7 +38,6 @@ export class AppComponent {
 }
 
 @NgModule({
-  declarations: [ AppComponent ],
   imports: [ VDomModule ],
 })
 export class AppModule { }

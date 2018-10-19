@@ -1,4 +1,3 @@
-import { Component } from '../shared/component'
 import { ComponentElement, ComponentType, NativeElement, StatelessComponentElement, StatelessComponentType, VElement } from '../shared/node'
 import './jsx'
 
