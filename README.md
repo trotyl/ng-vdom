@@ -43,4 +43,10 @@ export class AppComponent {
 export class AppModule { }
 ```
 
-[Online Demo](https://stackblitz.com/edit/angular-vjj9vt?file=src%2Fapp%2Fclock.ts).
+[Online Demo](https://stackblitz.com/edit/angular-vjj9vt?file=src%2Fapp%2Fclock.component.ts).
+
+## Roadmap
+
++ Global boostrap without Angular code;
++ Fragment render support;
++ Array render support;
