@@ -1,12 +1,15 @@
 import { KeyValueChangeRecord } from '@angular/core'
-import { getCurrentRenderer } from '../shared/context'
+import { createPropertyDiffer, getCurrentRenderer } from '../shared/context'
 import { isNullOrUndefined } from '../shared/lang'
 import { Properties, Styles } from '../shared/types'
-import { getCurrentPropertyDiffer } from './register'
+import { getCurrentMeta } from './register'
 
 export function initProperties(element: Element, props: Properties): void {
-  const propertyDiffer = getCurrentPropertyDiffer()
-  const changes = propertyDiffer.diff(props)
+  if (Object.keys(props).length === 0) { return }
+
+  const meta = getCurrentMeta()
+  const differ = meta.$PD = createPropertyDiffer({})
+  const changes = differ.diff(props)
 
   if (!isNullOrUndefined(changes)) {
     const applyPropertyChange = createPropertyChangeCallback(element)
@@ -15,8 +18,9 @@ export function initProperties(element: Element, props: Properties): void {
 }
 
 export function patchProperties(element: Element, props: Properties): void {
-  const propertyDiffer = getCurrentPropertyDiffer()
-  const changes = propertyDiffer.diff(props)
+  const meta = getCurrentMeta()
+  const differ = meta.$PD = meta.$PD || createPropertyDiffer({})
+  const changes = differ.diff(props)
 
   if (!isNullOrUndefined(changes)) {
     const applyPropertyChange = createPropertyChangeCallback(element)

@@ -1,13 +1,13 @@
 import { Component } from '../shared/component'
-import { queueLifeCycle } from '../shared/context'
 import { createChildrenDiffer, createPropertyDiffer } from '../shared/context'
+import { queueLifeCycle } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
-import { normalize } from '../shared/node'
+import { createEmptyMeta, normalize } from '../shared/node'
 import { ClassComponentType, FunctionComponentType, Properties, VNode } from '../shared/types'
 import { initProperties } from './property'
-import { getCurrentChildrenDiffer, setCurrentMeta } from './register'
+import { getCurrentMeta, setCurrentMeta } from './register'
 import { createComment, createElement, createTextNode, insertBefore } from './render'
 
 export function mount(vNode: VNode, container: Element | null, nextNode: Node | null): void {
@@ -29,23 +29,20 @@ export function mount(vNode: VNode, container: Element | null, nextNode: Node | 
 }
 
 function mountElement(vNode: VNode, container: Element | null, nextNode: Node | null): void {
-  const childrenDiffer = createChildrenDiffer()
-  const propertyDiffer = createPropertyDiffer()
-
-  const meta = vNode.meta = { $PD: propertyDiffer, $CD: childrenDiffer, $IS: null, $IN: null }
+  const meta = vNode.meta = createEmptyMeta()
   const previousMeta = setCurrentMeta(meta)
 
   const type = vNode.type as string
-  const props = vNode.props as Properties
-  const children = vNode.children
+  const props = vNode.props as Properties | null
+  const children = vNode.children!
 
   const element = vNode.native = createElement(type)
 
-  if (!isNullOrUndefined(children) && children.length > 0) {
-    mountArrayChildren(children, element)
+  if (!isNullOrUndefined(props)) {
+    initProperties(element, props)
   }
 
-  initProperties(element, props)
+  mountChildren(children, element)
 
   if (!isNullOrUndefined(container)) {
     insertBefore(container, element, nextNode)
@@ -56,12 +53,11 @@ function mountElement(vNode: VNode, container: Element | null, nextNode: Node | 
 
 function mountClassComponent(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const type = vNode.type as ClassComponentType
-  const props = vNode.props
+  const props = vNode.props as Properties | null
+  const meta = vNode.meta = createEmptyMeta()
 
-  const instance = new type(props)
-  const inner = normalize(instance.render())
-
-  vNode.meta = { $IS: instance, $IN: inner, $PD: null, $CD: null }
+  const instance = meta.$IS = new type(props || EMPTY_OBJ)
+  const inner = meta.$IN = normalize(instance.render())
 
   mount(inner, container, nextNode)
   vNode.native = inner.native
@@ -70,13 +66,14 @@ function mountClassComponent(vNode: VNode, container: Element | null, nextNode: 
 
 function mountFunctionComponent(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const type = vNode.type as FunctionComponentType
-  const props = (vNode.props || EMPTY_OBJ) as { [key: string]: unknown }
+  const props = vNode.props as Properties | null
 
-  const inner = normalize(type(props))
-  const propertyDiffer = createPropertyDiffer()
-  propertyDiffer.diff(props)
+  const meta = vNode.meta = createEmptyMeta()
+  const inner = meta.$IN = normalize(type(props || EMPTY_OBJ))
 
-  vNode.meta = { $IN: inner, $PD: propertyDiffer, $CD: null, $IS: null }
+  if (!isNullOrUndefined(props)) {
+    meta.$PD = createPropertyDiffer(props)
+  }
 
   mount(inner, container, nextNode)
   vNode.native = inner.native
@@ -84,7 +81,7 @@ function mountFunctionComponent(vNode: VNode, container: Element | null, nextNod
 
 function mountText(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const props = vNode.props as { textContent: string }
-  const text = vNode.native = createTextNode(`${props.textContent}`)
+  const text = vNode.native = createTextNode(props.textContent)
 
   if (!isNullOrUndefined(container)) {
     insertBefore(container, text, nextNode)
@@ -99,9 +96,15 @@ function mountVoid(vNode: VNode, container: Element | null, nextNode: Node | nul
   }
 }
 
-function mountArrayChildren(vNodes: VNode[], container: Element): void {
-  const childrenDiffer = getCurrentChildrenDiffer()
-  childrenDiffer.diff(vNodes)
+export function mountChildren(vNodes: VNode[], container: Element): void {
+  if (vNodes.length === 0) { return }
+
+  if (vNodes.length === 1) {
+    return mount(vNodes[0], container, null)
+  }
+
+  const meta = getCurrentMeta()
+  meta.$CD = createChildrenDiffer(vNodes)
 
   for (let i = 0; i < vNodes.length; i++) {
     mount(vNodes[i], container, null)

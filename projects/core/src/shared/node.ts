@@ -1,50 +1,57 @@
+import { TextDef } from '../shared/types'
 import { VNodeFlags } from './flags'
 import { isBoolean, isClassComponent, isFunction, isNullOrUndefined, isNumber, isString } from './lang'
-import { Key, NodeDef, Properties, VNode } from './types'
+import { Key, NodeDef, Properties, VNode, VNodeMeta } from './types'
 
-export const EMPTY_NODE: VNode = {
-  type: null,
-  children: null,
-  key: null,
-  props: null,
-  flags: VNodeFlags.Void,
-  native: null,
-  meta: null,
+function createVoidNode(): VNode {
+  return {
+    type: null,
+    children: null,
+    key: null,
+    props: null,
+    flags: VNodeFlags.Void,
+    native: null,
+    meta: null,
+  }
+}
+
+function createTextNode(content: TextDef): VNode {
+  return {
+    type: null,
+    children: null,
+    key: null,
+    props: { textContent: `${content}` },
+    flags: VNodeFlags.Text,
+    native: null,
+    meta: null,
+  }
+}
+
+export function createEmptyMeta(): VNodeMeta {
+  return { $CD: null, $IN: null, $IS: null, $PD: null }
 }
 
 export function normalize(def: NodeDef): VNode {
   if (isBoolean(def) || isNullOrUndefined(def)) {
-    return EMPTY_NODE
+    return createVoidNode()
   }
-
-  let flags = 0
-  const native = null
-  const meta = null
 
   if (isString(def) || isNumber(def)) {
-    flags |= VNodeFlags.Text
-    return {
-      type: '',
-      children: null,
-      key: null,
-      props: { textContent: def },
-      flags, native, meta,
-    }
+    return createTextNode(def)
   }
 
-  let children: VNode[] | null = null
-  const defChildren = def.children
-
-  if (!isNullOrUndefined(defChildren)) {
-    children = defChildren.map(normalize)
-  }
-
-  let key: Key | null = null
-  const props: Properties = {}
-  const defProps = def.props as Properties
   const type = def.type
+  const children = def.children.map(normalize)
+  const defProps = def.props as Properties
+  const native = null
+  const meta = null
+  let flags = 0
+  let props: Properties | null = null
+  let key: Key | null = null
 
   if (!isNullOrUndefined(defProps)) {
+    props = {}
+
     for (const prop in defProps) {
       if (prop === 'key') {
         key = defProps[prop] as Key

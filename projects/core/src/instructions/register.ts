@@ -1,6 +1,5 @@
-import { IterableDiffer, KeyValueDiffer } from '@angular/core'
 import { isNullOrUndefined } from '../shared/lang'
-import { VNode, VNodeMeta } from '../shared/types'
+import { VNodeMeta } from '../shared/types'
 
 let currentMeta: VNodeMeta | null = null
 
@@ -10,22 +9,14 @@ export function setCurrentMeta(meta: VNodeMeta | null): VNodeMeta | null {
   return previous
 }
 
+export function getCurrentMeta(): VNodeMeta {
+  if (isNullOrUndefined(currentMeta)) {
+    return notAvailable('VNodeMeta')
+  }
+
+  return currentMeta
+}
+
 function notAvailable(item: string): never {
   throw new Error(`${item} not available`)
-}
-
-export function getCurrentPropertyDiffer(): KeyValueDiffer<string, unknown> {
-  if (isNullOrUndefined(currentMeta) || isNullOrUndefined(currentMeta.$PD)) {
-    return notAvailable('PropertyDiffer')
-  }
-
-  return currentMeta.$PD
-}
-
-export function getCurrentChildrenDiffer(): IterableDiffer<VNode> {
-  if (isNullOrUndefined(currentMeta) || isNullOrUndefined(currentMeta.$CD)) {
-    return notAvailable('ChildrenDiffer')
-  }
-
-  return currentMeta.$CD
 }

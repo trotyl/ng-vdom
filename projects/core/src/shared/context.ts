@@ -2,7 +2,7 @@ import { IterableDiffer, IterableDiffers, KeyValueDiffer, KeyValueDiffers, Rende
 import { notAvailableError } from './error'
 import { TaskScheduler } from './schedule'
 import { trackByKey } from './track'
-import { VNode } from './types'
+import { Properties, VNode } from './types'
 import { UpdateQueue } from './update-queue'
 
 let keyValueDiffers: KeyValueDiffers | null = null
@@ -89,10 +89,14 @@ export function getCurrentScheduler(): TaskScheduler {
   return currentScheduler
 }
 
-export function createPropertyDiffer(): KeyValueDiffer<string, unknown> {
-  return getCurrentKeyValueDiffers().find({}).create()
+export function createPropertyDiffer(props: Properties): KeyValueDiffer<string, unknown> {
+  const differ = getCurrentKeyValueDiffers().find(props).create<string, unknown>()
+  differ.diff(props)
+  return differ
 }
 
-export function createChildrenDiffer(): IterableDiffer<VNode> {
-  return getCurrentIterableDiffers().find([]).create(trackByKey)
+export function createChildrenDiffer(children: VNode[]): IterableDiffer<VNode> {
+  const differ = getCurrentIterableDiffers().find(children).create(trackByKey)
+  differ.diff(children)
+  return differ
 }

@@ -44,7 +44,7 @@ describe('patch instruction', () => {
         next = n(null)
       })
 
-      it('should patch with text node', () => {
+      it('should patch with void node', () => {
         mount(previous, container, null)
 
         patch(previous, next, container)
@@ -133,7 +133,7 @@ describe('patch instruction', () => {
         next = n(null)
       })
 
-      it('should patch with text node', () => {
+      it('should patch with void node', () => {
         mount(previous, container, null)
 
         patch(previous, next, container)
@@ -222,7 +222,7 @@ describe('patch instruction', () => {
         next = n(null)
       })
 
-      it('should patch with text node', () => {
+      it('should patch with void node', () => {
         mount(previous, container, null)
 
         patch(previous, next, container)
@@ -346,7 +346,7 @@ describe('patch instruction', () => {
         next = n(null)
       })
 
-      it('should patch with text node', () => {
+      it('should patch with void node', () => {
         mount(previous, container, null)
 
         patch(previous, next, container)
@@ -477,7 +477,7 @@ describe('patch instruction', () => {
         next = n(null)
       })
 
-      it('should patch with text node', () => {
+      it('should patch with void node', () => {
         mount(previous, container, null)
 
         patch(previous, next, container)

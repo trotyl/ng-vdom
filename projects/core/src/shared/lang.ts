@@ -1,4 +1,5 @@
 import { Component } from './component'
+import { TextDef } from './types'
 
 export const EMPTY_OBJ = {}
 
@@ -28,4 +29,8 @@ export function isObject(value: unknown): value is object {
 
 export function isString(value: unknown): value is string {
   return typeof value === 'string'
+}
+
+export function isText(value: unknown): value is TextDef {
+  return isString(value) || isNumber(value)
 }
