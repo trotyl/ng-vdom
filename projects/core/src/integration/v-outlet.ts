@@ -1,12 +1,12 @@
 import { Directive, Injector, Input } from '@angular/core'
-import { VNode } from '../shared/node'
+import { NodeDef } from '../shared/types'
 import { Renderable } from './renderable'
 
 @Directive({
   selector: 'v-outlet',
 })
 export class VOutlet extends Renderable {
-  @Input() def: VNode | null = null
+  @Input() def: NodeDef | null = null
 
   constructor(
     injector: Injector,

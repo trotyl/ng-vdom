@@ -1,7 +1,7 @@
 import { getCurrentUpdateQueue } from './context'
 import { EMPTY_OBJ } from './lang'
 import { ComponentLifecycle } from './lifecycle'
-import { VNode } from './node'
+import { NodeDef } from './types'
 import { UpdateQueue } from './update-queue'
 
 /**
@@ -62,7 +62,7 @@ export abstract class Component<P = any, S = any> implements ComponentLifecycle<
       this.updateQueue.enqueueForceUpdate(this, callback, 'forceUpdate')
   }
 
-  abstract render(): VNode
+  abstract render(): NodeDef
 }
 
 /**

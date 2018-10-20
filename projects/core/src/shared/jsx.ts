@@ -1,10 +1,10 @@
 // tslint:disable:no-empty-interface
 
-import { Attributes, ClassAttributes, VElement } from './node'
+import { Attributes, ClassAttributes, ElementDef } from './types'
 
 declare global {
   namespace JSX {
-    interface Element extends VElement { }
+    interface Element extends ElementDef { }
 
     interface ElementAttributesProperty {
       props: {}

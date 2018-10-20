@@ -1,36 +1,22 @@
 import { IterableDiffer, KeyValueDiffer } from '@angular/core'
 import { getCurrentIterableDiffers, getCurrentKeyValueDiffers } from './context'
-import { isObject } from './lang'
-import { isComponentElement, isNativeElement, isVElement, isVText, ComponentType, StatelessComponentType, VNode } from './node'
+import { isNullOrUndefined, isObject, isString } from './lang'
+import { VNode } from './types'
 
 function keyOf(node: VNode): string | number | null {
   return isObject(node) && node.key ? node.key : null
 }
 
-const componentCounter = new WeakMap<ComponentType | StatelessComponentType, number>()
+let componentCounter = 0
 
-function stringifyComponentType(type: ComponentType<any>): string {
-  if (!componentCounter.has(type)) {
-    componentCounter.set(type, 0)
-  }
-  const count = componentCounter.get(type)!
-  return `${(type as Function).name}_${count}`
+function stringifyType(type: Function | string | null): string {
+  if (isString(type)) { return type }
+  if (isNullOrUndefined(type)) { return 'void'}
+  return `${type.name}_${componentCounter++}`
 }
 
-function stringifyNodeType(node: VNode): string {
-  if (isVElement(node)) {
-    if (isNativeElement(node)) {
-      return `$$element_${node.type}`
-    } else if (isComponentElement(node)) {
-      return `$$component_${stringifyComponentType(node.type)}`
-    } else {
-      return `$$unknown`
-    }
-  } else if (isVText(node)) {
-    return `$$text`
-  } else {
-    return `$$unknown`
-  }
+function stringifyNodeType(vNode: VNode): string {
+  return `type_${vNode.flags}_${stringifyType(vNode.type)}`
 }
 
 let typeCounter: { [name: string]: number } = Object.create(null)
@@ -52,10 +38,10 @@ export function trackByKey(index: number, node: VNode): string {
   return `${nodeType}_${suffix}`
 }
 
-export function createPropDiffer(): KeyValueDiffer<string, any> {
+export function createPropertyDiffer(): KeyValueDiffer<string, any> {
   return getCurrentKeyValueDiffers().find({}).create()
 }
 
-export function createChildDiffer(): IterableDiffer<VNode> {
+export function createChildrenDiffer(): IterableDiffer<VNode> {
   return getCurrentIterableDiffers().find([]).create(trackByKey)
 }

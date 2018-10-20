@@ -1,146 +1,149 @@
-import { IterableDiffer } from '@angular/core'
 import { getCurrentRenderer } from '../shared/context'
-import { isComponentElement, isComponentType, isNativeElement, isVElement, isVText, nodeTypeOf, ComponentElement, NativeElement, StatelessComponentElement, VNode, VText } from '../shared/node'
+import { VNodeFlags } from '../shared/flags'
+import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
+import { normalize } from '../shared/node'
+import { FunctionComponentType, Properties, VNode, VNodeMeta } from '../shared/types'
 import { mount } from './mount'
-import { patchProp } from './props'
-import { getChildNodes, getComponentMeta, getElementMeta, setChildNodes, setComponentMeta, setElementMeta } from './registry'
+import { insertByIndex, moveByIndex, removeByIndex, removeChild, replaceChild } from './operation'
+import { patchProperties } from './property'
+import { getCurrentChildrenDiffer, setCurrentMeta } from './register'
 import { unmount } from './unmount'
 
-export function patch(lastVNode: VNode, nextVNode: VNode, host: Node, container: Element): Node {
-  if (nodeTypeOf(lastVNode) !== nodeTypeOf(nextVNode)) {
-    return replaceWithNewNode(lastVNode, nextVNode, host, container)
-  } else if (isVElement(nextVNode)) {
-    if (isNativeElement(nextVNode)) {
-      return patchElement(lastVNode as NativeElement, nextVNode, host as Element, container)
-    } else if (isComponentElement(nextVNode)) {
-      return patchComponent(lastVNode as ComponentElement, nextVNode, host, container)
-    } else {
-      throw new Error(`...`)
-    }
-  } else if (isVText(nextVNode)) {
-    return patchText(lastVNode as VText, nextVNode, host as Text, container)
+export function patch(lastVNode: VNode, nextVNode: VNode, container: Element): void {
+  const nextFlags = nextVNode.flags
+
+  if (lastVNode.flags !== nextVNode.flags || lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
+    replaceWithNewNode(lastVNode, nextVNode, container)
+  } else if (nextFlags & VNodeFlags.Native) {
+    patchElement(lastVNode, nextVNode)
+  } else if (nextFlags & VNodeFlags.ClassComponent) {
+    patchClassComponent(lastVNode, nextVNode, container)
+  } else if (nextFlags & VNodeFlags.FunctionComponent) {
+    patchFunctionComponent(lastVNode, nextVNode, container)
+  } else if (nextFlags & VNodeFlags.Text) {
+    patchText(lastVNode, nextVNode)
+  } else if (nextFlags & VNodeFlags.Void) {
   } else {
-    throw new Error(`...`)
+    throw new Error(`Unsupported node type ${nextVNode.type}`)
   }
 }
 
-function replaceWithNewNode(lastVNode: VNode, nextVNode: VNode, lastHost: Node, container: Element): Node {
-  const nodes = getChildNodes(container)
-  unmount(lastVNode, container)
-  const index = nodes.indexOf(lastHost)
-  remove(index, nodes, container)
-  const newNode = mount(nextVNode, null)
-  insert(newNode, index, nodes, container)
-  return newNode
+function replaceWithNewNode(lastVNode: VNode, nextVNode: VNode, container: Element): void {
+  const lastNode = lastVNode.native!
+  unmount(lastVNode)
+
+  if ((nextVNode.flags & lastVNode.flags & VNodeFlags.Simple) !== 0) {
+    mount(nextVNode, null, null)
+    replaceChild(container, nextVNode.native!, lastNode)
+  } else {
+    mount(nextVNode, container, lastNode)
+    removeChild(container, lastNode)
+  }
 }
 
-function patchElement(lastVNode: NativeElement, nextVNode: NativeElement, host: Element, container: Element): Node {
-  const { events, propDiffer, childDiffer } = getElementMeta(lastVNode)
-  let childNodes = getChildNodes(host)
+function patchElement(lastVNode: VNode, nextVNode: VNode): void {
+  const meta = lastVNode.meta as VNodeMeta
+  nextVNode.meta = meta
 
-  const { children: lastChildren, props: lastProps } = lastVNode
-  const { children: nextChildren, props: nextProps } = nextVNode
+  const previousMeta = setCurrentMeta(meta)
+
+  const lastChildren = lastVNode.children || []
+  const lastProps = lastVNode.props
+  const nextChildren = nextVNode.children || []
+  const nextProps = nextVNode.props as { [key: string]: any }
+
+  const element = lastVNode.native! as Element
+  nextVNode.native = element
 
   if (lastProps !== nextProps) {
-    const changes = propDiffer.diff(nextProps)
-    if (changes != null) {
-      changes.forEachAddedItem(record => patchProp(record.key, record.currentValue, host, events))
-      changes.forEachChangedItem(record => patchProp(record.key, record.currentValue, host, events))
-      changes.forEachRemovedItem(record => patchProp(record.key, null, host, events))
-    }
+    patchProperties(element, nextProps)
   }
+  patchChildren(lastChildren, nextChildren, element)
 
-  childNodes = patchChildren(lastChildren, nextChildren, childDiffer, childNodes, host)
-
-  setElementMeta(nextVNode, { events, propDiffer, childDiffer })
-  setChildNodes(host, childNodes)
-
-  return host
+  setCurrentMeta(previousMeta)
 }
 
-function patchChildren(lastChildren: VNode[], nextChildren: VNode[], childDiffer: IterableDiffer<VNode>, childNodes: Node[], container: Element): Node[] {
+function patchClassComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
+  const meta = lastVNode.meta as VNodeMeta
+  nextVNode.meta = meta
+
+  const previousMeta = setCurrentMeta(meta)
+
+  const instance = lastVNode.meta!.$IS!
+  const lastInner = lastVNode.meta!.$IN!
+
+  const props = (nextVNode.props || EMPTY_OBJ) as Properties
+
+  (instance as { props: Properties }).props = props
+  const nextInner = normalize(instance!.render())
+  nextVNode.meta!.$IN = nextInner
+
+  patch(lastInner, nextInner, container)
+  nextVNode.native = nextInner.native
+
+  setCurrentMeta(previousMeta)
+}
+
+function patchFunctionComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
+  const meta = lastVNode.meta as VNodeMeta
+  nextVNode.meta = meta
+
+  const previousMeta = setCurrentMeta(meta)
+
+  const type = nextVNode.type as FunctionComponentType
+  const nextProps = (nextVNode.props || EMPTY_OBJ) as Properties
+  const propertyDiffer = meta!.$PD!
+  const lastInner = meta!.$IN!
+  let nextInner = lastInner
+
+  const changes = propertyDiffer!.diff(nextProps)
+
+  if (!isNullOrUndefined(changes)) {
+    nextInner = normalize(type(nextProps))
+  }
+
+  patch(lastInner, nextInner, container)
+  nextVNode.native = nextInner.native
+
+  setCurrentMeta(previousMeta)
+}
+
+function patchText(lastVNode: VNode, nextVNode: VNode): void {
+  nextVNode.native = lastVNode.native
+
+  const lastText = (lastVNode.props as { textContent: string }).textContent
+  const nextText = (nextVNode.props as { textContent: string }).textContent
+
+  if (lastText === nextText) { return }
+
+  const renderer = getCurrentRenderer()
+  renderer.setValue(lastVNode.native!, nextText)
+}
+
+function patchChildren(lastChildren: VNode[], nextChildren: VNode[], container: Element): void {
+  const childDiffer = getCurrentChildrenDiffer()
+  const nodes = lastChildren.map(vNode => vNode.native!)
   const changes = childDiffer.diff(nextChildren)
 
-  if (changes) {
+  if (!isNullOrUndefined(changes)) {
     changes.forEachOperation(({ item, previousIndex, currentIndex }, temporaryPreviousIndex, temporaryCurrentIndex) => {
-      if (previousIndex == null) {
-        const node = mount(item, null)
-        insert(node, temporaryCurrentIndex!, childNodes, container)
-      } else if (temporaryCurrentIndex == null) {
-        remove(temporaryPreviousIndex!, childNodes, container)
+      if (isNullOrUndefined(previousIndex)) {
+        mount(item, null, null)
+        insertByIndex(container, item.native!, temporaryCurrentIndex!, nodes)
+      } else if (isNullOrUndefined(temporaryCurrentIndex)) {
+        removeByIndex(container, temporaryPreviousIndex!, nodes)
       } else {
-        const node = remove(temporaryPreviousIndex!, childNodes, container)
-        insert(node, temporaryCurrentIndex, childNodes, container)
-        patch(lastChildren[previousIndex], nextChildren[currentIndex!], childNodes[temporaryCurrentIndex], container)
+        moveByIndex(container, temporaryPreviousIndex!, temporaryCurrentIndex, nodes)
+        patch(lastChildren[previousIndex], nextChildren[currentIndex!], container)
       }
     })
 
-    changes.forEachIdentityChange(({ item, previousIndex, currentIndex }) => {
-      patch(lastChildren[previousIndex!], item, childNodes[currentIndex!], container)
+    changes.forEachIdentityChange(({ item, previousIndex }) => {
+      patch(lastChildren[previousIndex!], item, container)
     })
   } else {
     for (let i = 0; i < nextChildren.length; i++) {
-      patch(nextChildren[i], nextChildren[i], childNodes[i], container)
+      patch(nextChildren[i], nextChildren[i], container)
     }
-  }
-
-  return childNodes
-}
-
-function patchComponent(lastVNode: ComponentElement | StatelessComponentElement, nextVNode: ComponentElement | StatelessComponentElement, host: Node, container: Element): Node {
-  if (lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
-    return replaceWithNewNode(lastVNode, nextVNode, host, container)
-  }
-
-  const { input: lastInput, propDiffer, instance } = getComponentMeta(lastVNode)
-  const type = nextVNode.type
-  const props = nextVNode.props
-
-  let nextInput = lastInput
-
-  if (isComponentType(type)) {
-    (instance as any).props = props
-    nextInput = instance!.render()
-  } else {
-    const changes = propDiffer!.diff(nextVNode.props)
-
-    if (changes) {
-      nextInput = type(props)
-    }
-  }
-
-  setComponentMeta(nextVNode, { input: nextInput, propDiffer, instance })
-  return patch(lastInput, nextInput, host, container)
-}
-
-function patchText(lastVNode: VText, nextVNode: VText, host: Text, container: Element): Node {
-  if (lastVNode === nextVNode) {
-    return host
-  }
-
-  const nextText = `${nextVNode}`
-  if (!host) {
-    throw new Error(`Missing text node`)
-  }
-  getCurrentRenderer().setValue(host, nextText)
-
-  return host
-}
-
-function remove(previousIndex: number, childNodes: Node[], container: Element): Node {
-  const node = childNodes[previousIndex]
-  getCurrentRenderer().removeChild(container, node)
-  childNodes.splice(previousIndex, 1)
-  return node
-}
-
-function insert(node: Node, currentIndex: number, childNodes: Node[], container: Element): void {
-  if (currentIndex === childNodes.length) {
-    getCurrentRenderer().appendChild(container, node)
-    childNodes.push(node)
-  } else {
-    const nextNode = childNodes[currentIndex]
-    getCurrentRenderer().insertBefore(container, node, nextNode)
-    childNodes.splice(currentIndex, 0, node)
   }
 }

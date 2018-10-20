@@ -3,19 +3,20 @@ import { patch } from '../instructions/patch'
 import { unmount } from '../instructions/unmount'
 import { Component } from '../shared/component'
 import { getCurrentScheduler, resetLifeCycle, runLifeCycle, setCurrentUpdateQueue } from '../shared/context'
-import { isFunction } from '../shared/lang'
-import { VNode } from '../shared/node'
+import { isFunction, isNullOrUndefined } from '../shared/lang'
+import { normalize } from '../shared/node'
 import { TaskScheduler } from '../shared/schedule'
+import { NodeDef, VNode } from '../shared/types'
 import { UpdateQueue } from '../shared/update-queue'
 
 function noop() { }
 
 export abstract class Container implements UpdateQueue {
-  protected __def: VNode | null = null
+  protected __def: NodeDef | null = null
   protected __container: HTMLElement | null = null
 
-  private __lastDef: VNode | null = null
-  private __node: Node | null = null
+  private __lastDef: NodeDef | null = null
+  private __vNode: VNode | null = null
   private __queue: Array<() => void> = []
   private __pendingSchedule: boolean = false
   private __scheduler: TaskScheduler = getCurrentScheduler()
@@ -59,20 +60,24 @@ export abstract class Container implements UpdateQueue {
     resetLifeCycle()
     const previousUpdateQueue = setCurrentUpdateQueue(this)
 
-    if (this.__lastDef == null) {
-      if (this.__def != null) {
-        this.__node = mount(this.__def, this.__container)
+    if (isNullOrUndefined(this.__lastDef)) {
+      if (!isNullOrUndefined(this.__def)) {
+        this.__vNode = normalize(this.__def)
+        mount(this.__vNode, this.__container, null)
       }
     } else {
-      if (this.__def == null) {
-        this.__node = unmount(this.__lastDef, this.__node!)
+      if (isNullOrUndefined(this.__def)) {
+        unmount(this.__vNode!)
       } else if (this.__def !== this.__lastDef) {
-        this.__node = patch(this.__lastDef, this.__def, this.__node!, this.__container!)
+        const lastVNode = this.__vNode!
+        this.__vNode = normalize(this.__def)
+        patch(lastVNode, this.__vNode, this.__container!)
       }
     }
 
-    runLifeCycle()
     this.__lastDef = this.__def
+
+    runLifeCycle()
     setCurrentUpdateQueue(previousUpdateQueue)
     restoreContext()
   }

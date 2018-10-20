@@ -1,6 +1,6 @@
 import { DoCheck, ElementRef, Injectable, Injector, IterableDiffers, KeyValueDiffers, Renderer2, RendererFactory2 } from '@angular/core'
 import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer } from '../shared/context'
-import { VNode } from '../shared/node'
+import { NodeDef } from '../shared/types'
 import { Container } from './container'
 
 @Injectable()
@@ -20,7 +20,7 @@ export abstract class Renderable extends Container implements DoCheck {
     this.__renderer = renderer != null ? renderer : (injector.get(RendererFactory2) as RendererFactory2).createRenderer(null, null)
   }
 
-  abstract render(): VNode | null
+  abstract render(): NodeDef | null
 
   ngDoCheck(): void {
     this.__def = this.render()

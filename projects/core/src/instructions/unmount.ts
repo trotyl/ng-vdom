@@ -1,6 +1,5 @@
-import { VNode } from '../shared/node'
+import { VNode } from '../shared/types'
 
-export function unmount(vNode: VNode, node: Node): null {
+export function unmount(vNode: VNode): void {
   // TODO: unmount node
-  return null
 }

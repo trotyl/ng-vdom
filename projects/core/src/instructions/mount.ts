@@ -1,108 +1,123 @@
-import { IterableDiffer, KeyValueDiffer } from '@angular/core'
+import { IterableDiffer } from '@angular/core'
 import { Component } from '../shared/component'
 import { getCurrentRenderer, queueLifeCycle } from '../shared/context'
-import { createChildDiffer, createPropDiffer } from '../shared/diff'
+import { createChildrenDiffer, createPropertyDiffer } from '../shared/diff'
+import { VNodeFlags } from '../shared/flags'
+import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
-import { isComponentElement, isComponentType, isNativeElement, isVElement, isVText, ComponentElement, NativeElement, StatelessComponentElement, VNode, VText } from '../shared/node'
-import { mountProps } from './props'
-import { setChildNodes, setComponentMeta, setElementMeta } from './registry'
+import { normalize } from '../shared/node'
+import { ClassComponentType, FunctionComponentType, VNode } from '../shared/types'
+import { initProperties } from './property'
+import { setCurrentMeta } from './register'
 
-export function mount(node: VNode, container: Element | null): Node {
-  let res: Node | null = null
+export function mount(vNode: VNode, container: Element | null, nextNode: Node | null): void {
+  const flags = vNode.flags
 
-  if (isVElement(node)) {
-    if (isNativeElement(node)) {
-      res = mountElement(node, container)
-    } else if (isComponentElement(node)) {
-      res = mountComponent(node, container)
-    }
-  } else if (isVText(node)) {
-    res = mountText(node, container)
+  if (flags & VNodeFlags.Native) {
+    mountElement(vNode, container, nextNode)
+  } else if (flags & VNodeFlags.ClassComponent) {
+    mountClassComponent(vNode, container, nextNode)
+  } else if (flags & VNodeFlags.FunctionComponent) {
+    mountFunctionComponent(vNode, container, nextNode)
+  } else if (flags & VNodeFlags.Text) {
+    mountText(vNode, container, nextNode)
+  } else if (flags & VNodeFlags.Void) {
+  } else {
+    throw new Error(`Unsupported node type: ${vNode}`)
   }
-
-  if (res == null) {
-    throw new Error(`Unsupported node type: ${node}`)
-  }
-
-  if (container != null) {
-    setChildNodes(container, [res])
-  }
-
-  return res
 }
 
-function mountElement(vNode: NativeElement, container: Element | null): Node {
+function mountElement(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const renderer = getCurrentRenderer()
-  const childDiffer = createChildDiffer()
-  const propDiffer = createPropDiffer()
+  const childDiffer = createChildrenDiffer()
+  const propertyDiffer = createPropertyDiffer()
 
-  const { props, children } = vNode
-  const el = renderer.createElement(vNode.type) as Element
+  const meta = { $PD: propertyDiffer, $CD: childDiffer, $IS: null, $IN: null }
+  const previousMeta = setCurrentMeta(meta)
+  vNode.meta = meta
 
-  if (container) {
-    renderer.appendChild(container, el)
+  const type = vNode.type as string
+  const props = vNode.props
+  const children = vNode.children
+
+  const element = renderer.createElement(type) as Element
+  vNode.native = element
+
+  if (!isNullOrUndefined(children) && children.length > 0) {
+    mountArrayChildren(children, childDiffer, element)
   }
 
-  let childNodes: Node[] = []
-  if (children.length > 0) {
-    childNodes = mountArrayChildren(children, childDiffer, el)
+  initProperties(element, props as any)
+
+  if (!isNullOrUndefined(container)) {
+    if (!isNullOrUndefined(nextNode)) {
+      renderer.insertBefore(container, element, nextNode)
+    } else {
+      renderer.appendChild(container, element)
+    }
   }
 
-  const events = Object.create(null)
-  mountProps(props, propDiffer, el, events)
-  setElementMeta(vNode, { events, propDiffer, childDiffer })
-  setChildNodes(el, childNodes)
-
-  return el
+  setCurrentMeta(previousMeta)
 }
 
-function mountArrayChildren(vNodes: VNode[], differ: IterableDiffer<VNode>, container: Element): Node[] {
-  const childNodes: Node[] = []
+function mountClassComponent(vNode: VNode, container: Element | null, nextNode: Node | null): void {
+  const type = vNode.type as ClassComponentType
+  const props = vNode.props
+
+  const instance = new type(props)
+  const inner = normalize(instance.render())
+
+  vNode.meta = { $IS: instance, $IN: inner, $PD: null, $CD: null }
+
+  mount(inner, container, nextNode)
+  vNode.native = inner.native
+  mountClassComponentCallbacks(instance)
+}
+
+
+function mountFunctionComponent(vNode: VNode, container: Element | null, nextNode: Node | null): void {
+  const type = vNode.type as FunctionComponentType
+  const props = (vNode.props || EMPTY_OBJ) as { [key: string]: any }
+
+  const inner = normalize(type(props))
+  const propertyDiffer = createPropertyDiffer()
+  propertyDiffer.diff(props)
+
+  vNode.meta = { $IN: inner, $PD: propertyDiffer, $CD: null, $IS: null }
+
+  mount(inner, container, nextNode)
+  vNode.native = inner.native
+}
+
+function mountText(vNode: VNode, container: Element | null, nextNode: Node | null): void {
+  const props = vNode.props as { textContent: string }
+  const renderer = getCurrentRenderer()
+
+  const text = renderer.createText(`${props.textContent}`) as Text
+  vNode.native = text
+
+  if (!isNullOrUndefined(container)) {
+    if (!isNullOrUndefined(nextNode)) {
+      renderer.insertBefore(container, text, nextNode)
+    } else {
+      renderer.appendChild(container, text)
+    }
+  }
+}
+
+function mountArrayChildren(vNodes: VNode[], differ: IterableDiffer<VNode>, container: Element): void {
   const changes = differ.diff(vNodes)!
 
-  changes.forEachAddedItem(record => {
-    const childNode = mount(record.item, container)
-    childNodes.push(childNode)
-  })
-
-  return childNodes
-}
-
-function mountComponent(vNode: ComponentElement | StatelessComponentElement, container: Element | null): Node {
-  const { type, props } = vNode
-
-  let input: VNode
-  let propDiffer: KeyValueDiffer<string, any> | null = null
-  let instance: Component<any, any> | null = null
-  if (isComponentType(type)) {
-    instance = new type(props)
-    input = instance.render()
-    mountClassComponentCallbacks(instance)
-  } else {
-    input = type(props)
-    propDiffer = createPropDiffer()
-    propDiffer.diff(props)
+  if (!isNullOrUndefined(changes)) {
+    changes.forEachAddedItem(record => {
+      mount(record.item, container, null)
+    })
   }
-
-  setComponentMeta(vNode, { input, propDiffer, instance })
-  return mount(input, container)
 }
 
-function mountClassComponentCallbacks(instance: Component<any, any>): void {
+function mountClassComponentCallbacks(instance: Component): void {
   const instanceWithLifecycles = instance as ComponentLifecycle
   if (instanceWithLifecycles.componentDidMount != null) {
     queueLifeCycle(() => instanceWithLifecycles.componentDidMount!())
   }
-}
-
-function mountText(vNode: VText, container: Element | null): Node {
-  const renderer = getCurrentRenderer()
-
-  const text = renderer.createText(`${vNode}`) as Text
-
-  if (container) {
-    renderer.appendChild(container, text)
-  }
-
-  return text
 }
