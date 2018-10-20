@@ -51,15 +51,56 @@ describe('mount instruction', () => {
         expect(container.innerHTML).toBe(`<p class="foo"></p>`)
       })
 
-      xdescribe('Event', () => {
-        it('should add event listener', () => {
-          let clicked = false
-          input = n(h('p', { onClick: () => { clicked = true } }))
+      describe('Event', () => {
+        let handled: boolean
+
+        beforeEach(() => {
+          handled = false
+        })
+
+        it('should add lowercase event listener', () => {
+          input = n(h('p', { onFoo: () => { handled = true } }))
           mount(input, container, null)
 
-          input.native!.dispatchEvent(new CustomEvent('click'))
+          input.native!.dispatchEvent(new CustomEvent('foo'))
 
-          expect(clicked).toBe(true)
+          expect(handled).toBe(true)
+        })
+
+        it('should add camelCase event listener', () => {
+          input = n(h('p', { onFooBar: () => { handled = true } }))
+          mount(input, container, null)
+
+          input.native!.dispatchEvent(new CustomEvent('fooBar'))
+
+          expect(handled).toBe(true)
+        })
+
+        it('should add PascalCase event listener', () => {
+          input = n(h('p', { on_FooBar: () => { handled = true } }))
+          mount(input, container, null)
+
+          input.native!.dispatchEvent(new CustomEvent('FooBar'))
+
+          expect(handled).toBe(true)
+        })
+
+        it('should add kebab-case event listener', () => {
+          input = n(h('p', { 'on_foo-bar': () => { handled = true } }))
+          mount(input, container, null)
+
+          input.native!.dispatchEvent(new CustomEvent('foo-bar'))
+
+          expect(handled).toBe(true)
+        })
+
+        it('should add uppercase event listener', () => {
+          input = n(h('p', { on_FOOBAR: () => { handled = true } }))
+          mount(input, container, null)
+
+          input.native!.dispatchEvent(new CustomEvent('FOOBAR'))
+
+          expect(handled).toBe(true)
         })
       })
     })
