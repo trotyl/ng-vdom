@@ -5,14 +5,16 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build core",
-    "test": "ng test core --no-watch --code-coverage --progress=false",
     "lint": "ng lint",
     "e2e": "ng e2e",
+    "test:lib": "ng test core --no-watch --code-coverage --progress=false",
+    "test:site": "ng test site --no-watch --code-coverage --progress=false",
     "start:demo": "webpack-dev-server --config projects/react-demo/webpack.config.js",
     "build:lib:core": "ng build core",
     "build:lib:bootstrap": "./build_bootstrap.sh",
-    "build:lib": "yarn build:lib:core && yarn build:lib:bootstrap",
-    "postbuild:lib": "cp README.md dist/ng-vdom/"
+    "build:lib": "yarn build:lib:core",
+    "postbuild:lib": "cp README.md dist/ng-vdom/",
+    "build:site": "ng build site"
   },
   "private": true,
   "dependencies": {

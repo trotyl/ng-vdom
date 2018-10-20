@@ -21,9 +21,7 @@
       "dom"
     ],
     "paths": {
-      "ng-vdom": ["dist/ng-vdom"],
-      "ng-vdom/bootstrap": ["dist/ng-vdom/bootstrap"],
-      "react-demo": ["dist/react-demo"]
+      "ng-vdom": ["projects/core/src/public_api"]
     }
   }
 }

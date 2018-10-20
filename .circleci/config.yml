@@ -71,7 +71,7 @@ jobs:
         
       - run: yarn lint
 
-  test:
+  test-lib:
     docker:
       - image: circleci/node:8.9-browsers
 
@@ -92,11 +92,11 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
         
-      - run: yarn test
+      - run: yarn test:lib
 
       - run: yarn codecov
 
-  build:
+  test-site:
     docker:
       - image: circleci/node:8.9-browsers
 
@@ -117,12 +117,60 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
         
-      - run: yarn build
+      - run: yarn test:site
+
+  build-lib:
+    docker:
+      - image: circleci/node:8.9-browsers
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "yarn.lock" }}
+          - v1-dependencies-
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+        
+      - run: yarn build:lib
+
+  build-site:
+    docker:
+      - image: circleci/node:8.9-browsers
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "yarn.lock" }}
+          - v1-dependencies-
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+        
+      - run: yarn build:site
 
 workflows:
   version: 2
   pipeline:
     jobs:
       - lint
-      - test
-      - build
+      - test-lib
+      - test-site
+      - build-lib
+      - build-site
