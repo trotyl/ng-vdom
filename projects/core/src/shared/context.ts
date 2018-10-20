@@ -1,6 +1,8 @@
-import { IterableDiffers, KeyValueDiffers, Renderer2 } from '@angular/core'
+import { IterableDiffer, IterableDiffers, KeyValueDiffer, KeyValueDiffers, Renderer2 } from '@angular/core'
 import { notAvailableError } from './error'
 import { TaskScheduler } from './schedule'
+import { trackByKey } from './track'
+import { VNode } from './types'
 import { UpdateQueue } from './update-queue'
 
 let keyValueDiffers: KeyValueDiffers | null = null
@@ -85,4 +87,12 @@ export function setCurrentScheduler(scheduler: TaskScheduler): TaskScheduler {
 
 export function getCurrentScheduler(): TaskScheduler {
   return currentScheduler
+}
+
+export function createPropertyDiffer(): KeyValueDiffer<string, unknown> {
+  return getCurrentKeyValueDiffers().find({}).create()
+}
+
+export function createChildrenDiffer(): IterableDiffer<VNode> {
+  return getCurrentIterableDiffers().find([]).create(trackByKey)
 }

@@ -2,10 +2,11 @@ import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
 import { normalize } from '../shared/node'
 import { FunctionComponentType, Properties, VNode, VNodeMeta } from '../shared/types'
+import { insertByIndex, moveByIndex, removeByIndex } from './diff'
 import { mount } from './mount'
-import { insertByIndex, moveByIndex, removeByIndex, removeChild, replaceChild, setNodeValue } from './operation'
 import { patchProperties } from './property'
 import { getCurrentChildrenDiffer, setCurrentMeta } from './register'
+import { removeChild, replaceChild, setNodeValue } from './render'
 import { unmount } from './unmount'
 
 export function patch(lastVNode: VNode, nextVNode: VNode, container: Element): void {
@@ -41,9 +42,7 @@ function replaceWithNewNode(lastVNode: VNode, nextVNode: VNode, container: Eleme
 }
 
 function patchElement(lastVNode: VNode, nextVNode: VNode): void {
-  const meta = lastVNode.meta as VNodeMeta
-  nextVNode.meta = meta
-
+  const meta = nextVNode.meta = lastVNode.meta!
   const previousMeta = setCurrentMeta(meta)
 
   const lastChildren = lastVNode.children || []
@@ -51,8 +50,7 @@ function patchElement(lastVNode: VNode, nextVNode: VNode): void {
   const nextChildren = nextVNode.children || []
   const nextProps = nextVNode.props as Properties
 
-  const element = lastVNode.native! as Element
-  nextVNode.native = element
+  const element = nextVNode.native = lastVNode.native! as Element
 
   if (lastProps !== nextProps) {
     patchProperties(element, nextProps)
@@ -63,19 +61,16 @@ function patchElement(lastVNode: VNode, nextVNode: VNode): void {
 }
 
 function patchClassComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
-  const meta = lastVNode.meta as VNodeMeta
-  nextVNode.meta = meta
-
+  const meta = nextVNode.meta = lastVNode.meta!
   const previousMeta = setCurrentMeta(meta)
 
-  const instance = lastVNode.meta!.$IS!
-  const lastInner = lastVNode.meta!.$IN!
+  const instance = meta.$IS!
+  const lastInner = meta.$IN!
 
   const props = (nextVNode.props || EMPTY_OBJ) as Properties
 
   (instance as { props: Properties }).props = props
-  const nextInner = normalize(instance!.render())
-  nextVNode.meta!.$IN = nextInner
+  const nextInner = meta.$IN = normalize(instance!.render())
 
   patch(lastInner, nextInner, container)
   nextVNode.native = nextInner.native
@@ -84,15 +79,14 @@ function patchClassComponent(lastVNode: VNode, nextVNode: VNode, container: Elem
 }
 
 function patchFunctionComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
-  const meta = lastVNode.meta as VNodeMeta
-  nextVNode.meta = meta
+  const meta = nextVNode.meta = lastVNode.meta!
 
   const previousMeta = setCurrentMeta(meta)
 
   const type = nextVNode.type as FunctionComponentType
   const nextProps = (nextVNode.props || EMPTY_OBJ) as Properties
-  const propertyDiffer = meta!.$PD!
-  const lastInner = meta!.$IN!
+  const propertyDiffer = meta.$PD!
+  const lastInner = meta.$IN!
   let nextInner = lastInner
 
   const changes = propertyDiffer!.diff(nextProps)
@@ -119,9 +113,9 @@ function patchText(lastVNode: VNode, nextVNode: VNode): void {
 }
 
 function patchChildren(lastChildren: VNode[], nextChildren: VNode[], container: Element): void {
-  const childDiffer = getCurrentChildrenDiffer()
+  const childrenDiffer = getCurrentChildrenDiffer()
   const nodes = lastChildren.map(vNode => vNode.native!)
-  const changes = childDiffer.diff(nextChildren)
+  const changes = childrenDiffer.diff(nextChildren)
 
   if (!isNullOrUndefined(changes)) {
     changes.forEachOperation(({ item, previousIndex, currentIndex }, temporaryPreviousIndex, temporaryCurrentIndex) => {

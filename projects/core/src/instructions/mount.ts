@@ -1,15 +1,14 @@
-import { IterableDiffer } from '@angular/core'
 import { Component } from '../shared/component'
 import { queueLifeCycle } from '../shared/context'
-import { createChildrenDiffer, createPropertyDiffer } from '../shared/diff'
+import { createChildrenDiffer, createPropertyDiffer } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
 import { normalize } from '../shared/node'
 import { ClassComponentType, FunctionComponentType, Properties, VNode } from '../shared/types'
-import { createComment, createElement, createTextNode, insertBefore } from './operation'
 import { initProperties } from './property'
-import { setCurrentMeta } from './register'
+import { getCurrentChildrenDiffer, setCurrentMeta } from './register'
+import { createComment, createElement, createTextNode, insertBefore } from './render'
 
 export function mount(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const flags = vNode.flags
@@ -43,7 +42,7 @@ function mountElement(vNode: VNode, container: Element | null, nextNode: Node | 
   const element = vNode.native = createElement(type)
 
   if (!isNullOrUndefined(children) && children.length > 0) {
-    mountArrayChildren(children, childrenDiffer, element)
+    mountArrayChildren(children, element)
   }
 
   initProperties(element, props)
@@ -100,13 +99,12 @@ function mountVoid(vNode: VNode, container: Element | null, nextNode: Node | nul
   }
 }
 
-function mountArrayChildren(vNodes: VNode[], differ: IterableDiffer<VNode>, container: Element): void {
-  const changes = differ.diff(vNodes)!
+function mountArrayChildren(vNodes: VNode[], container: Element): void {
+  const childrenDiffer = getCurrentChildrenDiffer()
+  childrenDiffer.diff(vNodes)
 
-  if (!isNullOrUndefined(changes)) {
-    changes.forEachAddedItem(record => {
-      mount(record.item, container, null)
-    })
+  for (let i = 0; i < vNodes.length; i++) {
+    mount(vNodes[i], container, null)
   }
 }
 

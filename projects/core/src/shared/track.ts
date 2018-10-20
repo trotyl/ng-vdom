@@ -1,5 +1,3 @@
-import { IterableDiffer, KeyValueDiffer } from '@angular/core'
-import { getCurrentIterableDiffers, getCurrentKeyValueDiffers } from './context'
 import { isNullOrUndefined, isObject, isString } from './lang'
 import { VNode } from './types'
 
@@ -38,10 +36,3 @@ export function trackByKey(index: number, node: VNode): string {
   return `${nodeType}_${suffix}`
 }
 
-export function createPropertyDiffer(): KeyValueDiffer<string, unknown> {
-  return getCurrentKeyValueDiffers().find({}).create()
-}
-
-export function createChildrenDiffer(): IterableDiffer<VNode> {
-  return getCurrentIterableDiffers().find([]).create(trackByKey)
-}
