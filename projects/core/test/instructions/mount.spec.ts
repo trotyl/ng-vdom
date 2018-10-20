@@ -16,11 +16,20 @@ describe('mount instruction', () => {
   })
 
   describe('Text', () => {
+    it('should mount without container', () => {
+      input = n('foo')
+
+      mount(input, null, null)
+
+      expect(input.native).not.toBeNull()
+      expect(input.native!.textContent).toBe(`foo`)
+    })
+
     it('should mount text node in string', () => {
       input = n('foo')
       mount(input, container, null)
 
-      expect(input.native!.nodeType).toBe(Node.TEXT_NODE)
+      expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`foo`)
     })
 
@@ -28,17 +37,69 @@ describe('mount instruction', () => {
       input = n(42)
       mount(input, container, null)
 
-      expect(input.native!.nodeType).toBe(Node.TEXT_NODE)
+      expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`42`)
     })
   })
 
+  describe('Void', () => {
+    it('should mount without container', () => {
+      input = n(null)
+
+      mount(input, null, null)
+
+      expect(input.native).not.toBeNull()
+      expect(input.native!.textContent).toBe(`void`)
+    })
+
+    it('should mount nothing in true', () => {
+      input = n(true)
+      mount(input, container, null)
+
+      expect(input.native).not.toBeNull()
+      expect(container.innerHTML).toBe(`<!--void-->`)
+    })
+
+    it('should mount nothing in false', () => {
+      input = n(false)
+      mount(input, container, null)
+
+      expect(input.native).not.toBeNull()
+      expect(container.innerHTML).toBe(`<!--void-->`)
+    })
+
+    it('should mount nothing in null', () => {
+      input = n(null)
+      mount(input, container, null)
+
+      expect(input.native).not.toBeNull()
+      expect(container.innerHTML).toBe(`<!--void-->`)
+    })
+
+    it('should mount nothing in undefined', () => {
+      input = n(undefined)
+      mount(input, container, null)
+
+      expect(input.native).not.toBeNull()
+      expect(container.innerHTML).toBe(`<!--void-->`)
+    })
+  })
+
   describe('Element', () => {
+    it('should mount without container', () => {
+      input = n(h('p'))
+
+      mount(input, null, null)
+
+      expect(input.native).not.toBeNull()
+      expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe(`p`)
+    })
+
     it('should mount basic element', () => {
       input = n(h('p'))
       mount(input, container, null)
 
-      expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+      expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<p></p>`)
     })
 
@@ -47,7 +108,7 @@ describe('mount instruction', () => {
         input = n(h('p', { className: 'foo' }))
         mount(input, container, null)
 
-        expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(input.native).not.toBeNull()
         expect(container.innerHTML).toBe(`<p class="foo"></p>`)
       })
 
@@ -110,7 +171,7 @@ describe('mount instruction', () => {
         input = n(h('p', null, 'foo'))
         mount(input, container, null)
 
-        expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(input.native).not.toBeNull()
         expect(container.innerHTML).toBe(`<p>foo</p>`)
       })
 
@@ -118,7 +179,7 @@ describe('mount instruction', () => {
         input = n(h('p', null, h('span')))
         mount(input, container, null)
 
-        expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(input.native).not.toBeNull()
         expect(container.innerHTML).toBe(`<p><span></span></p>`)
       })
 
@@ -126,60 +187,78 @@ describe('mount instruction', () => {
         input = n(h('p', null, 0, h('span', null, 1), 2, h('b', null, 3), 4))
         mount(input, container, null)
 
-        expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(input.native).not.toBeNull()
         expect(container.innerHTML).toBe(`<p>0<span>1</span>2<b>3</b>4</p>`)
       })
     })
   })
 
   describe('Class Component', () => {
-    it('should mount basic class component', () => {
-      class MountComponent extends Component {
-        render() { return h('p') }
-      }
+    class BasicComponent extends Component {
+      render() { return h('p') }
+    }
 
-      input = n(h(MountComponent))
+    class PropsComponent extends Component<{ value: number }> {
+      render() { return h('p', null, this.props.value) }
+    }
+
+    it('should mount without container', () => {
+      input = n(h(BasicComponent))
+
+      mount(input, null, null)
+
+      expect(input.native).not.toBeNull()
+      expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe(`p`)
+    })
+
+    it('should mount basic class component', () => {
+      input = n(h(BasicComponent))
       mount(input, container, null)
 
-      expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+      expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<p></p>`)
     })
 
     it('should mount class component with property', () => {
-      class MountComponent extends Component<{ value: number }> {
-        render() { return h('p', null, this.props.value) }
-      }
-
-      input = n(h(MountComponent, { value: 42 }))
+      input = n(h(PropsComponent, { value: 42 }))
       mount(input, container, null)
 
-      expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+      expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<p>42</p>`)
     })
   })
 
   describe('Function Component', () => {
-    it('should mount basic function component', () => {
-      function MountComponent() {
-        return h('p')
-      }
+    function BasicComponent() {
+      return h('p')
+    }
 
-      input = n(h(MountComponent))
+    function PropsComponent(props: { value: number }) {
+      return h('p', null, props.value)
+    }
+
+    it('should mount without container', () => {
+      input = n(h(BasicComponent))
+
+      mount(input, null, null)
+
+      expect(input.native).not.toBeNull()
+      expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe(`p`)
+    })
+
+    it('should mount basic function component', () => {
+      input = n(h(BasicComponent))
       mount(input, container, null)
 
-      expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+      expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<p></p>`)
     })
 
     it('should mount class component with property', () => {
-      function TestComponent(props: { value: number }) {
-        return h('p', null, props.value)
-      }
-
-      input = n(h(TestComponent, { value: 42 }))
+      input = n(h(PropsComponent, { value: 42 }))
       mount(input, container, null)
 
-      expect(input.native!.nodeType).toBe(Node.ELEMENT_NODE)
+      expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<p>42</p>`)
     })
   })

@@ -1,12 +1,13 @@
 import { IterableDiffer } from '@angular/core'
 import { Component } from '../shared/component'
-import { getCurrentRenderer, queueLifeCycle } from '../shared/context'
+import { queueLifeCycle } from '../shared/context'
 import { createChildrenDiffer, createPropertyDiffer } from '../shared/diff'
 import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
 import { normalize } from '../shared/node'
 import { ClassComponentType, FunctionComponentType, Properties, VNode } from '../shared/types'
+import { createComment, createElement, createTextNode, insertBefore } from './operation'
 import { initProperties } from './property'
 import { setCurrentMeta } from './register'
 
@@ -22,39 +23,33 @@ export function mount(vNode: VNode, container: Element | null, nextNode: Node | 
   } else if (flags & VNodeFlags.Text) {
     mountText(vNode, container, nextNode)
   } else if (flags & VNodeFlags.Void) {
+    mountVoid(vNode, container, nextNode)
   } else {
     throw new Error(`Unsupported node type: ${vNode}`)
   }
 }
 
 function mountElement(vNode: VNode, container: Element | null, nextNode: Node | null): void {
-  const renderer = getCurrentRenderer()
-  const childDiffer = createChildrenDiffer()
+  const childrenDiffer = createChildrenDiffer()
   const propertyDiffer = createPropertyDiffer()
 
-  const meta = { $PD: propertyDiffer, $CD: childDiffer, $IS: null, $IN: null }
+  const meta = vNode.meta = { $PD: propertyDiffer, $CD: childrenDiffer, $IS: null, $IN: null }
   const previousMeta = setCurrentMeta(meta)
-  vNode.meta = meta
 
   const type = vNode.type as string
   const props = vNode.props as Properties
   const children = vNode.children
 
-  const element = renderer.createElement(type) as Element
-  vNode.native = element
+  const element = vNode.native = createElement(type)
 
   if (!isNullOrUndefined(children) && children.length > 0) {
-    mountArrayChildren(children, childDiffer, element)
+    mountArrayChildren(children, childrenDiffer, element)
   }
 
   initProperties(element, props)
 
   if (!isNullOrUndefined(container)) {
-    if (!isNullOrUndefined(nextNode)) {
-      renderer.insertBefore(container, element, nextNode)
-    } else {
-      renderer.appendChild(container, element)
-    }
+    insertBefore(container, element, nextNode)
   }
 
   setCurrentMeta(previousMeta)
@@ -74,7 +69,6 @@ function mountClassComponent(vNode: VNode, container: Element | null, nextNode: 
   mountClassComponentCallbacks(instance)
 }
 
-
 function mountFunctionComponent(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const type = vNode.type as FunctionComponentType
   const props = (vNode.props || EMPTY_OBJ) as { [key: string]: unknown }
@@ -91,17 +85,18 @@ function mountFunctionComponent(vNode: VNode, container: Element | null, nextNod
 
 function mountText(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const props = vNode.props as { textContent: string }
-  const renderer = getCurrentRenderer()
-
-  const text = renderer.createText(`${props.textContent}`) as Text
-  vNode.native = text
+  const text = vNode.native = createTextNode(`${props.textContent}`)
 
   if (!isNullOrUndefined(container)) {
-    if (!isNullOrUndefined(nextNode)) {
-      renderer.insertBefore(container, text, nextNode)
-    } else {
-      renderer.appendChild(container, text)
-    }
+    insertBefore(container, text, nextNode)
+  }
+}
+
+function mountVoid(vNode: VNode, container: Element | null, nextNode: Node | null): void {
+  const comment = vNode.native = createComment('void')
+
+  if (!isNullOrUndefined(container)) {
+    insertBefore(container, comment, nextNode)
   }
 }
 

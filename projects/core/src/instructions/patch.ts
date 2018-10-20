@@ -1,10 +1,9 @@
-import { getCurrentRenderer } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
 import { normalize } from '../shared/node'
 import { FunctionComponentType, Properties, VNode, VNodeMeta } from '../shared/types'
 import { mount } from './mount'
-import { insertByIndex, moveByIndex, removeByIndex, removeChild, replaceChild } from './operation'
+import { insertByIndex, moveByIndex, removeByIndex, removeChild, replaceChild, setNodeValue } from './operation'
 import { patchProperties } from './property'
 import { getCurrentChildrenDiffer, setCurrentMeta } from './register'
 import { unmount } from './unmount'
@@ -116,8 +115,7 @@ function patchText(lastVNode: VNode, nextVNode: VNode): void {
 
   if (lastText === nextText) { return }
 
-  const renderer = getCurrentRenderer()
-  renderer.setValue(lastVNode.native!, nextText)
+  setNodeValue(lastVNode.native!, nextText)
 }
 
 function patchChildren(lastChildren: VNode[], nextChildren: VNode[], container: Element): void {

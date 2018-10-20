@@ -39,6 +39,21 @@ describe('patch instruction', () => {
       })
     })
 
+    describe('Next: Void', () => {
+      beforeEach(() => {
+        next = n(null)
+      })
+
+      it('should patch with text node', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe(`<!--void-->`)
+      })
+    })
+
     describe('Next: Element', () => {
       beforeEach(() => {
         next = n(h('p', { className: 'foo' }, 42))
@@ -49,7 +64,7 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('<p class="foo">42</p>')
       })
     })
@@ -68,7 +83,7 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('<p class="foo">42</p>')
       })
     })
@@ -87,7 +102,96 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe('<p class="foo">42</p>')
+      })
+    })
+  })
+
+  describe('Previous: Void', () => {
+    beforeEach(() => {
+      previous = n(null)
+    })
+
+    describe('Next: Text', () => {
+      beforeEach(() => {
+        next = n('bar')
+      })
+
+      it('should patch with text node', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe('bar')
+      })
+    })
+
+    describe('Next: Void', () => {
+      beforeEach(() => {
+        next = n(null)
+      })
+
+      it('should patch with text node', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe(`<!--void-->`)
+      })
+    })
+
+    describe('Next: Element', () => {
+      beforeEach(() => {
+        next = n(h('p', { className: 'foo' }, 42))
+      })
+
+      it('should patch with element', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe('<p class="foo">42</p>')
+      })
+    })
+
+    describe('Next: Class Component', () => {
+      class NextComponent extends Component {
+        render() { return h('p', { className: 'foo' }, 42) }
+      }
+
+      beforeEach(() => {
+        next = n(h(NextComponent))
+      })
+
+      it('should patch with class component', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe('<p class="foo">42</p>')
+      })
+    })
+
+    describe('Next: function Component', () => {
+      function NextComponent() {
+        return h('p', { className: 'foo' }, 42)
+      }
+
+      beforeEach(() => {
+        next = n(h(NextComponent))
+      })
+
+      it('should patch with function component', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('<p class="foo">42</p>')
       })
     })
@@ -108,8 +212,23 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.TEXT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('bar')
+      })
+    })
+
+    describe('Next: Void', () => {
+      beforeEach(() => {
+        next = n(null)
+      })
+
+      it('should patch with text node', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe(`<!--void-->`)
       })
     })
 
@@ -153,7 +272,7 @@ describe('patch instruction', () => {
 
           patch(previous, next, container)
 
-          expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+          expect(next.native).not.toBeNull()
           expect(container.innerHTML).toBe('<div class="bar">42</div>')
         })
       })
@@ -173,7 +292,7 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('<p class="foo">42</p>')
       })
     })
@@ -192,19 +311,19 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('<p class="foo">42</p>')
       })
     })
   })
 
   describe('Previous: class Component', () => {
-    class PreviousComponent extends Component {
-      render() { return h('div', { className: 'bar' }, 0) }
+    class PreviousComponent extends Component<{ className: string }> {
+      render() { return h('div', { className: this.props.className }, 0) }
     }
 
     beforeEach(() => {
-      previous = n(h(PreviousComponent))
+      previous = n(h(PreviousComponent, { className: 'foo' }))
     })
 
     describe('Next: Text', () => {
@@ -217,14 +336,29 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.TEXT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('bar')
+      })
+    })
+
+    describe('Next: Void', () => {
+      beforeEach(() => {
+        next = n(null)
+      })
+
+      it('should patch with text node', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe(`<!--void-->`)
       })
     })
 
     describe('Next: Element', () => {
       beforeEach(() => {
-        next = n(h('p', { className: 'foo' }, 1))
+        next = n(h('p', { className: 'bar' }, 1))
       })
 
       it('should patch with element', () => {
@@ -232,14 +366,24 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
-        expect(container.innerHTML).toBe('<p class="foo">1</p>')
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe('<p class="bar">1</p>')
       })
     })
 
     describe('Next: class Component', () => {
-      it('should patch with same class component with same node', () => {
-        next = n(h(PreviousComponent))
+      it('should patch with same class component with same props', () => {
+        next = n(h(PreviousComponent, { className: 'foo' }))
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe('<div class="foo">0</div>')
+      })
+
+      it('should patch with same class component with different props', () => {
+        next = n(h(PreviousComponent, { className: 'bar' }))
         mount(previous, container, null)
 
         patch(previous, next, container)
@@ -248,7 +392,7 @@ describe('patch instruction', () => {
         expect(container.innerHTML).toBe('<div class="bar">0</div>')
       })
 
-      it('should patch with same class component with different node', () => {
+      it('should patch with same class component with different root node', () => {
         let flag = true
         class NextComponent extends Component {
           render() {
@@ -263,7 +407,7 @@ describe('patch instruction', () => {
         flag = false
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('<div class="bar">0</div>')
       })
 
@@ -279,7 +423,7 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('<p class="foo">42</p>')
       })
     })
@@ -298,8 +442,104 @@ describe('patch instruction', () => {
 
         patch(previous, next, container)
 
-        expect(next.native!.nodeType).toBe(Node.ELEMENT_NODE)
+        expect(next.native).not.toBeNull()
         expect(container.innerHTML).toBe('<p class="foo">42</p>')
+      })
+    })
+  })
+
+  describe('Previous: class Component', () => {
+    function PreviousComponent(props: { className: string }) {
+      return h('div', { className: props.className }, 0)
+    }
+
+    beforeEach(() => {
+      previous = n(h(PreviousComponent, { className: 'foo' }))
+    })
+
+    describe('Next: Text', () => {
+      beforeEach(() => {
+        next = n('bar')
+      })
+
+      it('should patch with text node', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe('bar')
+      })
+    })
+
+    describe('Next: Void', () => {
+      beforeEach(() => {
+        next = n(null)
+      })
+
+      it('should patch with text node', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe(`<!--void-->`)
+      })
+    })
+
+    describe('Next: Element', () => {
+      beforeEach(() => {
+        next = n(h('p', { className: 'bar' }, 1))
+      })
+
+      it('should patch with element', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe('<p class="bar">1</p>')
+      })
+    })
+
+    describe('Next: class Component', () => {
+      class NextComponent extends Component<{ className: string }> {
+        render() { return h('div', { className: this.props.className }, 0) }
+      }
+
+      beforeEach(() => {
+        next = n(h(NextComponent, { className: 'bar' }))
+      })
+
+      it('should patch with same class component with same node', () => {
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).not.toBeNull()
+        expect(container.innerHTML).toBe('<div class="bar">0</div>')
+      })
+    })
+
+    describe('Next: function Component', () => {
+      it('should patch with same function component in same props', () => {
+        next = n(h(PreviousComponent, { className: 'foo' }))
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe('<div class="foo">0</div>')
+      })
+
+      it('should patch with same function component in different props', () => {
+        next = n(h(PreviousComponent, { className: 'bar' }))
+        mount(previous, container, null)
+
+        patch(previous, next, container)
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe('<div class="bar">0</div>')
       })
     })
   })
