@@ -50,7 +50,7 @@ function patchElement(lastVNode: VNode, nextVNode: VNode): void {
   const lastChildren = lastVNode.children || []
   const lastProps = lastVNode.props
   const nextChildren = nextVNode.children || []
-  const nextProps = nextVNode.props as { [key: string]: any }
+  const nextProps = nextVNode.props as Properties
 
   const element = lastVNode.native! as Element
   nextVNode.native = element

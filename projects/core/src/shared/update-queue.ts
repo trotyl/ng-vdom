@@ -1,6 +1,7 @@
 import { Component } from './component'
+import { StateChange } from './types'
 
-export interface UpdateQueue {
+export interface UpdateQueue<P = any, S = any> {
   /**
    * Forces an update. This should only be invoked when it is known with
    * certainty that we are **not** in a DOM transaction.
@@ -28,5 +29,5 @@ export interface UpdateQueue {
    * @param callback Called after component is updated.
    * @param callerName Name of the calling function in the public API.
    */
-  enqueueSetState(publicInstance: Component, partialState: any, callback?: () => void, callerName?: string): void
+  enqueueSetState(publicInstance: Component, partialState: StateChange<S, P>, callback?: () => void, callerName?: string): void
 }

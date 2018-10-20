@@ -1,6 +1,6 @@
 import { VNodeFlags } from './flags'
 import { isBoolean, isClassComponent, isFunction, isNullOrUndefined, isNumber, isString } from './lang'
-import { NodeDef, VNode } from './types'
+import { Key, NodeDef, Properties, VNode } from './types'
 
 export const EMPTY_NODE: VNode = {
   type: null,
@@ -39,16 +39,15 @@ export function normalize(def: NodeDef): VNode {
     children = defChildren.map(normalize)
   }
 
-  let props: { [key: string]: any } | null = null
-  let key = null
-  const defProps = def.props as { [key: string]: any } | null
+  let key: Key | null = null
+  const props: Properties = {}
+  const defProps = def.props as Properties
   const type = def.type
 
   if (!isNullOrUndefined(defProps)) {
-    props = {}
     for (const prop in defProps) {
       if (prop === 'key') {
-        key = defProps[prop]
+        key = defProps[prop] as Key
       } else {
         props[prop] = defProps[prop]
       }

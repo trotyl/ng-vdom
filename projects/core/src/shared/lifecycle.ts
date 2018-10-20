@@ -1,4 +1,5 @@
 import { ErrorInfo } from './error'
+import { NodeDef } from './types'
 
 export interface ComponentLifecycle<P = any, S = any> {
   /**
@@ -16,7 +17,7 @@ export interface ComponentLifecycle<P = any, S = any> {
    * If false is returned, `Component#render`, `componentWillUpdate`
    * and `componentDidUpdate` will not be called.
    */
-  shouldComponentUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): boolean
+  shouldComponentUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: unknown): boolean
 
   /**
    * Called immediately before a component is destroyed. Perform any necessary cleanup in this method, such as
@@ -30,5 +31,5 @@ export interface ComponentLifecycle<P = any, S = any> {
    */
   componentDidCatch?(error: Error, errorInfo: ErrorInfo): void
 
-  render(): any
+  render(): NodeDef
 }

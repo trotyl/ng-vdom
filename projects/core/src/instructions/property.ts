@@ -26,16 +26,16 @@ export function patchProperties(element: Element, props: Properties): void {
   }
 }
 
-function setProperty(element: Element, name: string, value: any) {
+function setProperty(element: Element, name: string, value: unknown) {
   if (name.length >= 3 && name[0] === 'o' && name[1] === 'n') {
     const firstChar = name[2]
     let eventName = name.substr(3)
     if (firstChar !== '_') {
       eventName = firstChar.toLowerCase() + eventName
     }
-    setEventListener(element, eventName, value)
+    setEventListener(element, eventName, value as EventListener)
   } else if (name === 'style') {
-    setStyle(element, value as any)
+    setStyle(element, value as Styles | string)
   } else {
     getCurrentRenderer().setProperty(element, name, value)
 
@@ -46,7 +46,7 @@ function setProperty(element: Element, name: string, value: any) {
 }
 
 function createPropertyChangeCallback(element: Element) {
-  return ({ key, currentValue }: KeyValueChangeRecord<string, any>) => setProperty(element, key, currentValue)
+  return ({ key, currentValue }: KeyValueChangeRecord<string, unknown>) => setProperty(element, key, currentValue)
 }
 
 const EVENTS_KEY = '__ngv_events__'
@@ -59,7 +59,7 @@ function setEventListener(element: Element, eventName: string, listener: EventLi
   const renderer = getCurrentRenderer()
   const disposer = renderer.listen(element, eventName, listener)
 
-  const untypedElement = element as { [key: string]: any }
+  const untypedElement = element as { [key: string]: unknown }
   if (!untypedElement.hasOwnProperty(EVENTS_KEY)) {
     untypedElement[EVENTS_KEY] = {}
   }

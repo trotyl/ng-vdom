@@ -14,7 +14,7 @@ function notAvailable(item: string): never {
   throw new Error(`${item} not available`)
 }
 
-export function getCurrentPropertyDiffer(): KeyValueDiffer<string, any> {
+export function getCurrentPropertyDiffer(): KeyValueDiffer<string, unknown> {
   if (isNullOrUndefined(currentMeta) || isNullOrUndefined(currentMeta.$PD)) {
     return notAvailable('PropertyDiffer')
   }

@@ -17,7 +17,7 @@ export type TextDef = string | number
 
 export type VoidDef = boolean | null | undefined
 
-export type NodeDef = ElementDef<any> | TextDef | VoidDef
+export type NodeDef = ElementDef | TextDef | VoidDef
 
 export type Key = string | number
 
@@ -26,11 +26,11 @@ export interface Attributes {
 }
 
 export interface ClassAttributes {
-  ref?: any
+  ref?: unknown
 }
 
 export interface VNodeMeta {
-  $PD: KeyValueDiffer<string, any> | null
+  $PD: KeyValueDiffer<string, unknown> | null
   $CD: IterableDiffer<VNode> | null
   $IS: Component | null
   $IN: VNode | null
@@ -47,9 +47,11 @@ export interface VNode<P = any> {
 }
 
 export interface Properties {
-  [name: string]: any
+  [name: string]: unknown
 }
 
 export interface Styles {
   [name: string]: string
 }
+
+export type StateChange<S, P> = Partial<S> | ((s: S, p: P) => S)

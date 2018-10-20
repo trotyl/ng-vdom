@@ -2,30 +2,30 @@ import { Component } from './component'
 
 export const EMPTY_OBJ = {}
 
-export function isBoolean(value: any): value is boolean {
+export function isBoolean(value: unknown): value is boolean {
   return typeof value === 'boolean'
 }
 
-export function isClassComponent(value: any): value is Component {
+export function isClassComponent(value: unknown): value is Component {
   return isFunction(value) && value.prototype && !!value.prototype.isComponent
 }
 
-export function isFunction(value: any): value is Function {
+export function isFunction(value: unknown): value is Function {
   return typeof value === 'function'
 }
 
-export function isNullOrUndefined(value: any): value is null | undefined {
+export function isNullOrUndefined(value: unknown): value is null | undefined {
   return value == null
 }
 
-export function isNumber(value: any): value is number {
+export function isNumber(value: unknown): value is number {
   return typeof value === 'number'
 }
 
-export function isObject(value: any): value is object {
+export function isObject(value: unknown): value is object {
   return (value != null) && (typeof value === 'object')
 }
 
-export function isString(value: any): value is string {
+export function isString(value: unknown): value is string {
   return typeof value === 'string'
 }

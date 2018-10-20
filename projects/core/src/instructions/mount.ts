@@ -6,7 +6,7 @@ import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
 import { normalize } from '../shared/node'
-import { ClassComponentType, FunctionComponentType, VNode } from '../shared/types'
+import { ClassComponentType, FunctionComponentType, Properties, VNode } from '../shared/types'
 import { initProperties } from './property'
 import { setCurrentMeta } from './register'
 
@@ -37,7 +37,7 @@ function mountElement(vNode: VNode, container: Element | null, nextNode: Node | 
   vNode.meta = meta
 
   const type = vNode.type as string
-  const props = vNode.props
+  const props = vNode.props as Properties
   const children = vNode.children
 
   const element = renderer.createElement(type) as Element
@@ -47,7 +47,7 @@ function mountElement(vNode: VNode, container: Element | null, nextNode: Node | 
     mountArrayChildren(children, childDiffer, element)
   }
 
-  initProperties(element, props as any)
+  initProperties(element, props)
 
   if (!isNullOrUndefined(container)) {
     if (!isNullOrUndefined(nextNode)) {
@@ -77,7 +77,7 @@ function mountClassComponent(vNode: VNode, container: Element | null, nextNode: 
 
 function mountFunctionComponent(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const type = vNode.type as FunctionComponentType
-  const props = (vNode.props || EMPTY_OBJ) as { [key: string]: any }
+  const props = (vNode.props || EMPTY_OBJ) as { [key: string]: unknown }
 
   const inner = normalize(type(props))
   const propertyDiffer = createPropertyDiffer()

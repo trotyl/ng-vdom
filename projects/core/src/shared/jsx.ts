@@ -1,5 +1,6 @@
 // tslint:disable:no-empty-interface
 
+import { Component } from './component'
 import { Attributes, ClassAttributes, ElementDef } from './types'
 
 declare global {
@@ -7,23 +8,21 @@ declare global {
     interface Element extends ElementDef { }
 
     interface ElementAttributesProperty {
-      props: {}
+      props: { }
     }
 
     interface ElementChildrenAttribute {
-      children: {}
+      children: { }
     }
 
-    interface ElementClass {
-      render: any
-    }
+    interface ElementClass extends Component { }
 
     interface IntrinsicAttributes extends Attributes { }
 
     interface IntrinsicClassAttributes extends ClassAttributes { }
 
     interface IntrinsicElements {
-      [elementName: string]: any
+      [elementName: string]: unknown
     }
   }
 }

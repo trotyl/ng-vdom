@@ -6,7 +6,7 @@ import { getCurrentScheduler, resetLifeCycle, runLifeCycle, setCurrentUpdateQueu
 import { isFunction, isNullOrUndefined } from '../shared/lang'
 import { normalize } from '../shared/node'
 import { TaskScheduler } from '../shared/schedule'
-import { NodeDef, VNode } from '../shared/types'
+import { NodeDef, StateChange, VNode } from '../shared/types'
 import { UpdateQueue } from '../shared/update-queue'
 
 function noop() { }
@@ -21,7 +21,7 @@ export abstract class Container implements UpdateQueue {
   private __pendingSchedule: boolean = false
   private __scheduler: TaskScheduler = getCurrentScheduler()
 
-  enqueueForceUpdate(publicInstance: object, callback?: (() => void) | undefined, callerName?: string | undefined): void {
+  enqueueForceUpdate(publicInstance: Component, callback?: (() => void) | undefined, callerName?: string | undefined): void {
     this.__detectChanges()
 
     if (callback != null) {
@@ -29,12 +29,13 @@ export abstract class Container implements UpdateQueue {
     }
   }
 
-  enqueueSetState<S>(instance: Component, partialState: S, callback?: (() => void)): void {
+  enqueueSetState<S, P>(instance: Component, partialState: StateChange<S, P>, callback?: (() => void)): void {
     this.__queue.push(() => {
       if (isFunction(partialState)) {
-        partialState = partialState(instance.state)
+        instance.state = partialState(instance.state, instance.props)
+      } else {
+        Object.assign(instance.state, partialState)
       }
-      Object.assign(instance.state, partialState)
     })
 
     if (!this.__pendingSchedule) {

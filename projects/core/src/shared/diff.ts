@@ -38,7 +38,7 @@ export function trackByKey(index: number, node: VNode): string {
   return `${nodeType}_${suffix}`
 }
 
-export function createPropertyDiffer(): KeyValueDiffer<string, any> {
+export function createPropertyDiffer(): KeyValueDiffer<string, unknown> {
   return getCurrentKeyValueDiffers().find({}).create()
 }
 

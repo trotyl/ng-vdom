@@ -1,7 +1,7 @@
 import { getCurrentUpdateQueue } from './context'
 import { EMPTY_OBJ } from './lang'
 import { ComponentLifecycle } from './lifecycle'
-import { NodeDef } from './types'
+import { NodeDef, StateChange } from './types'
 import { UpdateQueue } from './update-queue'
 
 /**
@@ -9,7 +9,7 @@ import { UpdateQueue } from './update-queue'
  */
 export abstract class Component<P = any, S = any> implements ComponentLifecycle<P, S> {
   state!: S
-  refs: { [key: string]: any } = EMPTY_OBJ
+  refs: { [key: string]: unknown } = EMPTY_OBJ
   updateQueue: UpdateQueue = getCurrentUpdateQueue()
 
   get isComponent(): boolean { return true }
@@ -39,11 +39,8 @@ export abstract class Component<P = any, S = any> implements ComponentLifecycle<
    *        produce next partial state to be merged with current state.
    * @param callback Called after state is updated.
    */
-  setState<K extends keyof S>(
-      partialState: ((prevState: Readonly<S>, props: Readonly<P>) => (Pick<S, K> | S | null)) | (Pick<S, K> | S | null),
-      callback?: () => void,
-  ): void {
-      this.updateQueue.enqueueSetState(this, partialState, callback, 'setState')
+  setState(partialState: StateChange<S, P>, callback?: () => void): void {
+    this.updateQueue.enqueueSetState(this, partialState, callback, 'setState')
   }
 
   /**
@@ -59,7 +56,7 @@ export abstract class Component<P = any, S = any> implements ComponentLifecycle<
    * @param callback Called after update is complete.
    */
   forceUpdate(callback?: () => void) {
-      this.updateQueue.enqueueForceUpdate(this, callback, 'forceUpdate')
+    this.updateQueue.enqueueForceUpdate(this, callback, 'forceUpdate')
   }
 
   abstract render(): NodeDef
@@ -68,6 +65,6 @@ export abstract class Component<P = any, S = any> implements ComponentLifecycle<
 /**
  * Convenience component with default shallow equality check for sCU.
  */
-export abstract class PureComponent<P, S> extends Component<P, S> {
+export abstract class PureComponent<P = any, S = any> extends Component<P, S> {
   get isPureComponent(): boolean { return true }
 }

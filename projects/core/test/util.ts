@@ -3,16 +3,17 @@ import { inject } from '@angular/core/testing'
 import { Component } from '../src/shared/component'
 import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdateQueue } from '../src/shared/context'
 import { isFunction } from '../src/shared/lang'
+import { StateChange } from '../src/shared/types'
 import { UpdateQueue } from '../src/shared/update-queue'
 
 class ImediateUpdateQueue implements UpdateQueue {
   enqueueForceUpdate(publicInstance: Component, callback?: (() => void) | undefined, callerName?: string | undefined): void { }
 
-  enqueueSetState(publicInstance: Component, partialState: any, callback?: (() => void) | undefined, callerName?: string | undefined): void {
+  enqueueSetState<S, P>(publicInstance: Component, partialState: StateChange<S, P>, callback?: (() => void) | undefined, callerName?: string | undefined): void {
     if (isFunction(partialState)) {
-      publicInstance.state = partialState(publicInstance.state)
+      publicInstance.state = partialState(publicInstance.state, publicInstance.props)
     } else {
-      publicInstance.state = partialState
+      publicInstance.state = Object.assign(publicInstance.state, partialState)
     }
 
     if (callback != null) {
