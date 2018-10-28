@@ -2,6 +2,7 @@ import { KeyValueChangeRecord } from '@angular/core'
 import { createPropertyDiffer, getCurrentRenderer } from '../shared/context'
 import { isNullOrUndefined } from '../shared/lang'
 import { Properties, Styles } from '../shared/types'
+import { setEventListener } from './event'
 import { getCurrentMeta } from './register'
 
 export function initProperties(element: Element, props: Properties): void {
@@ -41,10 +42,11 @@ function setProperty(element: Element, name: string, value: unknown) {
   } else if (name === 'style') {
     setStyle(element, value as Styles | string)
   } else {
-    getCurrentRenderer().setProperty(element, name, value)
+    const renderer = getCurrentRenderer()
+    renderer.setProperty(element, name, value)
 
     if (isNullOrUndefined(value)) {
-      getCurrentRenderer().removeAttribute(element, name)
+      renderer.removeAttribute(element, name)
     }
   }
 }
@@ -53,27 +55,6 @@ function createPropertyChangeCallback(element: Element) {
   return ({ key, currentValue }: KeyValueChangeRecord<string, unknown>) => setProperty(element, key, currentValue)
 }
 
-const EVENTS_KEY = '__ngv_events__'
-
-interface EventHandlers {
-  [name: string]: Array<() => void>
-}
-
-function setEventListener(element: Element, eventName: string, listener: EventListener): void {
-  const renderer = getCurrentRenderer()
-  const disposer = renderer.listen(element, eventName, listener)
-
-  const untypedElement = element as { [key: string]: unknown }
-  if (!untypedElement.hasOwnProperty(EVENTS_KEY)) {
-    untypedElement[EVENTS_KEY] = {}
-  }
-  const events = untypedElement[EVENTS_KEY] as EventHandlers
-  if (!events.hasOwnProperty(eventName)) {
-    events[eventName] = []
-  }
-  const disposers = events[eventName]
-  disposers.push(disposer)
-}
 
 function setStyle(element: Element, styles: Styles | string): void {
   // TODO: Diff styles

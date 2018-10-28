@@ -40,7 +40,7 @@ export interface VNode<P = any> {
   type: string | ClassComponentType<P> | FunctionComponentType<P> | null
   children: VNode[] | null
   key: Key | null
-  props: P | null
+  props: P
   flags: number
   native: Node | null
   meta: VNodeMeta | null

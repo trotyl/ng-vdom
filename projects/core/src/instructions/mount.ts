@@ -2,7 +2,7 @@ import { Component } from '../shared/component'
 import { createChildrenDiffer, createPropertyDiffer } from '../shared/context'
 import { queueLifeCycle } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
-import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
+import { isNullOrUndefined } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
 import { createEmptyMeta, normalize } from '../shared/node'
 import { ClassComponentType, FunctionComponentType, Properties, VNode } from '../shared/types'
@@ -56,7 +56,7 @@ function mountClassComponent(vNode: VNode, container: Element | null, nextNode: 
   const props = vNode.props as Properties | null
   const meta = vNode.meta = createEmptyMeta()
 
-  const instance = meta.$IS = new type(props || EMPTY_OBJ)
+  const instance = meta.$IS = new type(props)
   const inner = meta.$IN = normalize(instance.render())
 
   mount(inner, container, nextNode)
@@ -69,7 +69,7 @@ function mountFunctionComponent(vNode: VNode, container: Element | null, nextNod
   const props = vNode.props as Properties | null
 
   const meta = vNode.meta = createEmptyMeta()
-  const inner = meta.$IN = normalize(type(props || EMPTY_OBJ))
+  const inner = meta.$IN = normalize(type(props))
 
   if (!isNullOrUndefined(props)) {
     meta.$PD = createPropertyDiffer(props)

@@ -1,13 +1,13 @@
 import { createChildrenDiffer, createPropertyDiffer } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
-import { isNullOrUndefined, EMPTY_OBJ } from '../shared/lang'
+import { isNullOrUndefined } from '../shared/lang'
 import { normalize } from '../shared/node'
 import { FunctionComponentType, Properties, VNode } from '../shared/types'
 import { insertByIndex, moveByIndex, removeByIndex } from './diff'
 import { mount, mountChildren } from './mount'
 import { patchProperties } from './property'
 import { getCurrentMeta, setCurrentMeta } from './register'
-import { removeChild, replaceChild, setNodeValue } from './render'
+import { removeChild, setNodeValue } from './render'
 import { unmount } from './unmount'
 
 export function patch(lastVNode: VNode, nextVNode: VNode, container: Element): void {
@@ -33,14 +33,8 @@ export function patch(lastVNode: VNode, nextVNode: VNode, container: Element): v
 function replaceWithNewNode(lastVNode: VNode, nextVNode: VNode, container: Element): void {
   const lastNode = lastVNode.native!
   unmount(lastVNode)
-
-  if ((nextVNode.flags & lastVNode.flags & VNodeFlags.Simple) !== 0) {
-    mount(nextVNode, null, null)
-    replaceChild(container, nextVNode.native!, lastNode)
-  } else {
-    mount(nextVNode, container, lastNode)
-    removeChild(container, lastNode)
-  }
+  mount(nextVNode, container, lastNode)
+  removeChild(container, lastNode)
 }
 
 function patchElement(lastVNode: VNode, nextVNode: VNode): void {
@@ -57,7 +51,9 @@ function patchElement(lastVNode: VNode, nextVNode: VNode): void {
   if (lastProps !== nextProps) {
     patchProperties(element, nextProps)
   }
-  patchChildren(lastChildren, nextChildren, element)
+  if (lastChildren !== nextChildren) {
+    patchChildren(lastChildren, nextChildren, element)
+  }
 
   setCurrentMeta(previousMeta)
 }
@@ -68,9 +64,9 @@ function patchClassComponent(lastVNode: VNode, nextVNode: VNode, container: Elem
   const instance = meta.$IS!
   const lastInner = meta.$IN!
 
-  const props = nextVNode.props as Properties | null
+  const props = nextVNode.props as Properties
 
-  (instance as { props: Properties }).props = props || EMPTY_OBJ
+  (instance as { props: Properties }).props = props
   const nextInner = meta.$IN = normalize(instance!.render())
 
   patch(lastInner, nextInner, container)

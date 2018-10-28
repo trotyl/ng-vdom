@@ -1,6 +1,6 @@
 import { TextDef } from '../shared/types'
 import { VNodeFlags } from './flags'
-import { isBoolean, isClassComponent, isFunction, isNullOrUndefined, isNumber, isString } from './lang'
+import { isBoolean, isClassComponent, isFunction, isNullOrUndefined, isNumber, isString, EMPTY_OBJ } from './lang'
 import { Key, NodeDef, Properties, VNode, VNodeMeta } from './types'
 
 function createVoidNode(): VNode {
@@ -8,7 +8,7 @@ function createVoidNode(): VNode {
     type: null,
     children: null,
     key: null,
-    props: null,
+    props: EMPTY_OBJ,
     flags: VNodeFlags.Void,
     native: null,
     meta: null,
@@ -46,7 +46,7 @@ export function normalize(def: NodeDef): VNode {
   const native = null
   const meta = null
   let flags = 0
-  let props: Properties | null = null
+  let props: Properties = EMPTY_OBJ
   let key: Key | null = null
 
   if (!isNullOrUndefined(defProps)) {
