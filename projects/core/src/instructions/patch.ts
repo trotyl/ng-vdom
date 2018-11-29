@@ -79,16 +79,7 @@ function patchFunctionComponent(lastVNode: VNode, nextVNode: VNode, container: E
   const type = nextVNode.type as FunctionComponentType
   const props = nextVNode.props as Properties
   const lastInner = meta.$IN!
-  let nextInner = lastInner
-
-  if (!isNullOrUndefined(meta.$PD) || !isNullOrUndefined(props)) {
-    const differ = meta.$PD = meta.$PD || createPropertyDiffer({})
-    const changes = differ.diff(props)
-
-    if (!isNullOrUndefined(changes)) {
-      nextInner = meta.$IN = normalize(type(props))
-    }
-  }
+  const nextInner = meta.$IN = normalize(type(props))
 
   patch(lastInner, nextInner, container)
   nextVNode.native = nextInner.native

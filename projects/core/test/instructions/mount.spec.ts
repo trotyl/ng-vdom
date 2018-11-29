@@ -3,7 +3,7 @@ import { Component } from '../../src/shared/component'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { VNode } from '../../src/shared/types'
-import { setUpContext } from '../util'
+import { isCommentNode, setUpContext, EMPTY_COMMENT } from '../util'
 
 describe('mount instruction', () => {
   let container: HTMLElement
@@ -48,8 +48,7 @@ describe('mount instruction', () => {
 
       mount(input, null, null)
 
-      expect(input.native).not.toBeNull()
-      expect(input.native!.textContent).toBe(`void`)
+      expect(isCommentNode(input.native!)).toBe(true)
     })
 
     it('should mount nothing in true', () => {
@@ -57,7 +56,7 @@ describe('mount instruction', () => {
       mount(input, container, null)
 
       expect(input.native).not.toBeNull()
-      expect(container.innerHTML).toBe(`<!--void-->`)
+      expect(container.innerHTML).toBe(EMPTY_COMMENT)
     })
 
     it('should mount nothing in false', () => {
@@ -65,7 +64,7 @@ describe('mount instruction', () => {
       mount(input, container, null)
 
       expect(input.native).not.toBeNull()
-      expect(container.innerHTML).toBe(`<!--void-->`)
+      expect(container.innerHTML).toBe(EMPTY_COMMENT)
     })
 
     it('should mount nothing in null', () => {
@@ -73,7 +72,7 @@ describe('mount instruction', () => {
       mount(input, container, null)
 
       expect(input.native).not.toBeNull()
-      expect(container.innerHTML).toBe(`<!--void-->`)
+      expect(container.innerHTML).toBe(EMPTY_COMMENT)
     })
 
     it('should mount nothing in undefined', () => {
@@ -81,7 +80,7 @@ describe('mount instruction', () => {
       mount(input, container, null)
 
       expect(input.native).not.toBeNull()
-      expect(container.innerHTML).toBe(`<!--void-->`)
+      expect(container.innerHTML).toBe(EMPTY_COMMENT)
     })
   })
 

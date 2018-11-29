@@ -39,15 +39,14 @@ function setProperty(element: Element, name: string, value: unknown) {
       eventName = firstChar.toLowerCase() + eventName
     }
     setEventListener(element, eventName, value as EventListener)
+  } else if (name === 'className' && value == null) {
+    const renderer = getCurrentRenderer()
+    renderer.setProperty(element, name, '')
   } else if (name === 'style') {
     setStyle(element, value as Styles | string)
   } else {
     const renderer = getCurrentRenderer()
     renderer.setProperty(element, name, value)
-
-    if (isNullOrUndefined(value)) {
-      renderer.removeAttribute(element, name)
-    }
   }
 }
 

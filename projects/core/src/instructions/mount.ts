@@ -71,10 +71,6 @@ function mountFunctionComponent(vNode: VNode, container: Element | null, nextNod
   const meta = vNode.meta = createEmptyMeta()
   const inner = meta.$IN = normalize(type(props))
 
-  if (!isNullOrUndefined(props)) {
-    meta.$PD = createPropertyDiffer(props)
-  }
-
   mount(inner, container, nextNode)
   vNode.native = inner.native
 }
@@ -89,7 +85,7 @@ function mountText(vNode: VNode, container: Element | null, nextNode: Node | nul
 }
 
 function mountVoid(vNode: VNode, container: Element | null, nextNode: Node | null): void {
-  const comment = vNode.native = createComment('void')
+  const comment = vNode.native = createComment('')
 
   if (!isNullOrUndefined(container)) {
     insertBefore(container, comment, nextNode)
