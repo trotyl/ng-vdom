@@ -1,7 +1,7 @@
-import { IterableDiffers, KeyValueDiffers, RendererFactory2 } from '@angular/core'
+import { Component as NgComponent, Injector, Input, NgModule, RendererFactory2 } from '@angular/core'
 import { inject } from '@angular/core/testing'
 import { Component } from '../src/shared/component'
-import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer, setCurrentUpdateQueue } from '../src/shared/context'
+import { setCurrentInjector, setCurrentRenderer, setCurrentUpdateQueue } from '../src/shared/context'
 import { createElement as h } from '../src/shared/factory'
 import { isFunction } from '../src/shared/lang'
 import { normalize as n } from '../src/shared/node'
@@ -71,15 +71,13 @@ export function setUpContext(): void {
     setCurrentUpdateQueue(new ImediateUpdateQueue())
   })
 
-  beforeEach(inject([RendererFactory2, IterableDiffers, KeyValueDiffers], (rendererFactory: RendererFactory2, iDiffers: IterableDiffers, kDiffers: KeyValueDiffers) => {
+  beforeEach(inject([Injector, RendererFactory2], (injector: Injector, rendererFactory: RendererFactory2) => {
+    const previousInjector = setCurrentInjector(injector)
     const previousRenderer = setCurrentRenderer(rendererFactory.createRenderer(null, null))
-    const previousIDiffers = setCurrentIterableDiffers(iDiffers)
-    const previousKDiffers = setCurrentKeyValueDiffers(kDiffers)
 
     restoreContext = () => {
+      setCurrentInjector(previousInjector)
       setCurrentRenderer(previousRenderer)
-      setCurrentIterableDiffers(previousIDiffers)
-      setCurrentKeyValueDiffers(previousKDiffers)
     }
   }))
 
@@ -87,3 +85,16 @@ export function setUpContext(): void {
     restoreContext()
   })
 }
+
+@NgComponent({
+  template: `<p>{{value}}</p>`,
+})
+export class TestAngularComponent {
+  @Input() value = 0
+}
+
+@NgModule({
+  declarations: [ TestAngularComponent ],
+  entryComponents: [ TestAngularComponent ],
+})
+export class TestModule { }

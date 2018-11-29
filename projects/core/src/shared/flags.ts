@@ -4,6 +4,7 @@ export const enum VNodeFlags {
   FunctionComponent = 0b00000100,
   Text              = 0b00001000,
   Void              = 0b00010000,
+  AngularComponent  = 0b00100000,
 
   Simple            = Native | Text | Void,
 }

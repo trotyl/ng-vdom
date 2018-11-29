@@ -1,6 +1,7 @@
+import { ElementRef, Type } from '@angular/core'
 import { Component } from '../shared/component'
-import { createChildrenDiffer, createPropertyDiffer } from '../shared/context'
-import { queueLifeCycle } from '../shared/context'
+import { getCurrentApplicationRef, getCurrentInjector, queueLifeCycle } from '../shared/context'
+import { createChildrenDiffer, getCurrentComponentFactoryResolver } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
@@ -23,6 +24,8 @@ export function mount(vNode: VNode, container: Element | null, nextNode: Node | 
     mountText(vNode, container, nextNode)
   } else if (flags & VNodeFlags.Void) {
     mountVoid(vNode, container, nextNode)
+  } else if (flags & VNodeFlags.AngularComponent) {
+    mountAngularComponent(vNode, container, nextNode)
   } else {
     throw new Error(`Unsupported node type: ${vNode}`)
   }
@@ -56,7 +59,7 @@ function mountClassComponent(vNode: VNode, container: Element | null, nextNode: 
   const props = vNode.props as Properties | null
   const meta = vNode.meta = createEmptyMeta()
 
-  const instance = meta.$IS = new type(props)
+  const instance = meta.$RI = new type(props)
   const inner = meta.$IN = normalize(instance.render())
 
   mount(inner, container, nextNode)
@@ -89,6 +92,26 @@ function mountVoid(vNode: VNode, container: Element | null, nextNode: Node | nul
 
   if (!isNullOrUndefined(container)) {
     insertBefore(container, comment, nextNode)
+  }
+}
+
+function mountAngularComponent(vNode: VNode, container: Element | null, nextNode: Node | null): void {
+  const resolver = getCurrentComponentFactoryResolver()
+  const factory = resolver.resolveComponentFactory(vNode.type as Type<any>)
+  const injector = getCurrentInjector()
+
+  const meta = vNode.meta = createEmptyMeta()
+  // TODO: mount children as projectableNodes
+  const ref = meta.$CR = factory.create(injector)
+  const instance = meta.$AI = ref.instance
+  const app = getCurrentApplicationRef()
+  app.attachView(ref.hostView)
+  Object.assign(instance, vNode.props)
+
+  const element = vNode.native = ref.injector.get(ElementRef as Type<ElementRef>).nativeElement
+
+  if (!isNullOrUndefined(container)) {
+    insertBefore(container, element, nextNode)
   }
 }
 

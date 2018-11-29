@@ -1,4 +1,4 @@
-import { IterableDiffer, KeyValueDiffer } from '@angular/core'
+import { ComponentRef, IterableDiffer, KeyValueDiffer } from '@angular/core'
 import { Component } from './component'
 
 export interface ClassComponentType<P = any> {
@@ -32,8 +32,10 @@ export interface ClassAttributes {
 export interface VNodeMeta {
   $PD: KeyValueDiffer<string, unknown> | null
   $CD: IterableDiffer<VNode> | null
-  $IS: Component | null
+  $RI: Component | null
   $IN: VNode | null
+  $AI: object | null
+  $CR: ComponentRef<any> | null
 }
 
 export interface VNode<P = any> {

@@ -1,14 +1,21 @@
+import { async, TestBed } from '@angular/core/testing'
 import { mount } from '../../src/instructions/mount'
 import { unmount } from '../../src/instructions/unmount'
 import { Component } from '../../src/shared/component'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { VNode } from '../../src/shared/types'
-import { setUpContext } from '../util'
+import { setUpContext, TestAngularComponent, TestModule } from '../util'
 
 describe('unmount instruction', () => {
   let container: HTMLElement
   let vNode: VNode
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [ TestModule ],
+    }).compileComponents()
+  }))
 
   setUpContext()
 
@@ -17,7 +24,7 @@ describe('unmount instruction', () => {
     vNode = null!
   })
 
-  describe('Element', () => {
+  describe('Native', () => {
     it('should remove event handlers', () => {
       let clicked = false
       vNode = n(h('div', { onClick: () => clicked = true }))
@@ -31,7 +38,7 @@ describe('unmount instruction', () => {
     })
   })
 
-  describe('Class component', () => {
+  describe('Class Component', () => {
     it('should remove event handlers', () => {
       let clicked = false
       class TestComponent extends Component {
@@ -50,7 +57,7 @@ describe('unmount instruction', () => {
     })
   })
 
-  describe('Function component', () => {
+  describe('Function Component', () => {
     it('should remove event handlers', () => {
       let clicked = false
       function TestComponent() {
@@ -64,6 +71,18 @@ describe('unmount instruction', () => {
       div.click()
 
       expect(clicked).toBe(false)
+    })
+  })
+
+  describe('Angular Component', () => {
+    it('should destroy component', () => {
+      const input = n(h(TestAngularComponent))
+      mount(input, container, null)
+      const spy = spyOn(input.meta!.$CR!, 'destroy')
+
+      unmount(input)
+
+      expect(spy).toHaveBeenCalled()
     })
   })
 })

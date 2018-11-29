@@ -1,13 +1,21 @@
+import { Component as NgComponent, Input, NgModule } from '@angular/core'
+import { async, TestBed } from '@angular/core/testing'
 import { mount } from '../../src/instructions/mount'
 import { Component } from '../../src/shared/component'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { VNode } from '../../src/shared/types'
-import { isCommentNode, setUpContext, EMPTY_COMMENT } from '../util'
+import { isCommentNode, setUpContext, EMPTY_COMMENT, TestAngularComponent, TestModule } from '../util'
 
 describe('mount instruction', () => {
   let container: HTMLElement
   let input: VNode
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [ TestModule ],
+    }).compileComponents()
+  }))
 
   setUpContext()
 
@@ -84,7 +92,7 @@ describe('mount instruction', () => {
     })
   })
 
-  describe('Element', () => {
+  describe('Native', () => {
     it('should mount without container', () => {
       input = n(h('p'))
 
@@ -207,7 +215,7 @@ describe('mount instruction', () => {
       mount(input, null, null)
 
       expect(input.native).not.toBeNull()
-      expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe(`p`)
+      expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe('p')
     })
 
     it('should mount basic class component', () => {
@@ -242,7 +250,7 @@ describe('mount instruction', () => {
       mount(input, null, null)
 
       expect(input.native).not.toBeNull()
-      expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe(`p`)
+      expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe('p')
     })
 
     it('should mount basic function component', () => {
@@ -259,6 +267,28 @@ describe('mount instruction', () => {
 
       expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<p>42</p>`)
+    })
+  })
+
+  describe('Angular Component', () => {
+    it('should mount without container', () => {
+      input = n(h(TestAngularComponent))
+
+      mount(input, null, null)
+      input.meta!.$CR!.changeDetectorRef.detectChanges()
+
+      expect(input.native).not.toBeNull()
+      expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe('ng-component')
+    })
+
+    it('should mount class component with inputs', () => {
+      input = n(h(TestAngularComponent, { value: 42 }))
+
+      mount(input, container, null)
+      input.meta!.$CR!.changeDetectorRef.detectChanges()
+
+      expect(input.native).not.toBeNull()
+      expect(container.innerHTML).toBe(`<ng-component><p>42</p></ng-component>`)
     })
   })
 

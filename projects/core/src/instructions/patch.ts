@@ -1,4 +1,4 @@
-import { createChildrenDiffer, createPropertyDiffer } from '../shared/context'
+import { createChildrenDiffer } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined } from '../shared/lang'
 import { normalize } from '../shared/node'
@@ -61,7 +61,7 @@ function patchElement(lastVNode: VNode, nextVNode: VNode): void {
 function patchClassComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
   const meta = nextVNode.meta = lastVNode.meta!
 
-  const instance = meta.$IS!
+  const instance = meta.$RI!
   const lastInner = meta.$IN!
 
   const props = nextVNode.props as Properties

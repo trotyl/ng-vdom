@@ -1,23 +1,21 @@
-import { DoCheck, ElementRef, Injectable, Injector, IterableDiffers, KeyValueDiffers, Renderer2, RendererFactory2 } from '@angular/core'
-import { setCurrentIterableDiffers, setCurrentKeyValueDiffers, setCurrentRenderer } from '../shared/context'
+import { DoCheck, ElementRef, Injectable, Injector, Renderer2, RendererFactory2, Type } from '@angular/core'
+import { setCurrentInjector, setCurrentRenderer } from '../shared/context'
 import { NodeDef } from '../shared/types'
 import { Container } from './container'
 
 @Injectable()
 export abstract class Renderable extends Container implements DoCheck {
+  protected __injector: Injector
   protected __renderer: Renderer2
-  protected __iDiffers: IterableDiffers
-  protected __kDiffers: KeyValueDiffers
 
   constructor(injector: Injector) {
     super()
 
-    this.__container = (injector.get(ElementRef) as ElementRef).nativeElement
-    this.__iDiffers = (injector.get(IterableDiffers) as IterableDiffers)
-    this.__kDiffers = (injector.get(KeyValueDiffers) as KeyValueDiffers)
+    this.__injector = injector
+    this.__container = (injector.get(ElementRef as Type<ElementRef>)).nativeElement
 
-    const renderer = injector.get(Renderer2, null) as Renderer2 | null
-    this.__renderer = renderer != null ? renderer : (injector.get(RendererFactory2) as RendererFactory2).createRenderer(null, null)
+    const renderer = injector.get(Renderer2 as Type<Renderer2>, null!) as Renderer2 | null
+    this.__renderer = renderer || (injector.get(RendererFactory2 as Type<RendererFactory2>)).createRenderer(null, null)
   }
 
   abstract render(): NodeDef | null
@@ -29,13 +27,11 @@ export abstract class Renderable extends Container implements DoCheck {
   }
 
   protected __switchContext(): () => void {
-    const previousIDiffers = setCurrentIterableDiffers(this.__iDiffers)
-    const previousKDiffers = setCurrentKeyValueDiffers(this.__kDiffers)
+    const previousInjector = setCurrentInjector(this.__injector)
     const previousRenderer = setCurrentRenderer(this.__renderer)
 
     return () => {
-      setCurrentIterableDiffers(previousIDiffers)
-      setCurrentKeyValueDiffers(previousKDiffers)
+      setCurrentInjector(previousInjector)
       setCurrentRenderer(previousRenderer)
     }
   }

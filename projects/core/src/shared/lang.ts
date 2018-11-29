@@ -1,7 +1,19 @@
+import { Type } from '@angular/core'
 import { Component } from './component'
+import { getCurrentComponentFactoryResolver } from './context'
 import { TextDef } from './types'
 
 export const EMPTY_OBJ = {}
+
+export function isAngularComponent(value: unknown): value is Type<any> {
+  try {
+    const resolver = getCurrentComponentFactoryResolver()
+    resolver.resolveComponentFactory(value as any)
+    return true
+  } catch {
+    return false
+  }
+}
 
 export function isBoolean(value: unknown): value is boolean {
   return typeof value === 'boolean'

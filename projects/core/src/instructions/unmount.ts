@@ -9,5 +9,8 @@ export function unmount(vNode: VNode): void {
     unmount(vNode.meta!.$IN!)
   } else if (vNode.flags & VNodeFlags.FunctionComponent) {
     unmount(vNode.meta!.$IN!)
+  } else if (vNode.flags & VNodeFlags.AngularComponent) {
+    const ref = vNode.meta!.$CR!
+    ref.destroy()
   }
 }

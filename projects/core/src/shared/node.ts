@@ -1,6 +1,6 @@
 import { TextDef } from '../shared/types'
 import { VNodeFlags } from './flags'
-import { isBoolean, isClassComponent, isFunction, isNullOrUndefined, isNumber, isString, EMPTY_OBJ } from './lang'
+import { isAngularComponent, isBoolean, isClassComponent, isFunction, isNullOrUndefined, isNumber, isString, EMPTY_OBJ } from './lang'
 import { Key, NodeDef, Properties, VNode, VNodeMeta } from './types'
 
 function createVoidNode(): VNode {
@@ -28,7 +28,7 @@ function createTextNode(content: TextDef): VNode {
 }
 
 export function createEmptyMeta(): VNodeMeta {
-  return { $CD: null, $IN: null, $IS: null, $PD: null }
+  return { $CD: null, $IN: null, $RI: null, $PD: null, $AI: null, $CR: null }
 }
 
 export function normalize(def: NodeDef): VNode {
@@ -63,6 +63,8 @@ export function normalize(def: NodeDef): VNode {
 
   if (isString(type)) {
     flags |= VNodeFlags.Native
+  } else if (isAngularComponent(type)) {
+    flags |= VNodeFlags.AngularComponent
   } else if (isClassComponent(type)) {
     flags |= VNodeFlags.ClassComponent
   } else if (isFunction(type)) {
