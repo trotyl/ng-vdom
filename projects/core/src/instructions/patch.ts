@@ -104,12 +104,12 @@ function patchChildren(lastChildren: VNode[], nextChildren: VNode[], container: 
   const meta = getCurrentMeta()
 
   if (lastChildren.length === 0) {
-    meta[CHILD_DIFFER] = null
+    delete meta[CHILD_DIFFER]
     return mountChildren(nextChildren, container)
   }
 
   if (lastChildren.length === 1 && nextChildren.length === 1) {
-    meta[CHILD_DIFFER] = null
+    delete meta[CHILD_DIFFER]
     return patch(lastChildren[0], nextChildren[0], container)
   }
 

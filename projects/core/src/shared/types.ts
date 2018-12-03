@@ -36,13 +36,13 @@ export const COMPONENT_REF = 3
 export const PROP_DIFFER = 4
 export const RENDER_RESULT = 5
 
-export interface VNodeMeta {
-  [PROP_DIFFER]: KeyValueDiffer<string, unknown> | null
-  [CHILD_DIFFER]: IterableDiffer<VNode> | null
-  [COMPONENT_INSTANCE]: Component | null
-  [RENDER_RESULT]: VNode | null
-  [ANGULAR_COMPONENT_INSTANCE]: object | null
-  [COMPONENT_REF]: ComponentRef<any> | null
+export interface VNodeMeta extends Array<unknown> {
+  [ANGULAR_COMPONENT_INSTANCE]?: object
+  [CHILD_DIFFER]?: IterableDiffer<VNode>
+  [COMPONENT_INSTANCE]?: Component
+  [COMPONENT_REF]?: ComponentRef<any>
+  [PROP_DIFFER]?: KeyValueDiffer<string, unknown>
+  [RENDER_RESULT]?: VNode
 }
 
 export interface VNode<P = any> {

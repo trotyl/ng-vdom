@@ -28,14 +28,7 @@ function createTextNode(content: TextDef): VNode {
 }
 
 export function createEmptyMeta(): VNodeMeta {
-  return {
-    [PROP_DIFFER]: null,
-    [CHILD_DIFFER]: null,
-    [COMPONENT_INSTANCE]: null,
-    [RENDER_RESULT]: null,
-    [ANGULAR_COMPONENT_INSTANCE]: null,
-    [COMPONENT_REF]: null,
-  }
+  return []
 }
 
 export function normalize(def: NodeDef): VNode {
