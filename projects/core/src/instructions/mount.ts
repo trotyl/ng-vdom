@@ -3,7 +3,7 @@ import { Component } from '../shared/component'
 import { getCurrentApplicationRef, getCurrentInjector, queueLifeCycle } from '../shared/context'
 import { createChildrenDiffer, getCurrentComponentFactoryResolver } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
-import { isNullOrUndefined } from '../shared/lang'
+import { isNil } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
 import { createEmptyMeta, normalize } from '../shared/node'
 import { ANGULAR_COMPONENT_INSTANCE, ClassComponentType, CHILDREN_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
@@ -41,13 +41,13 @@ function mountElement(vNode: VNode, container: Element | null, nextNode: Node | 
 
   const element = vNode.native = createElement(type)
 
-  if (!isNullOrUndefined(props)) {
+  if (!isNil(props)) {
     initProperties(element, props)
   }
 
   mountChildren(children, element)
 
-  if (!isNullOrUndefined(container)) {
+  if (!isNil(container)) {
     insertBefore(container, element, nextNode)
   }
 
@@ -82,7 +82,7 @@ function mountText(vNode: VNode, container: Element | null, nextNode: Node | nul
   const props = vNode.props as { textContent: string }
   const text = vNode.native = createTextNode(props.textContent)
 
-  if (!isNullOrUndefined(container)) {
+  if (!isNil(container)) {
     insertBefore(container, text, nextNode)
   }
 }
@@ -90,7 +90,7 @@ function mountText(vNode: VNode, container: Element | null, nextNode: Node | nul
 function mountVoid(vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const comment = vNode.native = createComment('')
 
-  if (!isNullOrUndefined(container)) {
+  if (!isNil(container)) {
     insertBefore(container, comment, nextNode)
   }
 }
@@ -110,7 +110,7 @@ function mountAngularComponent(vNode: VNode, container: Element | null, nextNode
 
   const element = vNode.native = ref.injector.get(ElementRef as Type<ElementRef>).nativeElement
 
-  if (!isNullOrUndefined(container)) {
+  if (!isNil(container)) {
     insertBefore(container, element, nextNode)
   }
 }

@@ -1,15 +1,15 @@
-import { isNullOrUndefined, isObject, isString } from './lang'
+import { isNil, isObj, isStr } from './lang'
 import { VNode } from './types'
 
 function keyOf(node: VNode): string | number | null {
-  return isObject(node) && node.key ? node.key : null
+  return isObj(node) && node.key ? node.key : null
 }
 
 let componentCounter = 0
 
 function stringifyType(type: Function | string | null): string {
-  if (isString(type)) { return type }
-  if (isNullOrUndefined(type)) { return 'void'}
+  if (isStr(type)) { return type }
+  if (isNil(type)) { return 'void'}
   return `${type.name}_${componentCounter++}`
 }
 

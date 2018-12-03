@@ -3,7 +3,7 @@ import { patch } from '../instructions/patch'
 import { unmount } from '../instructions/unmount'
 import { Component } from '../shared/component'
 import { getCurrentScheduler, resetLifeCycle, runLifeCycle, setCurrentUpdateQueue } from '../shared/context'
-import { isFunction, isNullOrUndefined } from '../shared/lang'
+import { isFunc, isNil } from '../shared/lang'
 import { normalize } from '../shared/node'
 import { TaskScheduler } from '../shared/schedule'
 import { NodeDef, StateChange, VNode } from '../shared/types'
@@ -31,7 +31,7 @@ export abstract class Container implements UpdateQueue {
 
   enqueueSetState<S, P>(instance: Component, partialState: StateChange<S, P>, callback?: (() => void)): void {
     this.__queue.push(() => {
-      if (isFunction(partialState)) {
+      if (isFunc(partialState)) {
         instance.state = partialState(instance.state, instance.props)
       } else {
         Object.assign(instance.state, partialState)
@@ -61,13 +61,13 @@ export abstract class Container implements UpdateQueue {
     resetLifeCycle()
     const previousUpdateQueue = setCurrentUpdateQueue(this)
 
-    if (isNullOrUndefined(this.__lastDef)) {
-      if (!isNullOrUndefined(this.__def)) {
+    if (isNil(this.__lastDef)) {
+      if (!isNil(this.__def)) {
         this.__vNode = normalize(this.__def)
         mount(this.__vNode, this.__container, null)
       }
     } else {
-      if (isNullOrUndefined(this.__def)) {
+      if (isNil(this.__def)) {
         unmount(this.__vNode!)
       } else if (this.__def !== this.__lastDef) {
         const lastVNode = this.__vNode!

@@ -5,7 +5,19 @@ import { TextDef } from './types'
 
 export const EMPTY_OBJ = {}
 
-export function isAngularComponent(value: unknown): value is Type<any> {
+export function isBool(value: unknown): value is boolean {
+  return typeof value === 'boolean'
+}
+
+export function isClassComp(value: unknown): value is Component {
+  return isFunc(value) && value.prototype && !!value.prototype.isComponent
+}
+
+export function isFunc(value: unknown): value is Function {
+  return typeof value === 'function'
+}
+
+export function isNgComp(value: unknown): value is Type<any> {
   try {
     const resolver = getCurrentComponentFactoryResolver()
     resolver.resolveComponentFactory(value as any)
@@ -15,34 +27,22 @@ export function isAngularComponent(value: unknown): value is Type<any> {
   }
 }
 
-export function isBoolean(value: unknown): value is boolean {
-  return typeof value === 'boolean'
-}
-
-export function isClassComponent(value: unknown): value is Component {
-  return isFunction(value) && value.prototype && !!value.prototype.isComponent
-}
-
-export function isFunction(value: unknown): value is Function {
-  return typeof value === 'function'
-}
-
-export function isNullOrUndefined(value: unknown): value is null | undefined {
+export function isNil(value: unknown): value is null | undefined {
   return value == null
 }
 
-export function isNumber(value: unknown): value is number {
+export function isNum(value: unknown): value is number {
   return typeof value === 'number'
 }
 
-export function isObject(value: unknown): value is object {
+export function isObj(value: unknown): value is object {
   return (value != null) && (typeof value === 'object')
 }
 
-export function isString(value: unknown): value is string {
+export function isStr(value: unknown): value is string {
   return typeof value === 'string'
 }
 
 export function isText(value: unknown): value is TextDef {
-  return isString(value) || isNumber(value)
+  return isStr(value) || isNum(value)
 }

@@ -1,10 +1,10 @@
-import { isNullOrUndefined } from '../shared/lang'
+import { isNil } from '../shared/lang'
 import { insertBefore, removeChild } from './render'
 
 export function insertByIndex(container: Element, node: Node, currentIndex: number, nodes: Node[]): void {
   const nextNode = currentIndex === nodes.length ? null : nodes[currentIndex]
   insertBefore(container, node, nextNode)
-  if (isNullOrUndefined(nextNode)) {
+  if (isNil(nextNode)) {
     nodes.push(node)
   } else {
     nodes.splice(currentIndex, 0, node)

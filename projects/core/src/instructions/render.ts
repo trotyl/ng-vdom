@@ -1,5 +1,5 @@
 import { getCurrentRenderer } from '../shared/context'
-import { isNullOrUndefined } from '../shared/lang'
+import { isNil } from '../shared/lang'
 
 export function createComment(value: string): Comment {
   return getCurrentRenderer().createComment(value)
@@ -15,7 +15,7 @@ export function createTextNode(value: string): Text {
 
 export function insertBefore(container: Element, newNode: Node, referenceNode: Node | null): void {
   const renderer = getCurrentRenderer()
-  if (!isNullOrUndefined(referenceNode)) {
+  if (!isNil(referenceNode)) {
     renderer.insertBefore(container, newNode, referenceNode)
   } else {
     renderer.appendChild(container, newNode)

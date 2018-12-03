@@ -1,6 +1,6 @@
 import { createChildrenDiffer } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
-import { isNullOrUndefined } from '../shared/lang'
+import { isNil } from '../shared/lang'
 import { normalize } from '../shared/node'
 import { CHILDREN_DIFFER, COMPONENT_INSTANCE, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
 import { insertByIndex, moveByIndex, removeByIndex } from './diff'
@@ -117,12 +117,12 @@ function patchChildren(lastChildren: VNode[], nextChildren: VNode[], container: 
   const differ = meta[CHILDREN_DIFFER] = meta[CHILDREN_DIFFER] || createChildrenDiffer(lastChildren)
   const changes = differ.diff(nextChildren)
 
-  if (!isNullOrUndefined(changes)) {
+  if (!isNil(changes)) {
     changes.forEachOperation(({ item, previousIndex, currentIndex }, temporaryPreviousIndex, temporaryCurrentIndex) => {
-      if (isNullOrUndefined(previousIndex)) {
+      if (isNil(previousIndex)) {
         mount(item, null, null)
         insertByIndex(container, item.native!, temporaryCurrentIndex!, nodes)
-      } else if (isNullOrUndefined(temporaryCurrentIndex)) {
+      } else if (isNil(temporaryCurrentIndex)) {
         removeByIndex(container, temporaryPreviousIndex!, nodes)
       } else {
         moveByIndex(container, temporaryPreviousIndex!, temporaryCurrentIndex, nodes)

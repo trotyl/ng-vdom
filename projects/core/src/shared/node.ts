@@ -1,6 +1,6 @@
 import { ANGULAR_COMPONENT_INSTANCE, CHILDREN_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, PROPERTY_DIFFER, RENDER_RESULT, TextDef } from '../shared/types'
 import { VNodeFlags } from './flags'
-import { isAngularComponent, isBoolean, isClassComponent, isFunction, isNullOrUndefined, isNumber, isString, EMPTY_OBJ } from './lang'
+import { isBool, isClassComp, isFunc, isNgComp, isNil, isNum, isStr, EMPTY_OBJ } from './lang'
 import { Key, NodeDef, Properties, VNode, VNodeMeta } from './types'
 
 function createVoidNode(): VNode {
@@ -39,11 +39,11 @@ export function createEmptyMeta(): VNodeMeta {
 }
 
 export function normalize(def: NodeDef): VNode {
-  if (isBoolean(def) || isNullOrUndefined(def)) {
+  if (isBool(def) || isNil(def)) {
     return createVoidNode()
   }
 
-  if (isString(def) || isNumber(def)) {
+  if (isStr(def) || isNum(def)) {
     return createTextNode(def)
   }
 
@@ -56,7 +56,7 @@ export function normalize(def: NodeDef): VNode {
   let props: Properties = EMPTY_OBJ
   let key: Key | null = null
 
-  if (!isNullOrUndefined(defProps)) {
+  if (!isNil(defProps)) {
     props = {}
 
     for (const prop in defProps) {
@@ -68,13 +68,13 @@ export function normalize(def: NodeDef): VNode {
     }
   }
 
-  if (isString(type)) {
+  if (isStr(type)) {
     flags |= VNodeFlags.Native
-  } else if (isAngularComponent(type)) {
+  } else if (isNgComp(type)) {
     flags |= VNodeFlags.AngularComponent
-  } else if (isClassComponent(type)) {
+  } else if (isClassComp(type)) {
     flags |= VNodeFlags.ClassComponent
-  } else if (isFunction(type)) {
+  } else if (isFunc(type)) {
     flags |= VNodeFlags.FunctionComponent
   }
 

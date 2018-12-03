@@ -3,7 +3,7 @@ import { inject } from '@angular/core/testing'
 import { Component } from '../src/shared/component'
 import { setCurrentInjector, setCurrentRenderer, setCurrentUpdateQueue } from '../src/shared/context'
 import { createElement as h } from '../src/shared/factory'
-import { isFunction } from '../src/shared/lang'
+import { isFunc } from '../src/shared/lang'
 import { normalize as n } from '../src/shared/node'
 import { NodeDef, StateChange } from '../src/shared/types'
 import { UpdateQueue } from '../src/shared/update-queue'
@@ -52,7 +52,7 @@ class ImediateUpdateQueue implements UpdateQueue {
   enqueueForceUpdate(publicInstance: Component, callback?: (() => void) | undefined, callerName?: string | undefined): void { }
 
   enqueueSetState<S, P>(publicInstance: Component, partialState: StateChange<S, P>, callback?: (() => void) | undefined, callerName?: string | undefined): void {
-    if (isFunction(partialState)) {
+    if (isFunc(partialState)) {
       publicInstance.state = partialState(publicInstance.state, publicInstance.props)
     } else {
       publicInstance.state = Object.assign(publicInstance.state, partialState)

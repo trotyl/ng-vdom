@@ -1,4 +1,4 @@
-import { isNullOrUndefined } from '../shared/lang'
+import { isNil } from '../shared/lang'
 import { VNodeMeta } from '../shared/types'
 
 let currentMeta: VNodeMeta | null = null
@@ -10,7 +10,7 @@ export function setCurrentMeta(meta: VNodeMeta | null): VNodeMeta | null {
 }
 
 export function getCurrentMeta(): VNodeMeta {
-  if (isNullOrUndefined(currentMeta)) {
+  if (isNil(currentMeta)) {
     return notAvailable('VNodeMeta')
   }
 

@@ -1,6 +1,6 @@
 import { KeyValueChangeRecord } from '@angular/core'
 import { createPropertyDiffer, getCurrentRenderer } from '../shared/context'
-import { isNullOrUndefined } from '../shared/lang'
+import { isNil } from '../shared/lang'
 import { Properties, PROPERTY_DIFFER, Styles } from '../shared/types'
 import { setEventListener } from './event'
 import { getCurrentMeta } from './register'
@@ -12,7 +12,7 @@ export function initProperties(element: Element, props: Properties): void {
   const differ = meta[PROPERTY_DIFFER] = createPropertyDiffer({})
   const changes = differ.diff(props)
 
-  if (!isNullOrUndefined(changes)) {
+  if (!isNil(changes)) {
     const applyPropertyChange = createPropertyChangeCallback(element)
     changes.forEachAddedItem(applyPropertyChange)
   }
@@ -23,7 +23,7 @@ export function patchProperties(element: Element, props: Properties): void {
   const differ = meta[PROPERTY_DIFFER] = meta[PROPERTY_DIFFER] || createPropertyDiffer({})
   const changes = differ.diff(props)
 
-  if (!isNullOrUndefined(changes)) {
+  if (!isNil(changes)) {
     const applyPropertyChange = createPropertyChangeCallback(element)
     changes.forEachAddedItem(applyPropertyChange)
     changes.forEachChangedItem(applyPropertyChange)
