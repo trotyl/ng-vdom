@@ -4,7 +4,7 @@ import { mount } from '../../src/instructions/mount'
 import { Component } from '../../src/shared/component'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
-import { VNode } from '../../src/shared/types'
+import { COMPONENT_REF, VNode } from '../../src/shared/types'
 import { isCommentNode, setUpContext, EMPTY_COMMENT, TestAngularComponent, TestModule } from '../util'
 
 describe('mount instruction', () => {
@@ -275,7 +275,7 @@ describe('mount instruction', () => {
       input = n(h(TestAngularComponent))
 
       mount(input, null, null)
-      input.meta!.$CR!.changeDetectorRef.detectChanges()
+      input.meta![COMPONENT_REF]!.changeDetectorRef.detectChanges()
 
       expect(input.native).not.toBeNull()
       expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe('ng-component')
@@ -285,7 +285,7 @@ describe('mount instruction', () => {
       input = n(h(TestAngularComponent, { value: 42 }))
 
       mount(input, container, null)
-      input.meta!.$CR!.changeDetectorRef.detectChanges()
+      input.meta![COMPONENT_REF]!.changeDetectorRef.detectChanges()
 
       expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<ng-component><p>42</p></ng-component>`)

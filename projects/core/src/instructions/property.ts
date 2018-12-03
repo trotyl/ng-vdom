@@ -1,7 +1,7 @@
 import { KeyValueChangeRecord } from '@angular/core'
 import { createPropertyDiffer, getCurrentRenderer } from '../shared/context'
 import { isNullOrUndefined } from '../shared/lang'
-import { Properties, Styles } from '../shared/types'
+import { Properties, PROPERTY_DIFFER, Styles } from '../shared/types'
 import { setEventListener } from './event'
 import { getCurrentMeta } from './register'
 
@@ -9,7 +9,7 @@ export function initProperties(element: Element, props: Properties): void {
   if (Object.keys(props).length === 0) { return }
 
   const meta = getCurrentMeta()
-  const differ = meta.$PD = createPropertyDiffer({})
+  const differ = meta[PROPERTY_DIFFER] = createPropertyDiffer({})
   const changes = differ.diff(props)
 
   if (!isNullOrUndefined(changes)) {
@@ -20,7 +20,7 @@ export function initProperties(element: Element, props: Properties): void {
 
 export function patchProperties(element: Element, props: Properties): void {
   const meta = getCurrentMeta()
-  const differ = meta.$PD = meta.$PD || createPropertyDiffer({})
+  const differ = meta[PROPERTY_DIFFER] = meta[PROPERTY_DIFFER] || createPropertyDiffer({})
   const changes = differ.diff(props)
 
   if (!isNullOrUndefined(changes)) {

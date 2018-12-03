@@ -2,7 +2,7 @@ import { createChildrenDiffer } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined } from '../shared/lang'
 import { normalize } from '../shared/node'
-import { FunctionComponentType, Properties, VNode } from '../shared/types'
+import { CHILDREN_DIFFER, COMPONENT_INSTANCE, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
 import { insertByIndex, moveByIndex, removeByIndex } from './diff'
 import { mount, mountChildren } from './mount'
 import { patchProperties } from './property'
@@ -61,16 +61,16 @@ function patchElement(lastVNode: VNode, nextVNode: VNode): void {
 function patchClassComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
   const meta = nextVNode.meta = lastVNode.meta!
 
-  const instance = meta.$RI!
-  const lastInner = meta.$IN!
+  const instance = meta[COMPONENT_INSTANCE]!
+  const lastResult = meta[RENDER_RESULT]!
 
   const props = nextVNode.props as Properties
 
   (instance as { props: Properties }).props = props
-  const nextInner = meta.$IN = normalize(instance!.render())
+  const nextResult = meta[RENDER_RESULT] = normalize(instance!.render())
 
-  patch(lastInner, nextInner, container)
-  nextVNode.native = nextInner.native
+  patch(lastResult, nextResult, container)
+  nextVNode.native = nextResult.native
 }
 
 function patchFunctionComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
@@ -78,8 +78,8 @@ function patchFunctionComponent(lastVNode: VNode, nextVNode: VNode, container: E
 
   const type = nextVNode.type as FunctionComponentType
   const props = nextVNode.props as Properties
-  const lastInner = meta.$IN!
-  const nextInner = meta.$IN = normalize(type(props))
+  const lastInner = meta[RENDER_RESULT]!
+  const nextInner = meta[RENDER_RESULT] = normalize(type(props))
 
   patch(lastInner, nextInner, container)
   nextVNode.native = nextInner.native
@@ -104,17 +104,17 @@ function patchChildren(lastChildren: VNode[], nextChildren: VNode[], container: 
   const meta = getCurrentMeta()
 
   if (lastChildren.length === 0) {
-    meta.$CD = null
+    meta[CHILDREN_DIFFER] = null
     return mountChildren(nextChildren, container)
   }
 
   if (lastChildren.length === 1 && nextChildren.length === 1) {
-    meta.$CD = null
+    meta[CHILDREN_DIFFER] = null
     return patch(lastChildren[0], nextChildren[0], container)
   }
 
   const nodes = lastChildren.map(vNode => vNode.native!)
-  const differ = meta.$CD = meta.$CD || createChildrenDiffer(lastChildren)
+  const differ = meta[CHILDREN_DIFFER] = meta[CHILDREN_DIFFER] || createChildrenDiffer(lastChildren)
   const changes = differ.diff(nextChildren)
 
   if (!isNullOrUndefined(changes)) {

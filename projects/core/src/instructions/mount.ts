@@ -6,7 +6,7 @@ import { VNodeFlags } from '../shared/flags'
 import { isNullOrUndefined } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
 import { createEmptyMeta, normalize } from '../shared/node'
-import { ClassComponentType, FunctionComponentType, Properties, VNode } from '../shared/types'
+import { ANGULAR_COMPONENT_INSTANCE, ClassComponentType, CHILDREN_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
 import { initProperties } from './property'
 import { getCurrentMeta, setCurrentMeta } from './register'
 import { createComment, createElement, createTextNode, insertBefore } from './render'
@@ -59,8 +59,8 @@ function mountClassComponent(vNode: VNode, container: Element | null, nextNode: 
   const props = vNode.props as Properties | null
   const meta = vNode.meta = createEmptyMeta()
 
-  const instance = meta.$RI = new type(props)
-  const inner = meta.$IN = normalize(instance.render())
+  const instance = meta[COMPONENT_INSTANCE] = new type(props)
+  const inner = meta[RENDER_RESULT] = normalize(instance.render())
 
   mount(inner, container, nextNode)
   vNode.native = inner.native
@@ -72,7 +72,7 @@ function mountFunctionComponent(vNode: VNode, container: Element | null, nextNod
   const props = vNode.props as Properties | null
 
   const meta = vNode.meta = createEmptyMeta()
-  const inner = meta.$IN = normalize(type(props))
+  const inner = meta[RENDER_RESULT] = normalize(type(props))
 
   mount(inner, container, nextNode)
   vNode.native = inner.native
@@ -102,8 +102,8 @@ function mountAngularComponent(vNode: VNode, container: Element | null, nextNode
 
   const meta = vNode.meta = createEmptyMeta()
   // TODO: mount children as projectableNodes
-  const ref = meta.$CR = factory.create(injector)
-  const instance = meta.$AI = ref.instance
+  const ref = meta[COMPONENT_REF] = factory.create(injector)
+  const instance = meta[ANGULAR_COMPONENT_INSTANCE] = ref.instance
   const app = getCurrentApplicationRef()
   app.attachView(ref.hostView)
   Object.assign(instance, vNode.props)
@@ -123,7 +123,7 @@ export function mountChildren(vNodes: VNode[], container: Element): void {
   }
 
   const meta = getCurrentMeta()
-  meta.$CD = createChildrenDiffer(vNodes)
+  meta[CHILDREN_DIFFER] = createChildrenDiffer(vNodes)
 
   for (let i = 0; i < vNodes.length; i++) {
     mount(vNodes[i], container, null)

@@ -1,4 +1,4 @@
-import { TextDef } from '../shared/types'
+import { ANGULAR_COMPONENT_INSTANCE, CHILDREN_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, PROPERTY_DIFFER, RENDER_RESULT, TextDef } from '../shared/types'
 import { VNodeFlags } from './flags'
 import { isAngularComponent, isBoolean, isClassComponent, isFunction, isNullOrUndefined, isNumber, isString, EMPTY_OBJ } from './lang'
 import { Key, NodeDef, Properties, VNode, VNodeMeta } from './types'
@@ -28,7 +28,14 @@ function createTextNode(content: TextDef): VNode {
 }
 
 export function createEmptyMeta(): VNodeMeta {
-  return { $CD: null, $IN: null, $RI: null, $PD: null, $AI: null, $CR: null }
+  return {
+    [PROPERTY_DIFFER]: null,
+    [CHILDREN_DIFFER]: null,
+    [COMPONENT_INSTANCE]: null,
+    [RENDER_RESULT]: null,
+    [ANGULAR_COMPONENT_INSTANCE]: null,
+    [COMPONENT_REF]: null,
+  }
 }
 
 export function normalize(def: NodeDef): VNode {

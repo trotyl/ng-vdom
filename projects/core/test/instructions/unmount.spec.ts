@@ -4,7 +4,7 @@ import { unmount } from '../../src/instructions/unmount'
 import { Component } from '../../src/shared/component'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
-import { VNode } from '../../src/shared/types'
+import { COMPONENT_REF, VNode } from '../../src/shared/types'
 import { setUpContext, TestAngularComponent, TestModule } from '../util'
 
 describe('unmount instruction', () => {
@@ -78,7 +78,7 @@ describe('unmount instruction', () => {
     it('should destroy component', () => {
       const input = n(h(TestAngularComponent))
       mount(input, container, null)
-      const spy = spyOn(input.meta!.$CR!, 'destroy')
+      const spy = spyOn(input.meta![COMPONENT_REF]!, 'destroy')
 
       unmount(input)
 
