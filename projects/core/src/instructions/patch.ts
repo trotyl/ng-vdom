@@ -2,7 +2,7 @@ import { createChildrenDiffer } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
 import { isNil } from '../shared/lang'
 import { normalize } from '../shared/node'
-import { CHILDREN_DIFFER, COMPONENT_INSTANCE, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
+import { CHILD_DIFFER, COMPONENT_INSTANCE, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
 import { insertByIndex, moveByIndex, removeByIndex } from './diff'
 import { mount, mountChildren } from './mount'
 import { patchProperties } from './property'
@@ -104,17 +104,17 @@ function patchChildren(lastChildren: VNode[], nextChildren: VNode[], container: 
   const meta = getCurrentMeta()
 
   if (lastChildren.length === 0) {
-    meta[CHILDREN_DIFFER] = null
+    meta[CHILD_DIFFER] = null
     return mountChildren(nextChildren, container)
   }
 
   if (lastChildren.length === 1 && nextChildren.length === 1) {
-    meta[CHILDREN_DIFFER] = null
+    meta[CHILD_DIFFER] = null
     return patch(lastChildren[0], nextChildren[0], container)
   }
 
   const nodes = lastChildren.map(vNode => vNode.native!)
-  const differ = meta[CHILDREN_DIFFER] = meta[CHILDREN_DIFFER] || createChildrenDiffer(lastChildren)
+  const differ = meta[CHILD_DIFFER] = meta[CHILD_DIFFER] || createChildrenDiffer(lastChildren)
   const changes = differ.diff(nextChildren)
 
   if (!isNil(changes)) {

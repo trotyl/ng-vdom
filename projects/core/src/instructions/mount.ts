@@ -6,7 +6,7 @@ import { VNodeFlags } from '../shared/flags'
 import { isNil } from '../shared/lang'
 import { ComponentLifecycle } from '../shared/lifecycle'
 import { createEmptyMeta, normalize } from '../shared/node'
-import { ANGULAR_COMPONENT_INSTANCE, ClassComponentType, CHILDREN_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
+import { ANGULAR_COMPONENT_INSTANCE, ClassComponentType, CHILD_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
 import { initProperties } from './property'
 import { getCurrentMeta, setCurrentMeta } from './register'
 import { createComment, createElement, createTextNode, insertBefore } from './render'
@@ -123,7 +123,7 @@ export function mountChildren(vNodes: VNode[], container: Element): void {
   }
 
   const meta = getCurrentMeta()
-  meta[CHILDREN_DIFFER] = createChildrenDiffer(vNodes)
+  meta[CHILD_DIFFER] = createChildrenDiffer(vNodes)
 
   for (let i = 0; i < vNodes.length; i++) {
     mount(vNodes[i], container, null)

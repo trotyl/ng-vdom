@@ -1,4 +1,4 @@
-import { ANGULAR_COMPONENT_INSTANCE, CHILDREN_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, PROPERTY_DIFFER, RENDER_RESULT, TextDef } from '../shared/types'
+import { ANGULAR_COMPONENT_INSTANCE, CHILD_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, PROP_DIFFER, RENDER_RESULT, TextDef } from '../shared/types'
 import { VNodeFlags } from './flags'
 import { isBool, isClassComp, isFunc, isNgComp, isNil, isNum, isStr, EMPTY_OBJ } from './lang'
 import { Key, NodeDef, Properties, VNode, VNodeMeta } from './types'
@@ -29,8 +29,8 @@ function createTextNode(content: TextDef): VNode {
 
 export function createEmptyMeta(): VNodeMeta {
   return {
-    [PROPERTY_DIFFER]: null,
-    [CHILDREN_DIFFER]: null,
+    [PROP_DIFFER]: null,
+    [CHILD_DIFFER]: null,
     [COMPONENT_INSTANCE]: null,
     [RENDER_RESULT]: null,
     [ANGULAR_COMPONENT_INSTANCE]: null,

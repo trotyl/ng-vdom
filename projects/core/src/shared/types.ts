@@ -29,16 +29,16 @@ export interface ClassAttributes {
   ref?: unknown
 }
 
-export const PROPERTY_DIFFER = 0
-export const CHILDREN_DIFFER = 1
+export const ANGULAR_COMPONENT_INSTANCE = 0
+export const CHILD_DIFFER = 1
 export const COMPONENT_INSTANCE = 2
-export const RENDER_RESULT = 3
-export const ANGULAR_COMPONENT_INSTANCE = 4
-export const COMPONENT_REF = 5
+export const COMPONENT_REF = 3
+export const PROP_DIFFER = 4
+export const RENDER_RESULT = 5
 
 export interface VNodeMeta {
-  [PROPERTY_DIFFER]: KeyValueDiffer<string, unknown> | null
-  [CHILDREN_DIFFER]: IterableDiffer<VNode> | null
+  [PROP_DIFFER]: KeyValueDiffer<string, unknown> | null
+  [CHILD_DIFFER]: IterableDiffer<VNode> | null
   [COMPONENT_INSTANCE]: Component | null
   [RENDER_RESULT]: VNode | null
   [ANGULAR_COMPONENT_INSTANCE]: object | null
