@@ -19,7 +19,7 @@ export function mountNative(kit: RenderKit, vNode: VNode, container: Element | n
   const element = vNode.native = createElement(kit, type)
 
   if (!isNil(props)) {
-    initProperties(kit, vNode, props)
+    patchProperties(kit, vNode, props)
   }
 
   mountChildren(kit, vNode, children, element)
@@ -128,22 +128,14 @@ function removeByIndex(kit: RenderKit, container: Element, previousIndex: number
   return node
 }
 
-export function initProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
+export function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
   if (Object.keys(props).length === 0) { return }
 
   const meta = vNode.meta!
-  const differ = meta[PROP_DIFFER] = createPropDiffer(kit, {})
-  const changes = differ.diff(props)
-
-  if (!isNil(changes)) {
-    const applyPropertyChange = createPropertyChangeCallback(kit, vNode.native! as Element)
-    changes.forEachAddedItem(applyPropertyChange)
+  let differ = meta[PROP_DIFFER]
+  if (isNil(differ)) {
+    differ = meta[PROP_DIFFER] = createPropDiffer(kit, {})
   }
-}
-
-export function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
-  const meta = vNode.meta!
-  const differ = meta[PROP_DIFFER] = meta[PROP_DIFFER] || createPropDiffer(kit, {})
   const changes = differ.diff(props)
 
   if (!isNil(changes)) {
