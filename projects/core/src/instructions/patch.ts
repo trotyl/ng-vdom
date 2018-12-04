@@ -1,6 +1,7 @@
 import { VNodeFlags } from '../shared/flags'
 import { RenderKit } from '../shared/render-kit'
 import { VNode } from '../shared/types'
+import { patchAngularComponent } from './angular-component'
 import { patchClassComponent } from './class-component'
 import { patchFunctionComponent } from './function-component'
 import { mount } from './mount'
@@ -25,6 +26,8 @@ export function patch(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, contai
     patchText(kit, lastVNode, nextVNode)
   } else if (nextFlags & VNodeFlags.Void) {
     patchVoid(lastVNode, nextVNode)
+  } else if (nextFlags & VNodeFlags.AngularComponent) {
+    patchAngularComponent(kit, lastVNode, nextVNode, container)
   } else {
     throw new Error(`Unsupported node type ${nextVNode.type}`)
   }

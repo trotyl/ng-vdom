@@ -30,14 +30,18 @@ export interface ClassAttributes {
 }
 
 export const ANGULAR_COMPONENT_INSTANCE = 0
-export const CHILD_DIFFER = 1
-export const COMPONENT_INSTANCE = 2
-export const COMPONENT_REF = 3
-export const PROP_DIFFER = 4
-export const RENDER_RESULT = 5
+export const ANGULAR_INPUT_MAP = 1
+export const ANGULAR_OUTPUT_MAP = 2
+export const CHILD_DIFFER = 3
+export const COMPONENT_INSTANCE = 4
+export const COMPONENT_REF = 5
+export const PROP_DIFFER = 6
+export const RENDER_RESULT = 7
 
 export interface VNodeMeta extends Array<unknown> {
   [ANGULAR_COMPONENT_INSTANCE]?: object
+  [ANGULAR_INPUT_MAP]?: { [key: string]: string }
+  [ANGULAR_OUTPUT_MAP]?: { [key: string]: string }
   [CHILD_DIFFER]?: IterableDiffer<VNode>
   [COMPONENT_INSTANCE]?: Component
   [COMPONENT_REF]?: ComponentRef<any>

@@ -7,7 +7,7 @@ import { CHILD_DIFFER, Properties, PROP_DIFFER, Styles, VNode } from '../shared/
 import { mount } from './mount'
 import { patch } from './patch'
 import { createElement, insertBefore, removeChild } from './render'
-import { createChildDiffer, createPropDiffer } from './util'
+import { createChildDiffer, createPropDiffer, isEventLikeProp, parseEventName } from './util'
 
 export function mountNative(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
   vNode.meta = createEmptyMeta()
@@ -48,7 +48,7 @@ export function patchNative(kit: RenderKit, lastVNode: VNode, nextVNode: VNode):
 }
 
 export function unmountNative(kit: RenderKit, vNode: VNode): void {
-  removeAllEventListeners(kit, vNode.native as Element)
+  removeAllEventListeners(vNode.native as Element)
 }
 
 function mountChildren(kit: RenderKit, parent: VNode, vNodes: VNode[], container: Element): void {
@@ -128,13 +128,13 @@ function removeByIndex(kit: RenderKit, container: Element, previousIndex: number
   return node
 }
 
-export function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
+function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
   if (Object.keys(props).length === 0) { return }
 
   const meta = vNode.meta!
   let differ = meta[PROP_DIFFER]
   if (isNil(differ)) {
-    differ = meta[PROP_DIFFER] = createPropDiffer(kit, {})
+    differ = meta[PROP_DIFFER] = createPropDiffer(kit)
   }
   const changes = differ.diff(props)
 
@@ -146,22 +146,18 @@ export function patchProperties(kit: RenderKit, vNode: VNode, props: Properties)
   }
 }
 
-function setProperty(kit: RenderKit, element: Element, name: string, value: unknown) {
-  if (name.length >= 3 && name[0] === 'o' && name[1] === 'n') {
-    const firstChar = name[2]
-    let eventName = name.substr(3)
-    if (firstChar !== '_') {
-      eventName = firstChar.toLowerCase() + eventName
-    }
+function setProperty(kit: RenderKit, element: Element, prop: string, value: unknown) {
+  if (isEventLikeProp(prop)) {
+    const eventName = parseEventName(prop)
     setEventListener(kit, element, eventName, value as EventListener)
-  } else if (name === 'className' && value == null) {
+  } else if (prop === 'className' && value == null) {
     const renderer = kit[RENDERER]
-    renderer.setProperty(element, name, '')
-  } else if (name === 'style') {
+    renderer.setProperty(element, prop, '')
+  } else if (prop === 'style') {
     setStyle(kit, element, value as Styles | string)
   } else {
     const renderer = kit[RENDERER]
-    renderer.setProperty(element, name, value)
+    renderer.setProperty(element, prop, value)
   }
 }
 
@@ -176,29 +172,29 @@ function setStyle(kit: RenderKit, element: Element, styles: Styles | string): vo
 }
 
 
-const EVENTS_KEY = '__ngv_events__'
+const EVENTS_KEY = '__niro_events__'
 
 interface EventHandlers {
   [name: string]: () => void
 }
 
-export function setEventListener(kit: RenderKit, element: Element, eventName: string, listener: EventListener): void {
-  const events = getEventHandlers(kit, element)
-  let disposer: (() => void) | null = null
-  if ((disposer = events[eventName]) != null) {
+function setEventListener(kit: RenderKit, element: Element, eventName: string, listener: EventListener): void {
+  const events = getEventHandlers(element)
+  const disposer: (() => void) | undefined = events[eventName]
+  if (!isNil(disposer)) {
     disposer()
   }
   events[eventName] = kit[RENDERER].listen(element, eventName, listener)
 }
 
-export function removeAllEventListeners(kit: RenderKit, element: Element): void {
-  const events = getEventHandlers(kit, element)
+function removeAllEventListeners(element: Element): void {
+  const events = getEventHandlers(element)
   for (const eventName in events) {
     events[eventName]()
   }
 }
 
-function getEventHandlers(kit: RenderKit, element: Element): EventHandlers {
+function getEventHandlers(element: Element): EventHandlers {
   const untypedElement = element as { [key: string]: unknown }
   if (!untypedElement[EVENTS_KEY]) {
     untypedElement[EVENTS_KEY] = Object.create(null)

@@ -1,8 +1,8 @@
 import { Type } from '@angular/core'
 import { Component } from './component'
 import { getCurrentRenderKit, COMPONENT_FACTORY_RESOLVER } from './render-kit'
-import { TextDef } from './types'
 
+export const EMPTY_ARRAY = []
 export const EMPTY_OBJ = {}
 
 export function isBool(value: unknown): value is boolean {
@@ -41,8 +41,4 @@ export function isObj(value: unknown): value is object {
 
 export function isStr(value: unknown): value is string {
   return typeof value === 'string'
-}
-
-export function isText(value: unknown): value is TextDef {
-  return isStr(value) || isNum(value)
 }

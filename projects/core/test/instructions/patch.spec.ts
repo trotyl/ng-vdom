@@ -1,10 +1,11 @@
+import { async, TestBed } from '@angular/core/testing'
 import { mount } from '../../src/instructions/mount'
 import { patch } from '../../src/instructions/patch'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
-import { VNode } from '../../src/shared/types'
-import { createClassComponentNode, createFunctionComponentNode, createNativeNode, createTextNode, createVoidNode, setUpContext, EMPTY_COMMENT } from '../util'
+import { ANGULAR_COMPONENT_INSTANCE, COMPONENT_REF, VNode } from '../../src/shared/types'
+import { createClassComponentNode, createFunctionComponentNode, createNativeNode, createTextNode, createVoidNode, setUpContext, EMPTY_COMMENT, TestAngularComponent, TestModule } from '../util'
 
 const TEXT_DEFAULT_CONTENT = 'foo'
 const COMPOSITE_DEFAULT_CONTENT = '<p class="foo">42</p>'
@@ -14,6 +15,12 @@ describe('patch instruction', () => {
   let previous: VNode
   let next: VNode
   let kit: RenderKit
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [ TestModule ],
+    }).compileComponents()
+  }))
 
   setUpContext()
 
@@ -150,6 +157,39 @@ describe('patch instruction', () => {
 
         expect(next.native).not.toBe(previous.native)
         expect(container.innerHTML).toBe('1')
+      })
+    })
+
+    describe('Angular Component', () => {
+      it('should apply input change', () => {
+        previous = n(h(TestAngularComponent, { value: 42 }))
+        next = n(h(TestAngularComponent, { value: 84 }))
+
+        mount(kit, previous, container, null)
+        previous.meta![COMPONENT_REF]!.changeDetectorRef.detectChanges()
+
+        patch(kit, previous, next, container)
+        next.meta![COMPONENT_REF]!.changeDetectorRef.detectChanges()
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe(`<ng-component><p>84</p></ng-component>`)
+      })
+
+      it('should apply output change', () => {
+        let component: TestAngularComponent
+        const logs: number[] = []
+        previous = n(h(TestAngularComponent, { onChanges: (value: number) => logs.push(value) }))
+        next = n(h(TestAngularComponent, { onChanges: (value: number) => logs.push(-value) }))
+
+        mount(kit, previous, container, null)
+        component = (previous.meta![ANGULAR_COMPONENT_INSTANCE]! as TestAngularComponent)
+        component.changes.emit(1)
+
+        patch(kit, previous, next, container)
+        component = (next.meta![ANGULAR_COMPONENT_INSTANCE]! as TestAngularComponent)
+        component.changes.emit(2)
+
+        expect(logs).toEqual([1, -2])
       })
     })
   })

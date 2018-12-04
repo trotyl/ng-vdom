@@ -1,4 +1,4 @@
-import { ApplicationRef, Component as NgComponent, ComponentFactoryResolver, Injector, Input, IterableDiffers, KeyValueDiffers, NgModule, RendererFactory2 } from '@angular/core'
+import { ApplicationRef, Component as NgComponent, ComponentFactoryResolver, EventEmitter, Injector, Input, IterableDiffers, KeyValueDiffers, NgModule, Output, RendererFactory2 } from '@angular/core'
 import { inject } from '@angular/core/testing'
 import { Component } from '../src/shared/component'
 import { createElement as h } from '../src/shared/factory'
@@ -89,6 +89,7 @@ export function setUpContext(): void {
 })
 export class TestAngularComponent {
   @Input() value = 0
+  @Output() changes = new EventEmitter()
 }
 
 @NgModule({
