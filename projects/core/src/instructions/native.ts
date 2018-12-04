@@ -6,13 +6,11 @@ import { RenderKit, RENDERER } from '../shared/render-kit'
 import { CHILD_DIFFER, Properties, PROP_DIFFER, Styles, VNode } from '../shared/types'
 import { mount } from './mount'
 import { patch } from './patch'
-import { getCurrentMeta, setCurrentMeta } from './register'
 import { createElement, insertBefore, removeChild } from './render'
 import { createChildDiffer, createPropDiffer } from './util'
 
 export function mountNative(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
-  const meta = vNode.meta = createEmptyMeta()
-  const previousMeta = setCurrentMeta(meta)
+  vNode.meta = createEmptyMeta()
 
   const type = vNode.type as string
   const props = vNode.props as Properties | null
@@ -21,21 +19,18 @@ export function mountNative(kit: RenderKit, vNode: VNode, container: Element | n
   const element = vNode.native = createElement(kit, type)
 
   if (!isNil(props)) {
-    initProperties(kit, element, props)
+    initProperties(kit, vNode, props)
   }
 
-  mountChildren(kit, children, element)
+  mountChildren(kit, vNode, children, element)
 
   if (!isNil(container)) {
     insertBefore(kit, container, element, nextNode)
   }
-
-  setCurrentMeta(previousMeta)
 }
 
 export function patchNative(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
-  const meta = nextVNode.meta = lastVNode.meta!
-  const previousMeta = setCurrentMeta(meta)
+  nextVNode.meta = lastVNode.meta!
 
   const lastChildren = lastVNode.children!
   const lastProps = lastVNode.props
@@ -45,27 +40,25 @@ export function patchNative(kit: RenderKit, lastVNode: VNode, nextVNode: VNode):
   const element = nextVNode.native = lastVNode.native! as Element
 
   if (lastProps !== nextProps) {
-    patchProperties(kit, element, nextProps)
+    patchProperties(kit, nextVNode, nextProps)
   }
   if (lastChildren !== nextChildren) {
-    patchChildren(kit, lastChildren, nextChildren, element)
+    patchChildren(kit, nextVNode, lastChildren, nextChildren, element)
   }
-
-  setCurrentMeta(previousMeta)
 }
 
 export function unmountNative(kit: RenderKit, vNode: VNode): void {
   removeAllEventListeners(kit, vNode.native as Element)
 }
 
-function mountChildren(kit: RenderKit, vNodes: VNode[], container: Element): void {
+function mountChildren(kit: RenderKit, parent: VNode, vNodes: VNode[], container: Element): void {
   if (vNodes.length === 0) { return }
 
   if (vNodes.length === 1) {
     return mount(kit, vNodes[0], container, null)
   }
 
-  const meta = getCurrentMeta()
+  const meta = parent.meta!
   meta[CHILD_DIFFER] = createChildDiffer(kit, vNodes)
 
   for (let i = 0; i < vNodes.length; i++) {
@@ -73,12 +66,12 @@ function mountChildren(kit: RenderKit, vNodes: VNode[], container: Element): voi
   }
 }
 
-function patchChildren(kit: RenderKit, lastChildren: VNode[], nextChildren: VNode[], container: Element): void {
-  const meta = getCurrentMeta()
+function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nextChildren: VNode[], container: Element): void {
+  const meta = parent.meta!
 
   if (lastChildren.length === 0) {
     delete meta[CHILD_DIFFER]
-    return mountChildren(kit, nextChildren, container)
+    return mountChildren(kit, parent, nextChildren, container)
   }
 
   if (lastChildren.length === 1 && nextChildren.length === 1) {
@@ -135,26 +128,26 @@ function removeByIndex(kit: RenderKit, container: Element, previousIndex: number
   return node
 }
 
-export function initProperties(kit: RenderKit, element: Element, props: Properties): void {
+export function initProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
   if (Object.keys(props).length === 0) { return }
 
-  const meta = getCurrentMeta()
+  const meta = vNode.meta!
   const differ = meta[PROP_DIFFER] = createPropDiffer(kit, {})
   const changes = differ.diff(props)
 
   if (!isNil(changes)) {
-    const applyPropertyChange = createPropertyChangeCallback(kit, element)
+    const applyPropertyChange = createPropertyChangeCallback(kit, vNode.native! as Element)
     changes.forEachAddedItem(applyPropertyChange)
   }
 }
 
-export function patchProperties(kit: RenderKit, element: Element, props: Properties): void {
-  const meta = getCurrentMeta()
+export function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
+  const meta = vNode.meta!
   const differ = meta[PROP_DIFFER] = meta[PROP_DIFFER] || createPropDiffer(kit, {})
   const changes = differ.diff(props)
 
   if (!isNil(changes)) {
-    const applyPropertyChange = createPropertyChangeCallback(kit, element)
+    const applyPropertyChange = createPropertyChangeCallback(kit, vNode.native! as Element)
     changes.forEachAddedItem(applyPropertyChange)
     changes.forEachChangedItem(applyPropertyChange)
     changes.forEachRemovedItem(applyPropertyChange)
