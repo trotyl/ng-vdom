@@ -2,7 +2,6 @@ import { ElementRef, Type } from '@angular/core'
 import { Component } from '../shared/component'
 import { VNodeFlags } from '../shared/flags'
 import { isNil } from '../shared/lang'
-import { ComponentLifecycle } from '../shared/lifecycle'
 import { createEmptyMeta, normalize } from '../shared/node'
 import { APPLICATION_REF, COMPONENT_FACTORY_RESOLVER, INJECTOR, LIFE_CYCLE_HOOKS, RenderKit } from '../shared/render-kit'
 import { ANGULAR_COMPONENT_INSTANCE, ClassComponentType, CHILD_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
@@ -131,10 +130,9 @@ export function mountChildren(kit: RenderKit, vNodes: VNode[], container: Elemen
 }
 
 function mountClassComponentCallbacks(kit: RenderKit, instance: Component): void {
-  const instanceWithLifecycles = instance as ComponentLifecycle
-  if (instanceWithLifecycles.componentDidMount != null) {
+  const componentDidMount = instance.componentDidMount
+  if (componentDidMount !== Component.prototype.componentDidMount) {
     const hooks = kit[LIFE_CYCLE_HOOKS]
-    // TODO: push method and instance
-    hooks.push(() => instanceWithLifecycles.componentDidMount!())
+    hooks.push(componentDidMount, instance)
   }
 }

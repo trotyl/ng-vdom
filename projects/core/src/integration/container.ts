@@ -28,6 +28,7 @@ export abstract class Container implements UpdateQueue {
   }
 
   enqueueSetState<S, P>(instance: Component, partialState: StateChange<S, P>, callback?: (() => void)): void {
+    // TODO: extract function declaration
     this.__queue.push(() => {
       if (isFunc(partialState)) {
         instance.state = partialState(instance.state, instance.props)
@@ -38,6 +39,7 @@ export abstract class Container implements UpdateQueue {
 
     if (!this.__pendingSchedule) {
       this.__pendingSchedule = true
+      // TODO: extract function declaration
       this.__scheduler(() => {
         for (const fn of this.__queue) {
           fn()
@@ -78,8 +80,8 @@ export abstract class Container implements UpdateQueue {
     this.__lastDef = this.__def
 
     const hooks = renderKit[LIFE_CYCLE_HOOKS]
-    for (let i = 0; i < hooks.length; i++) {
-      hooks[i]()
+    for (let i = 0; i < hooks.length; i += 2) {
+      (hooks[i] as Function).call(hooks[i + 1] as Component)
     }
 
     setCurrentRenderKit(previous)

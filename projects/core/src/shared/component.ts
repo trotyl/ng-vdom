@@ -1,3 +1,4 @@
+import { ErrorInfo } from './error'
 import { EMPTY_OBJ } from './lang'
 import { ComponentLifecycle } from './lifecycle'
 import { getCurrentRenderKit, UPDATE_QUEUE } from './render-kit'
@@ -58,6 +59,16 @@ export abstract class Component<P = any, S = any> implements ComponentLifecycle<
   forceUpdate(callback?: () => void) {
     this.updateQueue.enqueueForceUpdate(this, callback, 'forceUpdate')
   }
+
+  componentDidMount(): void {}
+
+  shouldComponentUpdate(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: unknown): boolean {
+    return true
+  }
+
+  componentWillUnmount(): void {}
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {}
 
   abstract render(): NodeDef
 }

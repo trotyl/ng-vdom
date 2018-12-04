@@ -3,6 +3,7 @@ import { inject } from '@angular/core/testing'
 import { Component } from '../src/shared/component'
 import { createElement as h } from '../src/shared/factory'
 import { isFunc } from '../src/shared/lang'
+import { LifecycleHooks } from '../src/shared/lifecycle'
 import { normalize as n } from '../src/shared/node'
 import { setCurrentRenderKit } from '../src/shared/render-kit'
 import { NodeDef, StateChange } from '../src/shared/types'
@@ -68,7 +69,7 @@ export function setUpContext(): void {
   let restoreContext: () => void
 
   beforeEach(inject([ApplicationRef, ComponentFactoryResolver, Injector, IterableDiffers, KeyValueDiffers, RendererFactory2], (app: ApplicationRef, cfr: ComponentFactoryResolver, inj: Injector, id: IterableDiffers, kd: KeyValueDiffers, rf: RendererFactory2) => {
-    const hooks: Array<() => void> = []
+    const hooks: LifecycleHooks = []
     const r = rf.createRenderer(null, null)
     const queue = new ImmediateUpdateQueue()
     const previous = setCurrentRenderKit([app, cfr, inj, id, kd, hooks, r, queue])

@@ -1,4 +1,5 @@
 import { ApplicationRef, ComponentFactoryResolver, Injector, IterableDiffers, KeyValueDiffers, Renderer2 } from '@angular/core'
+import { LifecycleHooks } from './lifecycle'
 import { UpdateQueue } from './update-queue'
 
 export const APPLICATION_REF = 0
@@ -16,7 +17,7 @@ export interface RenderKit extends Array<unknown> {
   [INJECTOR]: Injector
   [ITERABLE_DIFFERS]: IterableDiffers
   [KEY_VALUE_DIFFERS]: KeyValueDiffers
-  [LIFE_CYCLE_HOOKS]: Array<() => void>
+  [LIFE_CYCLE_HOOKS]: LifecycleHooks
   [RENDERER]: Renderer2
   [UPDATE_QUEUE]: UpdateQueue
 }
@@ -27,7 +28,7 @@ export function createRenderKit(
   injector: Injector,
   iDiffers: IterableDiffers,
   kDiffers: KeyValueDiffers,
-  hooks: Array<() => void>,
+  hooks: LifecycleHooks,
   renderer: Renderer2,
   queue: UpdateQueue,
 ): RenderKit {

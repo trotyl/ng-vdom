@@ -1,4 +1,5 @@
 import { ApplicationRef, ComponentFactoryResolver, DoCheck, ElementRef, Injectable, Injector, IterableDiffers, KeyValueDiffers, Renderer2, RendererFactory2, Type } from '@angular/core'
+import { LifecycleHooks } from '../shared/lifecycle'
 import { createRenderKit, RenderKit } from '../shared/render-kit'
 import { TaskScheduler } from '../shared/schedule'
 import { NodeDef } from '../shared/types'
@@ -16,7 +17,7 @@ export abstract class Renderable extends Container implements DoCheck {
 
   protected __def: NodeDef | null = null
   protected __container: Element
-  protected __hooks!: Array<() => void>
+  protected __hooks!: LifecycleHooks
 
   constructor(injector: Injector) {
     super()
