@@ -4,7 +4,7 @@ import { unmount } from '../instructions/unmount'
 import { Component } from '../shared/component'
 import { isFunc, isNil } from '../shared/lang'
 import { normalize } from '../shared/node'
-import { setCurrentRenderKit, LIFE_CYCLE_HOOKS, RenderKit } from '../shared/render-kit'
+import { setCurrentRenderKit, LIFECYCLE_HOOKS, RenderKit } from '../shared/render-kit'
 import { TaskScheduler } from '../shared/schedule'
 import { NodeDef, StateChange, VNode } from '../shared/types'
 import { UpdateQueue } from '../shared/update-queue'
@@ -79,7 +79,7 @@ export abstract class Container implements UpdateQueue {
 
     this.__lastDef = this.__def
 
-    const hooks = renderKit[LIFE_CYCLE_HOOKS]
+    const hooks = renderKit[LIFECYCLE_HOOKS]
     for (let i = 0; i < hooks.length; i += 2) {
       (hooks[i] as Function).call(hooks[i + 1] as Component)
     }

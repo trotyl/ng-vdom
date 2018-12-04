@@ -1,15 +1,23 @@
 import { VNodeFlags } from '../shared/flags'
 import { RenderKit } from '../shared/render-kit'
-import { COMPONENT_REF, RENDER_RESULT, VNode } from '../shared/types'
-import { removeAllEventListeners } from './event'
+import { COMPONENT_REF, VNode } from '../shared/types'
+import { unmountClassComponent } from './class-component'
+import { unmountFunctionComponent } from './function-component'
+import { unmountNative } from './native'
+import { unmountText } from './text'
+import { unmountVoid } from './void'
 
 export function unmount(kit: RenderKit, vNode: VNode): void {
   if (vNode.flags & VNodeFlags.Native) {
-    removeAllEventListeners(kit, vNode.native as Element)
+    unmountNative(kit, vNode)
+  } else if (vNode.flags & VNodeFlags.Text) {
+    unmountText(kit, vNode)
+  } else if (vNode.flags & VNodeFlags.Void) {
+    unmountVoid(kit, vNode)
   } else if (vNode.flags & VNodeFlags.ClassComponent) {
-    unmount(kit, vNode.meta![RENDER_RESULT]!)
+    unmountClassComponent(kit, vNode)
   } else if (vNode.flags & VNodeFlags.FunctionComponent) {
-    unmount(kit, vNode.meta![RENDER_RESULT]!)
+    unmountFunctionComponent(kit, vNode)
   } else if (vNode.flags & VNodeFlags.AngularComponent) {
     const ref = vNode.meta![COMPONENT_REF]!
     ref.destroy()
