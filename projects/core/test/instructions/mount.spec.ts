@@ -4,7 +4,7 @@ import { Component } from '../../src/shared/component'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
-import { ANGULAR_COMPONENT_INSTANCE, COMPONENT_REF, VNode } from '../../src/shared/types'
+import { COMPONENT_REF, VNode } from '../../src/shared/types'
 import { isCommentNode, setUpContext, EMPTY_COMMENT, TestAngularComponent, TestModule } from '../util'
 
 describe('mount instruction', () => {
@@ -298,7 +298,7 @@ describe('mount instruction', () => {
       input = n(h(TestAngularComponent, { onChanges: (value: boolean) => flag = value }))
 
       mount(kit, input, container, null)
-      const component = (input.meta![ANGULAR_COMPONENT_INSTANCE]! as TestAngularComponent)
+      const component = (input.meta![COMPONENT_REF]!.instance as TestAngularComponent)
       component.changes.emit(true)
 
       expect(flag).toBe(true)

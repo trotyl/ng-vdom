@@ -4,7 +4,7 @@ import { patch } from '../../src/instructions/patch'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
-import { ANGULAR_COMPONENT_INSTANCE, COMPONENT_REF, VNode } from '../../src/shared/types'
+import { COMPONENT_REF, VNode } from '../../src/shared/types'
 import { createClassComponentNode, createFunctionComponentNode, createNativeNode, createTextNode, createVoidNode, setUpContext, EMPTY_COMMENT, TestAngularComponent, TestModule } from '../util'
 
 const TEXT_DEFAULT_CONTENT = 'foo'
@@ -182,11 +182,11 @@ describe('patch instruction', () => {
         next = n(h(TestAngularComponent, { onChanges: (value: number) => logs.push(-value) }))
 
         mount(kit, previous, container, null)
-        component = (previous.meta![ANGULAR_COMPONENT_INSTANCE]! as TestAngularComponent)
+        component = (previous.meta![COMPONENT_REF]!.instance as TestAngularComponent)
         component.changes.emit(1)
 
         patch(kit, previous, next, container)
-        component = (next.meta![ANGULAR_COMPONENT_INSTANCE]! as TestAngularComponent)
+        component = (next.meta![COMPONENT_REF]!.instance as TestAngularComponent)
         component.changes.emit(2)
 
         expect(logs).toEqual([1, -2])
