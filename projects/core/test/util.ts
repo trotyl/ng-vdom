@@ -1,10 +1,10 @@
-import { Component as NgComponent, Injector, Input, NgModule, RendererFactory2 } from '@angular/core'
+import { ApplicationRef, Component as NgComponent, ComponentFactoryResolver, Injector, Input, IterableDiffers, KeyValueDiffers, NgModule, RendererFactory2 } from '@angular/core'
 import { inject } from '@angular/core/testing'
 import { Component } from '../src/shared/component'
-import { setCurrentInjector, setCurrentRenderer, setCurrentUpdateQueue } from '../src/shared/context'
 import { createElement as h } from '../src/shared/factory'
 import { isFunc } from '../src/shared/lang'
 import { normalize as n } from '../src/shared/node'
+import { setCurrentRenderKit } from '../src/shared/render-kit'
 import { NodeDef, StateChange } from '../src/shared/types'
 import { UpdateQueue } from '../src/shared/update-queue'
 
@@ -48,7 +48,7 @@ export function createFunctionComponentNode() {
 }
 
 
-class ImediateUpdateQueue implements UpdateQueue {
+class ImmediateUpdateQueue implements UpdateQueue {
   enqueueForceUpdate(publicInstance: Component, callback?: (() => void) | undefined, callerName?: string | undefined): void { }
 
   enqueueSetState<S, P>(publicInstance: Component, partialState: StateChange<S, P>, callback?: (() => void) | undefined, callerName?: string | undefined): void {
@@ -67,17 +67,14 @@ class ImediateUpdateQueue implements UpdateQueue {
 export function setUpContext(): void {
   let restoreContext: () => void
 
-  beforeAll(() => {
-    setCurrentUpdateQueue(new ImediateUpdateQueue())
-  })
-
-  beforeEach(inject([Injector, RendererFactory2], (injector: Injector, rendererFactory: RendererFactory2) => {
-    const previousInjector = setCurrentInjector(injector)
-    const previousRenderer = setCurrentRenderer(rendererFactory.createRenderer(null, null))
+  beforeEach(inject([ApplicationRef, ComponentFactoryResolver, Injector, IterableDiffers, KeyValueDiffers, RendererFactory2], (app: ApplicationRef, cfr: ComponentFactoryResolver, inj: Injector, id: IterableDiffers, kd: KeyValueDiffers, rf: RendererFactory2) => {
+    const hooks: Array<() => void> = []
+    const r = rf.createRenderer(null, null)
+    const queue = new ImmediateUpdateQueue()
+    const previous = setCurrentRenderKit([app, cfr, inj, id, kd, hooks, r, queue])
 
     restoreContext = () => {
-      setCurrentInjector(previousInjector)
-      setCurrentRenderer(previousRenderer)
+      setCurrentRenderKit(previous)
     }
   }))
 

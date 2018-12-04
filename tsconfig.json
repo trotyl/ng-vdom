@@ -9,6 +9,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strict": true,
+    "noUnusedLocals": true,
     "target": "es5",
     "jsx": "react",
     "allowSyntheticDefaultImports": true,

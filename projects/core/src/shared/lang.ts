@@ -1,6 +1,6 @@
 import { Type } from '@angular/core'
 import { Component } from './component'
-import { getCurrentComponentFactoryResolver } from './context'
+import { getCurrentRenderKit, COMPONENT_FACTORY_RESOLVER } from './render-kit'
 import { TextDef } from './types'
 
 export const EMPTY_OBJ = {}
@@ -19,7 +19,7 @@ export function isFunc(value: unknown): value is Function {
 
 export function isNgComp(value: unknown): value is Type<any> {
   try {
-    const resolver = getCurrentComponentFactoryResolver()
+    const resolver = getCurrentRenderKit()![COMPONENT_FACTORY_RESOLVER]
     resolver.resolveComponentFactory(value as any)
     return true
   } catch {

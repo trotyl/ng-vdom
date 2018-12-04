@@ -1,7 +1,7 @@
-import { createChildrenDiffer } from '../shared/context'
 import { VNodeFlags } from '../shared/flags'
 import { isNil } from '../shared/lang'
 import { normalize } from '../shared/node'
+import { RenderKit } from '../shared/render-kit'
 import { CHILD_DIFFER, COMPONENT_INSTANCE, FunctionComponentType, Properties, RENDER_RESULT, VNode } from '../shared/types'
 import { insertByIndex, moveByIndex, removeByIndex } from './diff'
 import { mount, mountChildren } from './mount'
@@ -9,35 +9,36 @@ import { patchProperties } from './property'
 import { getCurrentMeta, setCurrentMeta } from './register'
 import { removeChild, setNodeValue } from './render'
 import { unmount } from './unmount'
+import { createChildDiffer } from './util'
 
-export function patch(lastVNode: VNode, nextVNode: VNode, container: Element): void {
+export function patch(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, container: Element): void {
   const nextFlags = nextVNode.flags
 
   if (lastVNode.flags !== nextVNode.flags || lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
-    replaceWithNewNode(lastVNode, nextVNode, container)
+    replaceWithNewNode(kit, lastVNode, nextVNode, container)
   } else if (nextFlags & VNodeFlags.Native) {
-    patchElement(lastVNode, nextVNode)
+    patchElement(kit, lastVNode, nextVNode)
   } else if (nextFlags & VNodeFlags.ClassComponent) {
-    patchClassComponent(lastVNode, nextVNode, container)
+    patchClassComponent(kit, lastVNode, nextVNode, container)
   } else if (nextFlags & VNodeFlags.FunctionComponent) {
-    patchFunctionComponent(lastVNode, nextVNode, container)
+    patchFunctionComponent(kit, lastVNode, nextVNode, container)
   } else if (nextFlags & VNodeFlags.Text) {
-    patchText(lastVNode, nextVNode)
+    patchText(kit, lastVNode, nextVNode)
   } else if (nextFlags & VNodeFlags.Void) {
-    patchVoid(lastVNode, nextVNode)
+    patchVoid(kit, lastVNode, nextVNode)
   } else {
     throw new Error(`Unsupported node type ${nextVNode.type}`)
   }
 }
 
-function replaceWithNewNode(lastVNode: VNode, nextVNode: VNode, container: Element): void {
+function replaceWithNewNode(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, container: Element): void {
   const lastNode = lastVNode.native!
-  unmount(lastVNode)
-  mount(nextVNode, container, lastNode)
-  removeChild(container, lastNode)
+  unmount(kit, lastVNode)
+  mount(kit, nextVNode, container, lastNode)
+  removeChild(kit, container, lastNode)
 }
 
-function patchElement(lastVNode: VNode, nextVNode: VNode): void {
+function patchElement(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   const meta = nextVNode.meta = lastVNode.meta!
   const previousMeta = setCurrentMeta(meta)
 
@@ -49,16 +50,16 @@ function patchElement(lastVNode: VNode, nextVNode: VNode): void {
   const element = nextVNode.native = lastVNode.native! as Element
 
   if (lastProps !== nextProps) {
-    patchProperties(element, nextProps)
+    patchProperties(kit, element, nextProps)
   }
   if (lastChildren !== nextChildren) {
-    patchChildren(lastChildren, nextChildren, element)
+    patchChildren(kit, lastChildren, nextChildren, element)
   }
 
   setCurrentMeta(previousMeta)
 }
 
-function patchClassComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
+function patchClassComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, container: Element): void {
   const meta = nextVNode.meta = lastVNode.meta!
 
   const instance = meta[COMPONENT_INSTANCE]!
@@ -69,11 +70,11 @@ function patchClassComponent(lastVNode: VNode, nextVNode: VNode, container: Elem
   (instance as { props: Properties }).props = props
   const nextResult = meta[RENDER_RESULT] = normalize(instance!.render())
 
-  patch(lastResult, nextResult, container)
+  patch(kit, lastResult, nextResult, container)
   nextVNode.native = nextResult.native
 }
 
-function patchFunctionComponent(lastVNode: VNode, nextVNode: VNode, container: Element): void {
+function patchFunctionComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, container: Element): void {
   const meta = nextVNode.meta = lastVNode.meta!
 
   const type = nextVNode.type as FunctionComponentType
@@ -81,11 +82,11 @@ function patchFunctionComponent(lastVNode: VNode, nextVNode: VNode, container: E
   const lastInner = meta[RENDER_RESULT]!
   const nextInner = meta[RENDER_RESULT] = normalize(type(props))
 
-  patch(lastInner, nextInner, container)
+  patch(kit, lastInner, nextInner, container)
   nextVNode.native = nextInner.native
 }
 
-function patchText(lastVNode: VNode, nextVNode: VNode): void {
+function patchText(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   nextVNode.native = lastVNode.native
 
   const lastText = (lastVNode.props as { textContent: string }).textContent
@@ -93,49 +94,49 @@ function patchText(lastVNode: VNode, nextVNode: VNode): void {
 
   if (lastText === nextText) { return }
 
-  setNodeValue(lastVNode.native!, nextText)
+  setNodeValue(kit, lastVNode.native!, nextText)
 }
 
-function patchVoid(lastVNode: VNode, nextVNode: VNode): void {
+function patchVoid(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   nextVNode.native = lastVNode.native
 }
 
-function patchChildren(lastChildren: VNode[], nextChildren: VNode[], container: Element): void {
+function patchChildren(kit: RenderKit, lastChildren: VNode[], nextChildren: VNode[], container: Element): void {
   const meta = getCurrentMeta()
 
   if (lastChildren.length === 0) {
     delete meta[CHILD_DIFFER]
-    return mountChildren(nextChildren, container)
+    return mountChildren(kit, nextChildren, container)
   }
 
   if (lastChildren.length === 1 && nextChildren.length === 1) {
     delete meta[CHILD_DIFFER]
-    return patch(lastChildren[0], nextChildren[0], container)
+    return patch(kit, lastChildren[0], nextChildren[0], container)
   }
 
   const nodes = lastChildren.map(vNode => vNode.native!)
-  const differ = meta[CHILD_DIFFER] = meta[CHILD_DIFFER] || createChildrenDiffer(lastChildren)
+  const differ = meta[CHILD_DIFFER] = meta[CHILD_DIFFER] || createChildDiffer(kit, lastChildren)
   const changes = differ.diff(nextChildren)
 
   if (!isNil(changes)) {
     changes.forEachOperation(({ item, previousIndex, currentIndex }, temporaryPreviousIndex, temporaryCurrentIndex) => {
       if (isNil(previousIndex)) {
-        mount(item, null, null)
-        insertByIndex(container, item.native!, temporaryCurrentIndex!, nodes)
+        mount(kit, item, null, null)
+        insertByIndex(kit, container, item.native!, temporaryCurrentIndex!, nodes)
       } else if (isNil(temporaryCurrentIndex)) {
-        removeByIndex(container, temporaryPreviousIndex!, nodes)
+        removeByIndex(kit, container, temporaryPreviousIndex!, nodes)
       } else {
-        moveByIndex(container, temporaryPreviousIndex!, temporaryCurrentIndex, nodes)
-        patch(lastChildren[previousIndex], nextChildren[currentIndex!], container)
+        moveByIndex(kit, container, temporaryPreviousIndex!, temporaryCurrentIndex, nodes)
+        patch(kit, lastChildren[previousIndex], nextChildren[currentIndex!], container)
       }
     })
 
     changes.forEachIdentityChange(({ item, previousIndex }) => {
-      patch(lastChildren[previousIndex!], item, container)
+      patch(kit, lastChildren[previousIndex!], item, container)
     })
   } else {
     for (let i = 0; i < nextChildren.length; i++) {
-      patch(nextChildren[i], nextChildren[i], container)
+      patch(kit, nextChildren[i], nextChildren[i], container)
     }
   }
 }

@@ -1,6 +1,6 @@
-import { getCurrentUpdateQueue } from './context'
 import { EMPTY_OBJ } from './lang'
 import { ComponentLifecycle } from './lifecycle'
+import { getCurrentRenderKit, UPDATE_QUEUE } from './render-kit'
 import { NodeDef, StateChange } from './types'
 import { UpdateQueue } from './update-queue'
 
@@ -10,7 +10,7 @@ import { UpdateQueue } from './update-queue'
 export abstract class Component<P = any, S = any> implements ComponentLifecycle<P, S> {
   state!: S
   refs: { [key: string]: unknown } = EMPTY_OBJ
-  updateQueue: UpdateQueue = getCurrentUpdateQueue()
+  updateQueue: UpdateQueue = getCurrentRenderKit()![UPDATE_QUEUE]
 
   get isComponent(): boolean { return true }
 

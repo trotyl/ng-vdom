@@ -4,12 +4,14 @@ import { unmount } from '../../src/instructions/unmount'
 import { Component } from '../../src/shared/component'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
+import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
 import { COMPONENT_REF, VNode } from '../../src/shared/types'
 import { setUpContext, TestAngularComponent, TestModule } from '../util'
 
 describe('unmount instruction', () => {
   let container: HTMLElement
   let vNode: VNode
+  let kit: RenderKit
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -22,14 +24,15 @@ describe('unmount instruction', () => {
   beforeEach(() => {
     container = document.createElement('div')
     vNode = null!
+    kit = getCurrentRenderKit()!
   })
 
   describe('Native', () => {
     it('should remove event handlers', () => {
       let clicked = false
       vNode = n(h('div', { onClick: () => clicked = true }))
-      mount(vNode, container, null)
-      unmount(vNode)
+      mount(kit, vNode, container, null)
+      unmount(kit, vNode)
 
       const div = vNode.native as HTMLDivElement
       div.click()
@@ -47,8 +50,8 @@ describe('unmount instruction', () => {
         }
       }
       vNode = n(h(TestComponent))
-      mount(vNode, container, null)
-      unmount(vNode)
+      mount(kit, vNode, container, null)
+      unmount(kit, vNode)
 
       const div = vNode.native as HTMLDivElement
       div.click()
@@ -64,8 +67,8 @@ describe('unmount instruction', () => {
         return h('div', { onClick: () => clicked = true })
       }
       vNode = n(h(TestComponent))
-      mount(vNode, container, null)
-      unmount(vNode)
+      mount(kit, vNode, container, null)
+      unmount(kit, vNode)
 
       const div = vNode.native as HTMLDivElement
       div.click()
@@ -77,10 +80,10 @@ describe('unmount instruction', () => {
   describe('Angular Component', () => {
     it('should destroy component', () => {
       const input = n(h(TestAngularComponent))
-      mount(input, container, null)
+      mount(kit, input, container, null)
       const spy = spyOn(input.meta![COMPONENT_REF]!, 'destroy')
 
-      unmount(input)
+      unmount(kit, input)
 
       expect(spy).toHaveBeenCalled()
     })

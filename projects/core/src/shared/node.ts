@@ -1,4 +1,4 @@
-import { ANGULAR_COMPONENT_INSTANCE, CHILD_DIFFER, COMPONENT_INSTANCE, COMPONENT_REF, PROP_DIFFER, RENDER_RESULT, TextDef } from '../shared/types'
+import { TextDef } from '../shared/types'
 import { VNodeFlags } from './flags'
 import { isBool, isClassComp, isFunc, isNgComp, isNil, isNum, isStr, EMPTY_OBJ } from './lang'
 import { Key, NodeDef, Properties, VNode, VNodeMeta } from './types'
