@@ -20,7 +20,7 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-        
+
       - run: yarn build
 
   test:
@@ -43,7 +43,7 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-      
+
       - run: yarn test
 
       - run: yarn codecov
@@ -68,7 +68,7 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-        
+
       - run: yarn lint
 
   test-lib:
@@ -91,7 +91,7 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-        
+
       - run: yarn test:lib
 
       - run: yarn codecov
@@ -116,7 +116,7 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-        
+
       - run: yarn test:site
 
   build-lib:
@@ -139,8 +139,14 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-        
+
       - run: yarn build:lib
+
+      - run: gzip -k ./dist/ng-vdom/bundles/ng-vdom.umd.min.js
+
+      - store_artifacts:
+          path: ./dist/ng-vdom/bundles/ng-vdom.umd.min.js.gz
+          destination: ng-vdom.min.js.gz
 
   build-site:
     docker:
@@ -162,7 +168,7 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-        
+
       - run: yarn build:site
 
 workflows:
