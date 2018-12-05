@@ -12,6 +12,7 @@
     "noUnusedLocals": true,
     "target": "es5",
     "jsx": "react",
+    "jsxFactory": "h",
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "typeRoots": [
