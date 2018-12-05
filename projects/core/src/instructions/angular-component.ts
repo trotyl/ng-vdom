@@ -3,9 +3,10 @@ import { Observable, Subscription } from 'rxjs'
 import { isNil } from '../shared/lang'
 import { createEmptyMeta } from '../shared/node'
 import { COMPONENT_FACTORY_RESOLVER, INJECTOR, RenderKit } from '../shared/render-kit'
-import { ANGULAR_INPUT_MAP, ANGULAR_OUTPUT_MAP, COMPONENT_REF, Properties, PROP_DIFFER, VNode } from '../shared/types'
-import { insertBefore } from './render'
-import { createPropDiffer, isEventLikeProp, parseEventName } from './util'
+import { ANGULAR_INPUT_MAP, ANGULAR_OUTPUT_MAP, CHILD_ANCHOR, CHILD_DIFFER, COMPONENT_REF, Properties, PROP_DIFFER, VNode } from '../shared/types'
+import { mountArray, patchArray } from './array'
+import { createComment, insertBefore, parentNodeOf } from './render'
+import { createChildDiffer, createPropDiffer, isEventLikeProp, parseEventName } from './util'
 
 export function mountAngularComponent(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const resolver = kit[COMPONENT_FACTORY_RESOLVER]
@@ -15,8 +16,11 @@ export function mountAngularComponent(kit: RenderKit, vNode: VNode, container: E
   const meta = vNode.meta = createEmptyMeta()
   meta[ANGULAR_INPUT_MAP] = makePropMap(factory.inputs)
   meta[ANGULAR_OUTPUT_MAP] = makePropMap(factory.outputs)
-  // TODO: mount children as projectableNodes
-  const ref = meta[COMPONENT_REF] = factory.create(injector)
+
+  const children = vNode.children!
+  const childNodes = mountArray(kit, children)
+  const anchor = meta[CHILD_ANCHOR] = createComment(kit, '')
+  const ref = meta[COMPONENT_REF] = factory.create(injector, [[...childNodes, anchor]])
   patchProperties(kit, vNode, vNode.props)
 
   ref.changeDetectorRef.detectChanges()
@@ -31,7 +35,9 @@ export function mountAngularComponent(kit: RenderKit, vNode: VNode, container: E
 export function patchAngularComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   const meta = nextVNode.meta = lastVNode.meta!
 
+  const lastChildren = lastVNode.children!
   const lastProps = lastVNode.props
+  const nextChildren = nextVNode.children!
   const nextProps = nextVNode.props as Properties
 
   nextVNode.native = lastVNode.native! as Element
@@ -43,7 +49,10 @@ export function patchAngularComponent(kit: RenderKit, lastVNode: VNode, nextVNod
   const ref = meta[COMPONENT_REF]!
   ref.changeDetectorRef.detectChanges()
 
-  // TODO: add support for children
+  const anchor = meta[CHILD_ANCHOR]!
+  if (lastChildren !== nextChildren) {
+    patchChildren(kit, nextVNode, lastChildren, nextChildren, anchor)
+  }
 }
 
 export function unmountAngularComponent(_kit: RenderKit, vNode: VNode): void {
@@ -51,6 +60,16 @@ export function unmountAngularComponent(_kit: RenderKit, vNode: VNode): void {
   removeAllSubscriptions(meta[COMPONENT_REF]!.instance)
   const ref = meta[COMPONENT_REF]!
   ref.destroy()
+}
+
+function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nextChildren: VNode[], anchor: Node) {
+  const meta = parent.meta!
+  const container = parentNodeOf(kit, anchor)
+  let differ = meta[CHILD_DIFFER]
+  if (isNil(differ)) {
+    differ = meta[CHILD_DIFFER] = createChildDiffer(kit, lastChildren)
+  }
+  patchArray(kit, differ, lastChildren, nextChildren, container)
 }
 
 function patchProperties(kit: RenderKit, vNode: VNode, props: Properties) {

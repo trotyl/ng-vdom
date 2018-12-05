@@ -1,6 +1,10 @@
 import { isNil } from '../shared/lang'
 import { RenderKit, RENDERER } from '../shared/render-kit'
 
+export function appendChild(kit: RenderKit, parent: Element, child: Node): void {
+  kit[RENDERER].appendChild(parent, child)
+}
+
 export function createComment(kit: RenderKit, value: string): Comment {
   return kit[RENDERER].createComment(value)
 }

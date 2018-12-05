@@ -5,7 +5,7 @@ import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
 import { COMPONENT_REF, VNode } from '../../src/shared/types'
-import { isCommentNode, setUpContext, EMPTY_COMMENT, TestAngularComponent, TestModule } from '../util'
+import { isCommentNode, setUpContext, EMPTY_COMMENT, TestAngularContent, TestAngularProps, TestModule } from '../util'
 
 describe('mount instruction', () => {
   let container: HTMLElement
@@ -35,7 +35,7 @@ describe('mount instruction', () => {
       expect(input.native!.textContent).toBe(`foo`)
     })
 
-    it('should mount text node in string', () => {
+    it('should mount in string', () => {
       input = n('foo')
       mount(kit, input, container, null)
 
@@ -43,7 +43,7 @@ describe('mount instruction', () => {
       expect(container.innerHTML).toBe(`foo`)
     })
 
-    it('should mount text node in number', () => {
+    it('should mount in number', () => {
       input = n(42)
       mount(kit, input, container, null)
 
@@ -113,7 +113,7 @@ describe('mount instruction', () => {
     })
 
     describe('Property', () => {
-      it('should mount element with property', () => {
+      it('should mount with property', () => {
         input = n(h('p', { className: 'foo' }))
         mount(kit, input, container, null)
 
@@ -176,7 +176,7 @@ describe('mount instruction', () => {
     })
 
     describe('Child', () => {
-      it('should mount element with text child', () => {
+      it('should mount with text child', () => {
         input = n(h('p', null, 'foo'))
         mount(kit, input, container, null)
 
@@ -184,7 +184,7 @@ describe('mount instruction', () => {
         expect(container.innerHTML).toBe(`<p>foo</p>`)
       })
 
-      it('should mount element with element child', () => {
+      it('should mount with element child', () => {
         input = n(h('p', null, h('span')))
         mount(kit, input, container, null)
 
@@ -192,7 +192,7 @@ describe('mount instruction', () => {
         expect(container.innerHTML).toBe(`<p><span></span></p>`)
       })
 
-      it('should mount element with multiple children', () => {
+      it('should mount with multiple children', () => {
         input = n(h('p', null, 0, h('span', null, 1), 2, h('b', null, 3), 4))
         mount(kit, input, container, null)
 
@@ -228,7 +228,7 @@ describe('mount instruction', () => {
       expect(container.innerHTML).toBe(`<p></p>`)
     })
 
-    it('should mount class component with property', () => {
+    it('should mount with property', () => {
       input = n(h(PropsComponent, { value: 42 }))
       mount(kit, input, container, null)
 
@@ -263,7 +263,7 @@ describe('mount instruction', () => {
       expect(container.innerHTML).toBe(`<p></p>`)
     })
 
-    it('should mount class component with property', () => {
+    it('should mount with property', () => {
       input = n(h(PropsComponent, { value: 42 }))
       mount(kit, input, container, null)
 
@@ -274,7 +274,7 @@ describe('mount instruction', () => {
 
   describe('Angular Component', () => {
     it('should mount without container', () => {
-      input = n(h(TestAngularComponent))
+      input = n(h(TestAngularProps))
 
       mount(kit, input, null, null)
       input.meta![COMPONENT_REF]!.changeDetectorRef.detectChanges()
@@ -283,8 +283,8 @@ describe('mount instruction', () => {
       expect((input.native! as HTMLElement).tagName.toLowerCase()).toBe('ng-component')
     })
 
-    it('should mount class component with inputs', () => {
-      input = n(h(TestAngularComponent, { value: 42 }))
+    it('should mount with inputs', () => {
+      input = n(h(TestAngularProps, { value: 42 }))
 
       mount(kit, input, container, null)
 
@@ -292,15 +292,24 @@ describe('mount instruction', () => {
       expect(container.innerHTML).toBe(`<ng-component><p>42</p></ng-component>`)
     })
 
-    it('should mount class component with outputs', () => {
+    it('should mount with outputs', () => {
       let flag = false
-      input = n(h(TestAngularComponent, { onChanges: (value: boolean) => flag = value }))
+      input = n(h(TestAngularProps, { onChanges: (value: boolean) => flag = value }))
 
       mount(kit, input, container, null)
-      const component = (input.meta![COMPONENT_REF]!.instance as TestAngularComponent)
+      const component = (input.meta![COMPONENT_REF]!.instance as TestAngularProps)
       component.changes.emit(true)
 
       expect(flag).toBe(true)
+    })
+
+    it('should mount with content', () => {
+      input = n(h(TestAngularContent, null, 42))
+
+      mount(kit, input, container, null)
+
+      expect(input.native).not.toBeNull()
+      expect(container.innerHTML).toBe(`<ng-component><div>42<!----></div></ng-component>`)
     })
   })
 

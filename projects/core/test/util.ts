@@ -87,13 +87,21 @@ export function setUpContext(): void {
 @NgComponent({
   template: `<p>{{value}}</p>`,
 })
-export class TestAngularComponent {
+export class TestAngularProps {
+  @Input() value = 0
+  @Output() changes = new EventEmitter()
+}
+
+@NgComponent({
+  template: `<div><ng-content></ng-content></div>`,
+})
+export class TestAngularContent {
   @Input() value = 0
   @Output() changes = new EventEmitter()
 }
 
 @NgModule({
-  declarations: [ TestAngularComponent ],
-  entryComponents: [ TestAngularComponent ],
+  declarations: [ TestAngularProps, TestAngularContent ],
+  entryComponents: [ TestAngularProps, TestAngularContent ],
 })
 export class TestModule { }

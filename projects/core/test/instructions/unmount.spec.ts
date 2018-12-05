@@ -6,7 +6,7 @@ import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
 import { COMPONENT_REF, VNode } from '../../src/shared/types'
-import { setUpContext, TestAngularComponent, TestModule } from '../util'
+import { setUpContext, TestAngularProps, TestModule } from '../util'
 
 describe('unmount instruction', () => {
   let container: HTMLElement
@@ -79,7 +79,7 @@ describe('unmount instruction', () => {
 
   describe('Angular Component', () => {
     it('should destroy component', () => {
-      const input = n(h(TestAngularComponent))
+      const input = n(h(TestAngularProps))
       mount(kit, input, container, null)
       const spy = spyOn(input.meta![COMPONENT_REF]!, 'destroy')
 

@@ -31,15 +31,17 @@ export interface ClassAttributes {
 
 export const ANGULAR_INPUT_MAP = 0
 export const ANGULAR_OUTPUT_MAP = 1
-export const CHILD_DIFFER = 2
-export const COMPONENT_INSTANCE = 3
-export const COMPONENT_REF = 4
-export const PROP_DIFFER = 5
-export const RENDER_RESULT = 6
+export const CHILD_ANCHOR = 2
+export const CHILD_DIFFER = 3
+export const COMPONENT_INSTANCE = 4
+export const COMPONENT_REF = 5
+export const PROP_DIFFER = 6
+export const RENDER_RESULT = 7
 
 export interface VNodeMeta extends Array<unknown> {
   [ANGULAR_INPUT_MAP]?: { [key: string]: string }
   [ANGULAR_OUTPUT_MAP]?: { [key: string]: string }
+  [CHILD_ANCHOR]?: Node
   [CHILD_DIFFER]?: IterableDiffer<VNode>
   [COMPONENT_INSTANCE]?: Component
   [COMPONENT_REF]?: ComponentRef<any>
@@ -66,3 +68,5 @@ export interface Styles {
 }
 
 export type StateChange<S, P> = Partial<S> | ((s: S, p: P) => S)
+
+export type ChildDiffer = IterableDiffer<VNode>

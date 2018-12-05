@@ -5,7 +5,7 @@ import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
 import { COMPONENT_REF, VNode } from '../../src/shared/types'
-import { createClassComponentNode, createFunctionComponentNode, createNativeNode, createTextNode, createVoidNode, setUpContext, EMPTY_COMMENT, TestAngularComponent, TestModule } from '../util'
+import { createClassComponentNode, createFunctionComponentNode, createNativeNode, createTextNode, createVoidNode, setUpContext, EMPTY_COMMENT, TestAngularContent, TestAngularProps, TestModule } from '../util'
 
 const TEXT_DEFAULT_CONTENT = 'foo'
 const COMPOSITE_DEFAULT_CONTENT = '<p class="foo">42</p>'
@@ -162,8 +162,8 @@ describe('patch instruction', () => {
 
     describe('Angular Component', () => {
       it('should apply input change', () => {
-        previous = n(h(TestAngularComponent, { value: 42 }))
-        next = n(h(TestAngularComponent, { value: 84 }))
+        previous = n(h(TestAngularProps, { value: 42 }))
+        next = n(h(TestAngularProps, { value: 84 }))
         mount(kit, previous, container, null)
 
         patch(kit, previous, next)
@@ -173,20 +173,31 @@ describe('patch instruction', () => {
       })
 
       it('should apply output change', () => {
-        let component: TestAngularComponent
+        let component: TestAngularProps
         const logs: number[] = []
-        previous = n(h(TestAngularComponent, { onChanges: (value: number) => logs.push(value) }))
-        next = n(h(TestAngularComponent, { onChanges: (value: number) => logs.push(-value) }))
+        previous = n(h(TestAngularProps, { onChanges: (value: number) => logs.push(value) }))
+        next = n(h(TestAngularProps, { onChanges: (value: number) => logs.push(-value) }))
 
         mount(kit, previous, container, null)
-        component = (previous.meta![COMPONENT_REF]!.instance as TestAngularComponent)
+        component = (previous.meta![COMPONENT_REF]!.instance as TestAngularProps)
         component.changes.emit(1)
 
         patch(kit, previous, next)
-        component = (next.meta![COMPONENT_REF]!.instance as TestAngularComponent)
+        component = (next.meta![COMPONENT_REF]!.instance as TestAngularProps)
         component.changes.emit(2)
 
         expect(logs).toEqual([1, -2])
+      })
+
+      it('should apply content change', () => {
+        previous = n(h(TestAngularContent, null, 42))
+        next = n(h(TestAngularContent, null, 84))
+        mount(kit, previous, container, null)
+
+        patch(kit, previous, next)
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe(`<ng-component><div>84<!----></div></ng-component>`)
       })
     })
   })

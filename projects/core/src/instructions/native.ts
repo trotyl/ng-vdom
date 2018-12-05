@@ -4,10 +4,11 @@ import { isNil } from '../shared/lang'
 import { createEmptyMeta } from '../shared/node'
 import { RenderKit, RENDERER } from '../shared/render-kit'
 import { CHILD_DIFFER, Properties, PROP_DIFFER, Styles, VNode } from '../shared/types'
+import { mountArray, patchArray } from './array'
 import { mount } from './mount'
-import { patch } from './patch'
-import { createElement, detach, insertBefore } from './render'
+import { appendChild, createElement, insertBefore } from './render'
 import { createChildDiffer, createPropDiffer, isEventLikeProp, parseEventName } from './util'
+
 
 export function mountNative(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
   vNode.meta = createEmptyMeta()
@@ -22,7 +23,7 @@ export function mountNative(kit: RenderKit, vNode: VNode, container: Element | n
     patchProperties(kit, vNode, props)
   }
 
-  mountChildren(kit, vNode, children, element)
+  mountChildren(kit, vNode, children)
 
   if (!isNil(container)) {
     insertBefore(kit, container, element, nextNode)
@@ -37,95 +38,48 @@ export function patchNative(kit: RenderKit, lastVNode: VNode, nextVNode: VNode):
   const nextChildren = nextVNode.children!
   const nextProps = nextVNode.props as Properties
 
-  const element = nextVNode.native = lastVNode.native! as Element
+  nextVNode.native = lastVNode.native! as Element
 
   if (lastProps !== nextProps) {
     patchProperties(kit, nextVNode, nextProps)
   }
   if (lastChildren !== nextChildren) {
-    patchChildren(kit, nextVNode, lastChildren, nextChildren, element)
+    patchChildren(kit, nextVNode, lastChildren, nextChildren)
   }
 }
 
-export function unmountNative(kit: RenderKit, vNode: VNode): void {
+export function unmountNative(_kit: RenderKit, vNode: VNode): void {
   removeAllEventListeners(vNode.native as Element)
 }
 
-function mountChildren(kit: RenderKit, parent: VNode, vNodes: VNode[], container: Element): void {
+function mountChildren(kit: RenderKit, parent: VNode, vNodes: VNode[]): void {
   if (vNodes.length === 0) { return }
 
+  const container = parent.native! as Element
+
   if (vNodes.length === 1) {
-    return mount(kit, vNodes[0], container, null)
+    const vNode = vNodes[0]
+    return mount(kit, vNode, container, null)
   }
 
   const meta = parent.meta!
   meta[CHILD_DIFFER] = createChildDiffer(kit, vNodes)
 
-  for (let i = 0; i < vNodes.length; i++) {
-    mount(kit, vNodes[i], container, null)
+  const childNodes = mountArray(kit, vNodes)
+  for (let i = 0; i < childNodes.length; i++) {
+    appendChild(kit, container, childNodes[i])
   }
 }
 
-function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nextChildren: VNode[], container: Element): void {
+function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nextChildren: VNode[]): void {
   const meta = parent.meta!
-
-  if (lastChildren.length === 0) {
-    delete meta[CHILD_DIFFER]
-    return mountChildren(kit, parent, nextChildren, container)
+  const container = parent.native! as Element
+  let differ = meta[CHILD_DIFFER]
+  if (isNil(differ)) {
+    differ = meta[CHILD_DIFFER] = createChildDiffer(kit, lastChildren)
   }
 
-  if (lastChildren.length === 1 && nextChildren.length === 1) {
-    delete meta[CHILD_DIFFER]
-    return patch(kit, lastChildren[0], nextChildren[0])
-  }
-
-  const nodes = lastChildren.map(vNode => vNode.native!)
-  const differ = meta[CHILD_DIFFER] = meta[CHILD_DIFFER] || createChildDiffer(kit, lastChildren)
-  const changes = differ.diff(nextChildren)
-
-  if (!isNil(changes)) {
-    changes.forEachOperation(({ item, previousIndex, currentIndex }, temporaryPreviousIndex, temporaryCurrentIndex) => {
-      if (isNil(previousIndex)) {
-        mount(kit, item, null, null)
-        insertByIndex(kit, container, item.native!, temporaryCurrentIndex!, nodes)
-      } else if (isNil(temporaryCurrentIndex)) {
-        removeByIndex(kit, container, temporaryPreviousIndex!, nodes)
-      } else {
-        moveByIndex(kit, container, temporaryPreviousIndex!, temporaryCurrentIndex, nodes)
-        patch(kit, lastChildren[previousIndex], nextChildren[currentIndex!])
-      }
-    })
-
-    changes.forEachIdentityChange(({ item, previousIndex }) => {
-      patch(kit, lastChildren[previousIndex!], item)
-    })
-  } else {
-    for (let i = 0; i < nextChildren.length; i++) {
-      patch(kit, nextChildren[i], nextChildren[i])
-    }
-  }
-}
-
-function insertByIndex(kit: RenderKit, container: Element, node: Node, currentIndex: number, nodes: Node[]): void {
-  const nextNode = currentIndex === nodes.length ? null : nodes[currentIndex]
-  insertBefore(kit, container, node, nextNode)
-  if (isNil(nextNode)) {
-    nodes.push(node)
-  } else {
-    nodes.splice(currentIndex, 0, node)
-  }
-}
-
-function moveByIndex(kit: RenderKit, container: Element, previousIndex: number, currentIndex: number, nodes: Node[]): void {
-  const node = removeByIndex(kit, container, previousIndex, nodes)
-  insertByIndex(kit, container, node, currentIndex, nodes)
-}
-
-function removeByIndex(kit: RenderKit, container: Element, previousIndex: number, nodes: Node[]): Node {
-  const node = nodes[previousIndex]
-  detach(kit, node)
-  nodes.splice(previousIndex, 1)
-  return node
+  patchArray(kit, differ, lastChildren, nextChildren, container)
 }
 
 function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
