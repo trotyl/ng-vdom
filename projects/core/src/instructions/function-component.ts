@@ -16,7 +16,7 @@ export function mountFunctionComponent(kit: RenderKit, vNode: VNode, container: 
   vNode.native = inner.native
 }
 
-export function patchFunctionComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, container: Element): void {
+export function patchFunctionComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   const meta = nextVNode.meta = lastVNode.meta!
 
   const type = nextVNode.type as FunctionComponentType
@@ -24,7 +24,7 @@ export function patchFunctionComponent(kit: RenderKit, lastVNode: VNode, nextVNo
   const lastInner = meta[RENDER_RESULT]!
   const nextInner = meta[RENDER_RESULT] = normalize(type(props))
 
-  patch(kit, lastInner, nextInner, container)
+  patch(kit, lastInner, nextInner)
   nextVNode.native = nextInner.native
 }
 

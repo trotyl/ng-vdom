@@ -28,7 +28,7 @@ export function mountAngularComponent(kit: RenderKit, vNode: VNode, container: E
   }
 }
 
-export function patchAngularComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, container: Element): void {
+export function patchAngularComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   const meta = nextVNode.meta = lastVNode.meta!
 
   const lastProps = lastVNode.props

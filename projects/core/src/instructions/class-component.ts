@@ -19,7 +19,7 @@ export function mountClassComponent(kit: RenderKit, vNode: VNode, container: Ele
   mountClassComponentCallbacks(kit, instance)
 }
 
-export function patchClassComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, container: Element): void {
+export function patchClassComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   const meta = nextVNode.meta = lastVNode.meta!
 
   const instance = meta[COMPONENT_INSTANCE]!
@@ -30,7 +30,7 @@ export function patchClassComponent(kit: RenderKit, lastVNode: VNode, nextVNode:
   (instance as { props: Properties }).props = props
   const nextResult = meta[RENDER_RESULT] = normalize(instance!.render())
 
-  patch(kit, lastResult, nextResult, container)
+  patch(kit, lastResult, nextResult)
   nextVNode.native = nextResult.native
 }
 

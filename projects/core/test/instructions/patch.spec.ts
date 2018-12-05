@@ -41,7 +41,7 @@ describe('patch instruction', () => {
       it('should change text content in same node', () => {
         next = createTextNode('bar')
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
         expect(container.contains(next.native)).toBe(true)
@@ -58,7 +58,7 @@ describe('patch instruction', () => {
       it('should change text content in same node', () => {
         next = createVoidNode()
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
         expect(container.contains(next.native)).toBe(true)
@@ -75,7 +75,7 @@ describe('patch instruction', () => {
       it('should change property to different value', () => {
         next = createNativeNode(undefined, { className: 'bar' })
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
         expect(container.innerHTML).toBe('<p class="bar">42</p>')
@@ -84,7 +84,7 @@ describe('patch instruction', () => {
       it('should change to different property set', () => {
         next = createNativeNode(undefined, { title: 'bar' })
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
         expect(container.innerHTML).toBe('<p class="" title="bar">42</p>')
@@ -93,7 +93,7 @@ describe('patch instruction', () => {
       it('should change to different children', () => {
         next = createNativeNode(undefined, undefined, 84)
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
         expect(container.innerHTML).toBe('<p class="foo">84</p>')
@@ -102,7 +102,7 @@ describe('patch instruction', () => {
       it('should change to different tag name', () => {
         next = createNativeNode('span')
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).not.toBe(previous.native)
         expect(container.innerHTML).toBe('<span class="foo">42</span>')
@@ -116,7 +116,7 @@ describe('patch instruction', () => {
         mount(kit, previous, container, null)
 
         className = 'bar'
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
         expect(container.innerHTML).toBe('<p class="bar">42</p>')
@@ -128,7 +128,7 @@ describe('patch instruction', () => {
 
         mount(kit, previous, container, null)
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).not.toBe(previous.native)
         expect(container.innerHTML).toBe('1')
@@ -142,7 +142,7 @@ describe('patch instruction', () => {
         mount(kit, previous, container, null)
 
         className = 'bar'
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
         expect(container.innerHTML).toBe('<p class="bar">42</p>')
@@ -153,7 +153,7 @@ describe('patch instruction', () => {
         next = n(h(() => 1))
         mount(kit, previous, container, null)
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).not.toBe(previous.native)
         expect(container.innerHTML).toBe('1')
@@ -166,7 +166,7 @@ describe('patch instruction', () => {
         next = n(h(TestAngularComponent, { value: 84 }))
         mount(kit, previous, container, null)
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
         expect(container.innerHTML).toBe(`<ng-component><p>84</p></ng-component>`)
@@ -182,7 +182,7 @@ describe('patch instruction', () => {
         component = (previous.meta![COMPONENT_REF]!.instance as TestAngularComponent)
         component.changes.emit(1)
 
-        patch(kit, previous, next, container)
+        patch(kit, previous, next)
         component = (next.meta![COMPONENT_REF]!.instance as TestAngularComponent)
         component.changes.emit(2)
 
@@ -209,7 +209,7 @@ describe('patch instruction', () => {
           next = nextType.factory()
           mount(kit, previous, container, null)
 
-          patch(kit, previous, next, container)
+          patch(kit, previous, next)
 
           expect(container.contains(next.native)).toBe(true)
           expect(container.contains(previous.native)).toBe(false)

@@ -6,7 +6,7 @@ import { RenderKit, RENDERER } from '../shared/render-kit'
 import { CHILD_DIFFER, Properties, PROP_DIFFER, Styles, VNode } from '../shared/types'
 import { mount } from './mount'
 import { patch } from './patch'
-import { createElement, insertBefore, removeChild } from './render'
+import { createElement, detach, insertBefore } from './render'
 import { createChildDiffer, createPropDiffer, isEventLikeProp, parseEventName } from './util'
 
 export function mountNative(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
@@ -76,7 +76,7 @@ function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nex
 
   if (lastChildren.length === 1 && nextChildren.length === 1) {
     delete meta[CHILD_DIFFER]
-    return patch(kit, lastChildren[0], nextChildren[0], container)
+    return patch(kit, lastChildren[0], nextChildren[0])
   }
 
   const nodes = lastChildren.map(vNode => vNode.native!)
@@ -92,16 +92,16 @@ function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nex
         removeByIndex(kit, container, temporaryPreviousIndex!, nodes)
       } else {
         moveByIndex(kit, container, temporaryPreviousIndex!, temporaryCurrentIndex, nodes)
-        patch(kit, lastChildren[previousIndex], nextChildren[currentIndex!], container)
+        patch(kit, lastChildren[previousIndex], nextChildren[currentIndex!])
       }
     })
 
     changes.forEachIdentityChange(({ item, previousIndex }) => {
-      patch(kit, lastChildren[previousIndex!], item, container)
+      patch(kit, lastChildren[previousIndex!], item)
     })
   } else {
     for (let i = 0; i < nextChildren.length; i++) {
-      patch(kit, nextChildren[i], nextChildren[i], container)
+      patch(kit, nextChildren[i], nextChildren[i])
     }
   }
 }
@@ -123,7 +123,7 @@ function moveByIndex(kit: RenderKit, container: Element, previousIndex: number, 
 
 function removeByIndex(kit: RenderKit, container: Element, previousIndex: number, nodes: Node[]): Node {
   const node = nodes[previousIndex]
-  removeChild(kit, container, node)
+  detach(kit, node)
   nodes.splice(previousIndex, 1)
   return node
 }

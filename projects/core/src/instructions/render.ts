@@ -13,6 +13,13 @@ export function createTextNode(kit: RenderKit, value: string): Text {
   return kit[RENDERER].createText(value)
 }
 
+export function detach(kit: RenderKit, node: Node): void {
+  const container = parentNodeOf(kit, node)
+  if (!isNil(container)) {
+    removeChild(kit, container, node)
+  }
+}
+
 export function insertBefore(kit: RenderKit, container: Element, newNode: Node, referenceNode: Node | null): void {
   const renderer = kit[RENDERER]
   if (!isNil(referenceNode)) {
@@ -20,6 +27,10 @@ export function insertBefore(kit: RenderKit, container: Element, newNode: Node, 
   } else {
     renderer.appendChild(container, newNode)
   }
+}
+
+export function parentNodeOf(kit: RenderKit, node: Node): Element {
+  return kit[RENDERER].parentNode(node)
 }
 
 export function removeChild(kit: RenderKit, container: Element, child: Node): void {

@@ -73,7 +73,7 @@ export abstract class Container implements UpdateQueue {
       } else if (this.__def !== this.__lastDef) {
         const lastVNode = this.__vNode!
         this.__vNode = normalize(this.__def)
-        patch(renderKit, lastVNode, this.__vNode, this.__container!)
+        patch(renderKit, lastVNode, this.__vNode)
       }
     }
 
