@@ -5,7 +5,10 @@ export class Mixin {
 
 @Component({
   selector: 'app-hello',
-  template: `<h1>Hello {{name}}!</h1>`,
+  template: `
+    <h1>Hello {{name}}!</h1>
+    <ng-content></ng-content>
+  `,
   styles: [`h1 { font-family: Lato; }`],
 })
 export class HelloComponent extends Mixin {
