@@ -287,7 +287,6 @@ describe('mount instruction', () => {
       input = n(h(TestAngularComponent, { value: 42 }))
 
       mount(kit, input, container, null)
-      input.meta![COMPONENT_REF]!.changeDetectorRef.detectChanges()
 
       expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<ng-component><p>42</p></ng-component>`)

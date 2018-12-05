@@ -164,12 +164,9 @@ describe('patch instruction', () => {
       it('should apply input change', () => {
         previous = n(h(TestAngularComponent, { value: 42 }))
         next = n(h(TestAngularComponent, { value: 84 }))
-
         mount(kit, previous, container, null)
-        previous.meta![COMPONENT_REF]!.changeDetectorRef.detectChanges()
 
         patch(kit, previous, next, container)
-        next.meta![COMPONENT_REF]!.changeDetectorRef.detectChanges()
 
         expect(next.native).toBe(previous.native)
         expect(container.innerHTML).toBe(`<ng-component><p>84</p></ng-component>`)

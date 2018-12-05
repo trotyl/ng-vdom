@@ -29,7 +29,7 @@ export function mountAngularComponent(kit: RenderKit, vNode: VNode, container: E
 }
 
 export function patchAngularComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode, container: Element): void {
-  nextVNode.meta = lastVNode.meta!
+  const meta = nextVNode.meta = lastVNode.meta!
 
   const lastProps = lastVNode.props
   const nextProps = nextVNode.props as Properties
@@ -39,6 +39,9 @@ export function patchAngularComponent(kit: RenderKit, lastVNode: VNode, nextVNod
   if (lastProps !== nextProps) {
     patchProperties(kit, nextVNode, nextProps)
   }
+
+  const ref = meta[COMPONENT_REF]!
+  ref.changeDetectorRef.detectChanges()
 
   // TODO: add support for children
 }
