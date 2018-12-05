@@ -6,11 +6,19 @@ function keyOf(node: VNode): string | number | null {
 }
 
 let componentCounter = 0
+const componentTypes = new WeakMap<Function, number>()
 
 function stringifyType(type: Function | string | null): string {
   if (isStr(type)) { return type }
-  if (isNil(type)) { return 'void'}
-  return `${type.name}_${componentCounter++}`
+  if (isNil(type)) { return 'void' }
+
+  let counter = componentTypes.get(type)
+  if (!counter) {
+    counter = componentCounter++
+    componentTypes.set(type, counter)
+  }
+
+  return `${type.name}_${counter}`
 }
 
 function stringifyNodeType(vNode: VNode): string {
