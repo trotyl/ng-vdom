@@ -1,4 +1,4 @@
-import { ApplicationRef, ComponentFactoryResolver, DoCheck, ElementRef, Injectable, Injector, IterableDiffers, KeyValueDiffers, Renderer2, RendererFactory2, Type } from '@angular/core'
+import { ComponentFactoryResolver, DoCheck, ElementRef, Injectable, Injector, IterableDiffers, KeyValueDiffers, Renderer2, RendererFactory2, Type } from '@angular/core'
 import { LifecycleHooks } from '../shared/lifecycle'
 import { createRenderKit, RenderKit } from '../shared/render-kit'
 import { TaskScheduler } from '../shared/schedule'
@@ -7,7 +7,6 @@ import { Container } from './container'
 
 @Injectable()
 export abstract class Renderable extends Container implements DoCheck {
-  protected __app: ApplicationRef
   protected __cfr: ComponentFactoryResolver
   protected __injector: Injector
   protected __iDiffers: IterableDiffers
@@ -23,7 +22,6 @@ export abstract class Renderable extends Container implements DoCheck {
     super()
 
     this.__injector = injector
-    this.__app = injector.get(ApplicationRef)
     this.__cfr = injector.get(ComponentFactoryResolver as unknown as Type<ComponentFactoryResolver>)
     this.__iDiffers = injector.get(IterableDiffers as Type<IterableDiffers>)
     this.__kDiffers = injector.get(KeyValueDiffers as Type<KeyValueDiffers>)
@@ -45,6 +43,6 @@ export abstract class Renderable extends Container implements DoCheck {
   }
 
   protected __createRenderKit(): RenderKit {
-    return createRenderKit(this.__app, this.__cfr, this.__injector, this.__iDiffers, this.__kDiffers, this.__hooks, this.__renderer, this)
+    return createRenderKit(this.__cfr, this.__injector, this.__iDiffers, this.__kDiffers, this.__hooks, this.__renderer, this)
   }
 }

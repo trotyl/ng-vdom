@@ -1,28 +1,31 @@
 // tslint:disable:no-empty-interface
 
-import { Component } from './component'
 import { Attributes, ClassAttributes, ElementDef } from './types'
 
 declare global {
+  interface Object {
+    __props__: any
+  }
+
   namespace JSX {
-    interface Element extends ElementDef { }
+    interface Element extends ElementDef {}
 
     interface ElementAttributesProperty {
-      props: { }
+      __props__: {}
     }
 
     interface ElementChildrenAttribute {
-      children: { }
+      children: {}
     }
 
-    interface ElementClass extends Component { }
+    interface ElementClass {}
 
-    interface IntrinsicAttributes extends Attributes { }
+    interface IntrinsicAttributes extends Attributes {}
 
-    interface IntrinsicClassAttributes extends ClassAttributes { }
+    interface IntrinsicClassAttributes extends ClassAttributes {}
 
     interface IntrinsicElements {
-      [elementName: string]: unknown
+      [elementName: string]: any
     }
   }
 }

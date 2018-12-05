@@ -2,7 +2,7 @@ import { ElementRef, KeyValueChangeRecord, Type } from '@angular/core'
 import { Observable, Subscription } from 'rxjs'
 import { isNil } from '../shared/lang'
 import { createEmptyMeta } from '../shared/node'
-import { APPLICATION_REF, COMPONENT_FACTORY_RESOLVER, INJECTOR, RenderKit } from '../shared/render-kit'
+import { COMPONENT_FACTORY_RESOLVER, INJECTOR, RenderKit } from '../shared/render-kit'
 import { ANGULAR_INPUT_MAP, ANGULAR_OUTPUT_MAP, COMPONENT_REF, Properties, PROP_DIFFER, VNode } from '../shared/types'
 import { insertBefore } from './render'
 import { createPropDiffer, isEventLikeProp, parseEventName } from './util'
@@ -17,9 +17,9 @@ export function mountAngularComponent(kit: RenderKit, vNode: VNode, container: E
   meta[ANGULAR_OUTPUT_MAP] = makePropMap(factory.outputs)
   // TODO: mount children as projectableNodes
   const ref = meta[COMPONENT_REF] = factory.create(injector)
-  const app = kit[APPLICATION_REF]
-  app.attachView(ref.hostView)
   patchProperties(kit, vNode, vNode.props)
+
+  ref.changeDetectorRef.detectChanges()
 
   const element = vNode.native = ref.injector.get(ElementRef as Type<ElementRef>).nativeElement
 

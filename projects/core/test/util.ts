@@ -1,4 +1,4 @@
-import { ApplicationRef, Component as NgComponent, ComponentFactoryResolver, EventEmitter, Injector, Input, IterableDiffers, KeyValueDiffers, NgModule, Output, RendererFactory2 } from '@angular/core'
+import { Component as NgComponent, ComponentFactoryResolver, EventEmitter, Injector, Input, IterableDiffers, KeyValueDiffers, NgModule, Output, RendererFactory2 } from '@angular/core'
 import { inject } from '@angular/core/testing'
 import { Component } from '../src/shared/component'
 import { createElement as h } from '../src/shared/factory'
@@ -68,11 +68,11 @@ class ImmediateUpdateQueue implements UpdateQueue {
 export function setUpContext(): void {
   let restoreContext: () => void
 
-  beforeEach(inject([ApplicationRef, ComponentFactoryResolver, Injector, IterableDiffers, KeyValueDiffers, RendererFactory2], (app: ApplicationRef, cfr: ComponentFactoryResolver, inj: Injector, id: IterableDiffers, kd: KeyValueDiffers, rf: RendererFactory2) => {
+  beforeEach(inject([ComponentFactoryResolver, Injector, IterableDiffers, KeyValueDiffers, RendererFactory2], (cfr: ComponentFactoryResolver, inj: Injector, id: IterableDiffers, kd: KeyValueDiffers, rf: RendererFactory2) => {
     const hooks: LifecycleHooks = []
     const r = rf.createRenderer(null, null)
     const queue = new ImmediateUpdateQueue()
-    const previous = setCurrentRenderKit([app, cfr, inj, id, kd, hooks, r, queue])
+    const previous = setCurrentRenderKit([cfr, inj, id, kd, hooks, r, queue])
 
     restoreContext = () => {
       setCurrentRenderKit(previous)

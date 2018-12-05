@@ -1,4 +1,4 @@
-import { ComponentRef, IterableDiffer, KeyValueDiffer } from '@angular/core'
+import { ComponentRef, IterableDiffer, KeyValueDiffer, Type } from '@angular/core'
 import { Component } from './component'
 
 export interface ClassComponentType<P = any> {
@@ -8,7 +8,7 @@ export interface ClassComponentType<P = any> {
 export type FunctionComponentType<P = any> = (props: P) => NodeDef
 
 export interface ElementDef<P = any> {
-  type: string | ClassComponentType<P> | FunctionComponentType<P>
+  type: string | ClassComponentType<P> | FunctionComponentType<P> | Type<any>
   children: NodeDef[]
   props: P | null
 }

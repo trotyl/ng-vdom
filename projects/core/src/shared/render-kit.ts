@@ -1,18 +1,16 @@
-import { ApplicationRef, ComponentFactoryResolver, Injector, IterableDiffers, KeyValueDiffers, Renderer2 } from '@angular/core'
+import { ComponentFactoryResolver, Injector, IterableDiffers, KeyValueDiffers, Renderer2 } from '@angular/core'
 import { LifecycleHooks } from './lifecycle'
 import { UpdateQueue } from './update-queue'
 
-export const APPLICATION_REF = 0
-export const COMPONENT_FACTORY_RESOLVER = 1
-export const INJECTOR = 2
-export const ITERABLE_DIFFERS = 3
-export const KEY_VALUE_DIFFERS = 4
-export const LIFECYCLE_HOOKS = 5
-export const RENDERER = 6
-export const UPDATE_QUEUE = 7
+export const COMPONENT_FACTORY_RESOLVER = 0
+export const INJECTOR = 1
+export const ITERABLE_DIFFERS = 2
+export const KEY_VALUE_DIFFERS = 3
+export const LIFECYCLE_HOOKS = 4
+export const RENDERER = 5
+export const UPDATE_QUEUE = 6
 
 export interface RenderKit extends Array<unknown> {
-  [APPLICATION_REF]: ApplicationRef
   [COMPONENT_FACTORY_RESOLVER]: ComponentFactoryResolver
   [INJECTOR]: Injector
   [ITERABLE_DIFFERS]: IterableDiffers
@@ -23,7 +21,6 @@ export interface RenderKit extends Array<unknown> {
 }
 
 export function createRenderKit(
-  app: ApplicationRef,
   cfr: ComponentFactoryResolver,
   injector: Injector,
   iDiffers: IterableDiffers,
@@ -32,7 +29,7 @@ export function createRenderKit(
   renderer: Renderer2,
   queue: UpdateQueue,
 ): RenderKit {
-  return [app, cfr, injector, iDiffers, kDiffers, hooks, renderer, queue]
+  return [cfr, injector, iDiffers, kDiffers, hooks, renderer, queue]
 }
 
 let currentRenderKit: RenderKit | null = null
