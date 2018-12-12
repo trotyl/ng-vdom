@@ -23,6 +23,17 @@ import { VDomModule } from 'ng-vdom';
 export class SomeModule {}
 ```
 
+Edit tsconfig JSX options:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "createElement"
+  }
+}
+```
+
 ## Usage
 
 [Online Demo](https://stackblitz.com/edit/angular-vjj9vt?file=src%2Fapp%2Fclock.component.ts).
@@ -31,7 +42,7 @@ Make an Angular Component extends `Renderable` with a `render` method:
 
 ```tsx
 import { Component } from '@angular/core'
-import { Renderable } from 'ng-vdom'
+import { createElement, Renderable } from 'ng-vdom'
 
 @Component({
   template: ``
