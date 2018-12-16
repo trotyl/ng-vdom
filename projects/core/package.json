@@ -1,7 +1,26 @@
 {
   "name": "ng-vdom",
+  "description": "Virtual DOM extension for Angular, heavily inspired by Inferno.",
   "version": "0.0.8",
   "license": "MIT",
+  "author": {
+    "name": "Trotyl Yu",
+    "email": "trotyl@qq.com",
+    "url": "https://github.com/trotyl"
+  },
+  "homepage": "https://github.com/trotyl/ng-vdom",
+  "bugs": {
+    "url": "https://github.com/trotyl/ng-vdom/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trotyl/ng-vdom.git"
+  },
+  "keywords": [
+    "angular",
+    "virtual-dom",
+    "vdom"
+  ],
   "peerDependencies": {
     "@angular/common": "^7.0.0",
     "@angular/core": "^7.0.0"
