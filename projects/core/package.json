@@ -1,7 +1,7 @@
 {
   "name": "ng-vdom",
   "description": "Virtual DOM extension for Angular, heavily inspired by Inferno.",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "MIT",
   "author": {
     "name": "Trotyl Yu",
