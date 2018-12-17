@@ -99,6 +99,15 @@ describe('patch instruction', () => {
         expect(container.innerHTML).toBe('<p class="foo">84</p>')
       })
 
+      it('should change to different nested children', () => {
+        next = createNativeNode(undefined, undefined, [1, 2, 3])
+
+        patch(kit, previous, next)
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe('<p class="foo">123</p>')
+      })
+
       it('should change to different tag name', () => {
         next = createNativeNode('span')
 

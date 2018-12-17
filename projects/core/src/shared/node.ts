@@ -1,7 +1,6 @@
-import { TextDef } from '../shared/types'
 import { VNodeFlags } from './flags'
 import { isBool, isClassComp, isFunc, isNgComp, isNil, isNum, isStr, EMPTY_OBJ } from './lang'
-import { Key, NodeDef, Properties, VNode, VNodeMeta } from './types'
+import { ChildDef, Key, NodeDef, Properties, TextDef, VNode, VNodeMeta } from './types'
 
 function createVoidNode(): VNode {
   return {
@@ -31,6 +30,10 @@ export function createEmptyMeta(): VNodeMeta {
   return []
 }
 
+export function flatten(defs: ChildDef[]): NodeDef[] {
+  return Array.prototype.concat.apply([], defs)
+}
+
 export function normalize(def: NodeDef): VNode {
   if (isBool(def) || isNil(def)) {
     return createVoidNode()
@@ -41,7 +44,7 @@ export function normalize(def: NodeDef): VNode {
   }
 
   const type = def.type
-  const children = def.children.map(normalize)
+  const children = flatten(def.children).map(normalize)
   const defProps = def.props as Properties
   const native = null
   const meta = null

@@ -6,7 +6,7 @@ import { isFunc } from '../src/shared/lang'
 import { LifecycleHooks } from '../src/shared/lifecycle'
 import { normalize as n } from '../src/shared/node'
 import { setCurrentRenderKit } from '../src/shared/render-kit'
-import { NodeDef, StateChange } from '../src/shared/types'
+import { ChildDef, NodeDef, StateChange } from '../src/shared/types'
 import { UpdateQueue } from '../src/shared/update-queue'
 
 export const EMPTY_COMMENT = '<!---->'
@@ -23,7 +23,7 @@ export function createVoidNode() {
   return n(null)
 }
 
-export function createNativeNode(tag = 'p', props: object = { className: 'foo' }, children: NodeDef = 42) {
+export function createNativeNode(tag = 'p', props: object = { className: 'foo' }, children: ChildDef = 42) {
   return n(h(tag, props, children))
 }
 

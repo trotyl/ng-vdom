@@ -9,7 +9,7 @@ export type FunctionComponentType<P = any> = (props: P) => NodeDef
 
 export interface ElementDef<P = any> {
   type: string | ClassComponentType<P> | FunctionComponentType<P> | Type<any>
-  children: NodeDef[]
+  children: ChildDef[]
   props: P | null
 }
 
@@ -18,6 +18,8 @@ export type TextDef = string | number
 export type VoidDef = boolean | null | undefined
 
 export type NodeDef = ElementDef | TextDef | VoidDef
+
+export type ChildDef = NodeDef | NodeDef[]
 
 export type Key = string | number
 

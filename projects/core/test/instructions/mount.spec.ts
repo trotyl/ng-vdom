@@ -199,6 +199,14 @@ describe('mount instruction', () => {
         expect(input.native).not.toBeNull()
         expect(container.innerHTML).toBe(`<p>0<span>1</span>2<b>3</b>4</p>`)
       })
+
+      it('should mount with nested children', () => {
+        input = n(h('p', null, [1, 2, 3], [4, 5, 6]))
+        mount(kit, input, container, null)
+
+        expect(input.native).not.toBeNull()
+        expect(container.innerHTML).toBe(`<p>123456</p>`)
+      })
     })
   })
 
