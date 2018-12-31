@@ -39,6 +39,7 @@ export const COMPONENT_INSTANCE = 4
 export const COMPONENT_REF = 5
 export const PROP_DIFFER = 6
 export const RENDER_RESULT = 7
+export const STYLE_DIFFER = 8
 
 export interface VNodeMeta extends Array<unknown> {
   [ANGULAR_INPUT_MAP]?: { [key: string]: string }
@@ -49,6 +50,7 @@ export interface VNodeMeta extends Array<unknown> {
   [COMPONENT_REF]?: ComponentRef<any>
   [PROP_DIFFER]?: KeyValueDiffer<string, unknown>
   [RENDER_RESULT]?: VNode
+  [STYLE_DIFFER]?: KeyValueDiffer<string, string>
 }
 
 export interface VNode<P = any> {

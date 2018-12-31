@@ -1,6 +1,7 @@
 import { async, TestBed } from '@angular/core/testing'
 import { mount } from '../../src/instructions/mount'
 import { patch } from '../../src/instructions/patch'
+import { removeChild } from '../../src/instructions/render'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
@@ -115,6 +116,18 @@ describe('patch instruction', () => {
 
         expect(next.native).not.toBe(previous.native)
         expect(container.innerHTML).toBe('<span class="foo">42</span>')
+      })
+
+      it('should apply style changes', () => {
+        removeChild(kit, container, previous.native!)
+        previous = createNativeNode(undefined, { style: { fontSize: '12px', height: '10px' } })
+        mount(kit, previous, container, null)
+
+        next = createNativeNode(undefined, { style: { fontSize: '12px', width: '20px' } })
+        patch(kit, previous, next)
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe('<p style="font-size: 12px; width: 20px;">42</p>')
       })
     })
 

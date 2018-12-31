@@ -173,6 +173,16 @@ describe('mount instruction', () => {
           expect(handled).toBe(true)
         })
       })
+
+      describe('Style', () => {
+        it('should add style', () => {
+          input = n(h('p', { style: { fontSize: '12px' } }))
+        mount(kit, input, container, null)
+
+        expect(input.native).not.toBeNull()
+        expect(container.innerHTML).toBe(`<p style="font-size: 12px;"></p>`)
+        })
+      })
     })
 
     describe('Child', () => {

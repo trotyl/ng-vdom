@@ -2,7 +2,7 @@ import { IterableDiffer, KeyValueDiffer } from '@angular/core'
 import { EMPTY_ARRAY, EMPTY_OBJ } from '../shared/lang'
 import { ITERABLE_DIFFERS, KEY_VALUE_DIFFERS, RenderKit } from '../shared/render-kit'
 import { trackByKey } from '../shared/track'
-import { Properties, VNode } from '../shared/types'
+import { Properties, Styles, VNode } from '../shared/types'
 
 export function createPropDiffer(kit: RenderKit, props: Properties = EMPTY_OBJ): KeyValueDiffer<string, unknown> {
   const differ = kit[KEY_VALUE_DIFFERS].find(EMPTY_OBJ).create<string, unknown>()
@@ -13,6 +13,12 @@ export function createPropDiffer(kit: RenderKit, props: Properties = EMPTY_OBJ):
 export function createChildDiffer(kit: RenderKit, children: VNode[] = EMPTY_ARRAY): IterableDiffer<VNode> {
   const differ = kit[ITERABLE_DIFFERS].find(children).create(trackByKey)
   differ.diff(children)
+  return differ
+}
+
+export function createStyleDiffer(kit: RenderKit, styles: Styles = EMPTY_OBJ): KeyValueDiffer<string, string> {
+  const differ = kit[KEY_VALUE_DIFFERS].find(EMPTY_OBJ).create<string, string>()
+  differ.diff(styles)
   return differ
 }
 

@@ -2,12 +2,11 @@
 import { KeyValueChangeRecord } from '@angular/core'
 import { createEmptyMeta } from '../shared/node'
 import { RenderKit, RENDERER } from '../shared/render-kit'
-import { CHILD_DIFFER, Properties, PROP_DIFFER, Styles, VNode } from '../shared/types'
+import { CHILD_DIFFER, Properties, PROP_DIFFER, Styles, STYLE_DIFFER, VNode } from '../shared/types'
 import { mountArray, patchArray } from './array'
 import { mount } from './mount'
 import { appendChild, createElement, insertBefore } from './render'
-import { createChildDiffer, createPropDiffer, isEventLikeProp, parseEventName } from './util'
-
+import { createChildDiffer, createPropDiffer, createStyleDiffer, isEventLikeProp, parseEventName } from './util'
 
 export function mountNative(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
   vNode.meta = createEmptyMeta()
@@ -92,14 +91,16 @@ function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void 
   const changes = differ.diff(props)
 
   if (changes != null) {
-    const applyPropertyChange = createPropertyChangeCallback(kit, vNode.native! as Element)
+    const applyPropertyChange = createPropertyChangeCallback(kit, vNode)
     changes.forEachAddedItem(applyPropertyChange)
     changes.forEachChangedItem(applyPropertyChange)
     changes.forEachRemovedItem(applyPropertyChange)
   }
 }
 
-function setProperty(kit: RenderKit, element: Element, prop: string, value: unknown) {
+function setProperty(kit: RenderKit, vNode: VNode, prop: string, value: unknown) {
+  const element = vNode.native! as Element
+
   if (isEventLikeProp(prop)) {
     const eventName = parseEventName(prop)
     setEventListener(kit, element, eventName, value as EventListener)
@@ -107,21 +108,34 @@ function setProperty(kit: RenderKit, element: Element, prop: string, value: unkn
     const renderer = kit[RENDERER]
     renderer.setProperty(element, prop, '')
   } else if (prop === 'style') {
-    setStyle(kit, element, value as Styles | string)
+    setStyle(kit, vNode, value as Styles)
   } else {
     const renderer = kit[RENDERER]
     renderer.setProperty(element, prop, value)
   }
 }
 
-function createPropertyChangeCallback(kit: RenderKit, element: Element) {
-  return ({ key, currentValue }: KeyValueChangeRecord<string, unknown>) => setProperty(kit, element, key, currentValue)
+function createPropertyChangeCallback(kit: RenderKit, vNode: VNode) {
+  return ({ key, currentValue }: KeyValueChangeRecord<string, unknown>) => setProperty(kit, vNode, key, currentValue)
 }
 
 
-function setStyle(kit: RenderKit, element: Element, styles: Styles | string): void {
-  // TODO: Diff styles
-  kit[RENDERER].setProperty(element, 'style', styles)
+function setStyle(kit: RenderKit, vNode: VNode, styles: Styles): void {
+  const element = vNode.native! as Element
+  const renderer = kit[RENDERER]
+
+  const meta = vNode.meta!
+  let differ = meta[STYLE_DIFFER]
+  if (differ == null) {
+    differ = meta[STYLE_DIFFER] = createStyleDiffer(kit)
+  }
+  const changes = differ.diff(styles)
+
+  if (changes != null) {
+    changes.forEachAddedItem(record => renderer.setStyle(element, record.key, record.currentValue))
+    changes.forEachChangedItem(record => renderer.setStyle(element, record.key, record.currentValue))
+    changes.forEachRemovedItem(record => renderer.removeStyle(element, record.key))
+  }
 }
 
 
