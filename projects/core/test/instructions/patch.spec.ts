@@ -91,6 +91,15 @@ describe('patch instruction', () => {
         expect(container.innerHTML).toBe('<p class="" title="bar">42</p>')
       })
 
+      it('should remove existing propery without new property', () => {
+        next = createNativeNode(undefined, {})
+
+        patch(kit, previous, next)
+
+        expect(next.native).toBe(previous.native)
+        expect(container.innerHTML).toBe('<p class="">42</p>')
+      })
+
       it('should change to different children', () => {
         next = createNativeNode(undefined, undefined, 84)
 

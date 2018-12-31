@@ -81,11 +81,11 @@ function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nex
 }
 
 function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void {
-  if (Object.keys(props).length === 0) { return }
-
   const meta = vNode.meta!
   let differ = meta[PROP_DIFFER]
+
   if (differ == null) {
+    if (Object.keys(props).length === 0) { return }
     differ = meta[PROP_DIFFER] = createPropDiffer(kit)
   }
   const changes = differ.diff(props)
