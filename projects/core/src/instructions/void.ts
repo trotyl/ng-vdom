@@ -1,4 +1,3 @@
-import { isNil } from '../shared/lang'
 import { RenderKit } from '../shared/render-kit'
 import { VNode } from '../shared/types'
 import { createComment, insertBefore } from './render'
@@ -6,7 +5,7 @@ import { createComment, insertBefore } from './render'
 export function mountVoid(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const comment = vNode.native = createComment(kit, '')
 
-  if (!isNil(container)) {
+  if (container != null) {
     insertBefore(kit, container, comment, nextNode)
   }
 }

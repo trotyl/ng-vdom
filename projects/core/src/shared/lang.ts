@@ -27,10 +27,6 @@ export function isNgComp(value: unknown): value is Type<any> {
   }
 }
 
-export function isNil(value: unknown): value is null | undefined {
-  return value == null
-}
-
 export function isNum(value: unknown): value is number {
   return typeof value === 'number'
 }

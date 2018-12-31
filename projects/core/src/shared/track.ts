@@ -1,4 +1,4 @@
-import { isNil, isObj, isStr } from './lang'
+import { isObj, isStr } from './lang'
 import { VNode } from './types'
 
 function keyOf(node: VNode): string | number | null {
@@ -10,7 +10,7 @@ const componentTypes = new WeakMap<Function, number>()
 
 function stringifyType(type: Function | string | null): string {
   if (isStr(type)) { return type }
-  if (isNil(type)) { return 'void' }
+  if (type == null) { return 'void' }
 
   let counter = componentTypes.get(type)
   if (!counter) {

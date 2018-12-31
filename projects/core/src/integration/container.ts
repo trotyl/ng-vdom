@@ -2,7 +2,7 @@ import { mount } from '../instructions/mount'
 import { patch } from '../instructions/patch'
 import { unmount } from '../instructions/unmount'
 import { Component } from '../shared/component'
-import { isFunc, isNil } from '../shared/lang'
+import { isFunc } from '../shared/lang'
 import { normalize } from '../shared/node'
 import { setCurrentRenderKit, LIFECYCLE_HOOKS, RenderKit } from '../shared/render-kit'
 import { TaskScheduler } from '../shared/schedule'
@@ -62,13 +62,13 @@ export abstract class Container implements UpdateQueue {
     const renderKit = this.__createRenderKit()
     const previous = setCurrentRenderKit(renderKit)
 
-    if (isNil(this.__lastDef)) {
-      if (!isNil(this.__def)) {
+    if (this.__lastDef == null) {
+      if (this.__def != null) {
         this.__vNode = normalize(this.__def)
         mount(renderKit, this.__vNode, this.__container, null)
       }
     } else {
-      if (isNil(this.__def)) {
+      if (this.__def == null) {
         unmount(renderKit, this.__vNode!)
       } else if (this.__def !== this.__lastDef) {
         const lastVNode = this.__vNode!

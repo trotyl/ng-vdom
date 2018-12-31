@@ -1,4 +1,3 @@
-import { isNil } from '../shared/lang'
 import { RenderKit } from '../shared/render-kit'
 import { VNode } from '../shared/types'
 import { createTextNode, insertBefore, setNodeValue } from './render'
@@ -7,7 +6,7 @@ export function mountText(kit: RenderKit, vNode: VNode, container: Element | nul
   const props = vNode.props as { textContent: string }
   const text = vNode.native = createTextNode(kit, props.textContent)
 
-  if (!isNil(container)) {
+  if (container != null) {
     insertBefore(kit, container, text, nextNode)
   }
 }

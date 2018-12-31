@@ -1,6 +1,5 @@
 import { ElementRef, KeyValueChangeRecord, Type } from '@angular/core'
 import { Observable, Subscription } from 'rxjs'
-import { isNil } from '../shared/lang'
 import { createEmptyMeta } from '../shared/node'
 import { COMPONENT_FACTORY_RESOLVER, INJECTOR, RenderKit } from '../shared/render-kit'
 import { ANGULAR_INPUT_MAP, ANGULAR_OUTPUT_MAP, CHILD_ANCHOR, CHILD_DIFFER, COMPONENT_REF, Properties, PROP_DIFFER, VNode } from '../shared/types'
@@ -27,7 +26,7 @@ export function mountAngularComponent(kit: RenderKit, vNode: VNode, container: E
 
   const element = vNode.native = ref.injector.get(ElementRef as Type<ElementRef>).nativeElement
 
-  if (!isNil(container)) {
+  if (container != null) {
     insertBefore(kit, container, element, nextNode)
   }
 }
@@ -66,7 +65,7 @@ function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nex
   const meta = parent.meta!
   const container = parentNodeOf(kit, anchor)
   let differ = meta[CHILD_DIFFER]
-  if (isNil(differ)) {
+  if (differ == null) {
     differ = meta[CHILD_DIFFER] = createChildDiffer(kit, lastChildren)
   }
   patchArray(kit, differ, lastChildren, nextChildren, container)
@@ -77,12 +76,12 @@ function patchProperties(kit: RenderKit, vNode: VNode, props: Properties) {
 
   const meta = vNode.meta!
   let differ = meta[PROP_DIFFER]
-  if (isNil(differ)) {
+  if (differ == null) {
     differ = meta[PROP_DIFFER] = createPropDiffer(kit)
   }
   const changes = differ.diff(props)
 
-  if (!isNil(changes)) {
+  if (changes != null) {
     const applyPropertyChange = createPropertyChangeCallback(vNode)
     changes.forEachAddedItem(applyPropertyChange)
     changes.forEachChangedItem(applyPropertyChange)
@@ -129,7 +128,7 @@ interface Subscriptions {
 function setupOutputHandler(instance: object, outputName: string, listener: EventListener): void {
   const subscriptions = getSubscriptions(instance)
   const subscription: Subscription | undefined = subscriptions[outputName]
-  if (!isNil(subscription)) {
+  if (subscription != null) {
     subscription.unsubscribe()
   }
   const instanceForOutputs = instance as { [key: string]: Observable<any> }

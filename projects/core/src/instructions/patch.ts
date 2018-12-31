@@ -1,5 +1,4 @@
 import { VNodeFlags } from '../shared/flags'
-import { isNil } from '../shared/lang'
 import { RenderKit } from '../shared/render-kit'
 import { VNode } from '../shared/types'
 import { patchAngularComponent } from './angular-component'
@@ -37,7 +36,7 @@ export function patch(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void 
 function replaceWithNewNode(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   const lastNode = lastVNode.native
   let container: Element
-  if (isNil(lastNode) || isNil(container = parentNodeOf(kit, lastNode))) {
+  if (lastNode == null || (container = parentNodeOf(kit, lastNode)) == null) {
     return
   }
 

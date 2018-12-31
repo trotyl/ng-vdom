@@ -1,5 +1,5 @@
 import { VNodeFlags } from './flags'
-import { isBool, isClassComp, isFunc, isNgComp, isNil, isNum, isStr, EMPTY_OBJ } from './lang'
+import { isBool, isClassComp, isFunc, isNgComp, isNum, isStr, EMPTY_OBJ } from './lang'
 import { ChildDef, Key, NodeDef, Properties, TextDef, VNode, VNodeMeta } from './types'
 
 function createVoidNode(): VNode {
@@ -35,7 +35,7 @@ export function flatten(defs: ChildDef[]): NodeDef[] {
 }
 
 export function normalize(def: NodeDef): VNode {
-  if (isBool(def) || isNil(def)) {
+  if (isBool(def) || def == null) {
     return createVoidNode()
   }
 
@@ -52,7 +52,7 @@ export function normalize(def: NodeDef): VNode {
   let props: Properties = EMPTY_OBJ
   let key: Key | null = null
 
-  if (!isNil(defProps)) {
+  if (defProps != null) {
     props = {}
 
     for (const prop in defProps) {

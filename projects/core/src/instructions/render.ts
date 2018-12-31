@@ -1,4 +1,3 @@
-import { isNil } from '../shared/lang'
 import { RenderKit, RENDERER } from '../shared/render-kit'
 
 export function appendChild(kit: RenderKit, parent: Element, child: Node): void {
@@ -19,14 +18,14 @@ export function createTextNode(kit: RenderKit, value: string): Text {
 
 export function detach(kit: RenderKit, node: Node): void {
   const container = parentNodeOf(kit, node)
-  if (!isNil(container)) {
+  if (container != null) {
     removeChild(kit, container, node)
   }
 }
 
 export function insertBefore(kit: RenderKit, container: Element, newNode: Node, referenceNode: Node | null): void {
   const renderer = kit[RENDERER]
-  if (!isNil(referenceNode)) {
+  if (referenceNode != null) {
     renderer.insertBefore(container, newNode, referenceNode)
   } else {
     renderer.appendChild(container, newNode)

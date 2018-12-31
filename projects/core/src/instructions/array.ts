@@ -1,4 +1,3 @@
-import { isNil } from '../shared/lang'
 import { RenderKit } from '../shared/render-kit'
 import { ChildDiffer, VNode } from '../shared/types'
 import { mount } from './mount'
@@ -20,12 +19,12 @@ export function patchArray(kit: RenderKit, differ: ChildDiffer, lastChildren: VN
 
   const changes = differ.diff(nextChildren)
 
-  if (!isNil(changes)) {
+  if (changes != null) {
     changes.forEachOperation(({ item, previousIndex, currentIndex }, temporaryPreviousIndex, temporaryCurrentIndex) => {
-      if (isNil(previousIndex)) {
+      if (previousIndex == null) {
         mount(kit, item, null, null)
         insertByIndex(kit, container, item.native!, temporaryCurrentIndex!, nodes)
-      } else if (isNil(temporaryCurrentIndex)) {
+      } else if (temporaryCurrentIndex == null) {
         removeByIndex(kit, temporaryPreviousIndex!, nodes)
       } else {
         moveByIndex(kit, container, temporaryPreviousIndex!, temporaryCurrentIndex, nodes)
@@ -46,7 +45,7 @@ export function patchArray(kit: RenderKit, differ: ChildDiffer, lastChildren: VN
 function insertByIndex(kit: RenderKit, container: Element, node: Node, currentIndex: number, nodes: Node[]): void {
   const nextNode = currentIndex === nodes.length ? null : nodes[currentIndex]
   insertBefore(kit, container, node, nextNode)
-  if (isNil(nextNode)) {
+  if (nextNode == null) {
     nodes.push(node)
   } else {
     nodes.splice(currentIndex, 0, node)

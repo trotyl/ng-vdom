@@ -1,6 +1,5 @@
 
 import { KeyValueChangeRecord } from '@angular/core'
-import { isNil } from '../shared/lang'
 import { createEmptyMeta } from '../shared/node'
 import { RenderKit, RENDERER } from '../shared/render-kit'
 import { CHILD_DIFFER, Properties, PROP_DIFFER, Styles, VNode } from '../shared/types'
@@ -19,13 +18,13 @@ export function mountNative(kit: RenderKit, vNode: VNode, container: Element | n
 
   const element = vNode.native = createElement(kit, type)
 
-  if (!isNil(props)) {
+  if (props != null) {
     patchProperties(kit, vNode, props)
   }
 
   mountChildren(kit, vNode, children)
 
-  if (!isNil(container)) {
+  if (container != null) {
     insertBefore(kit, container, element, nextNode)
   }
 }
@@ -75,7 +74,7 @@ function patchChildren(kit: RenderKit, parent: VNode, lastChildren: VNode[], nex
   const meta = parent.meta!
   const container = parent.native! as Element
   let differ = meta[CHILD_DIFFER]
-  if (isNil(differ)) {
+  if (differ == null) {
     differ = meta[CHILD_DIFFER] = createChildDiffer(kit, lastChildren)
   }
 
@@ -87,12 +86,12 @@ function patchProperties(kit: RenderKit, vNode: VNode, props: Properties): void 
 
   const meta = vNode.meta!
   let differ = meta[PROP_DIFFER]
-  if (isNil(differ)) {
+  if (differ == null) {
     differ = meta[PROP_DIFFER] = createPropDiffer(kit)
   }
   const changes = differ.diff(props)
 
-  if (!isNil(changes)) {
+  if (changes != null) {
     const applyPropertyChange = createPropertyChangeCallback(kit, vNode.native! as Element)
     changes.forEachAddedItem(applyPropertyChange)
     changes.forEachChangedItem(applyPropertyChange)
@@ -135,7 +134,7 @@ interface EventHandlers {
 function setEventListener(kit: RenderKit, element: Element, eventName: string, listener: EventListener): void {
   const events = getEventHandlers(element)
   const disposer: (() => void) | undefined = events[eventName]
-  if (!isNil(disposer)) {
+  if (disposer != null) {
     disposer()
   }
   events[eventName] = kit[RENDERER].listen(element, eventName, listener)
