@@ -49,6 +49,7 @@ describe('unmount instruction', () => {
           return h('div', { onClick: () => clicked = true })
         }
       }
+
       vNode = n(h(TestComponent))
       mount(kit, vNode, container, null)
       unmount(kit, vNode)
@@ -57,6 +58,22 @@ describe('unmount instruction', () => {
       div.click()
 
       expect(clicked).toBe(false)
+    })
+
+    it('should invoke willUnmount callback', () => {
+      let willUnmount = false
+
+      class WillUnmountComponent extends Component {
+        componentWillUnmount() { willUnmount = true }
+
+        render() { return h('p') }
+      }
+
+      vNode = n(h(WillUnmountComponent))
+      mount(kit, vNode, container, null)
+      unmount(kit, vNode)
+
+      expect(willUnmount).toBe(true)
     })
   })
 

@@ -35,5 +35,8 @@ export function patchClassComponent(kit: RenderKit, lastVNode: VNode, nextVNode:
 }
 
 export function unmountClassComponent(kit: RenderKit, vNode: VNode): void {
+  const instance = vNode.meta![COMPONENT_INSTANCE]!
+  instance.componentWillUnmount()
+
   unmount(kit, vNode.meta![RENDER_RESULT]!)
 }
