@@ -27,7 +27,7 @@ describe('unmount instruction', () => {
     kit = getCurrentRenderKit()!
   })
 
-  describe('Native', () => {
+  describe('Intrinsic', () => {
     it('should remove event handlers', () => {
       let clicked = false
       vNode = n(h('div', { onClick: () => clicked = true }))

@@ -8,7 +8,7 @@ import { mount } from './mount'
 import { appendChild, createElement, insertBefore } from './render'
 import { createChildDiffer, createPropDiffer, createStyleDiffer, isEventLikeProp, parseEventName } from './util'
 
-export function mountNative(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
+export function mountIntrinsic(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
   vNode.meta = createEmptyMeta()
 
   const type = vNode.type as string
@@ -28,7 +28,7 @@ export function mountNative(kit: RenderKit, vNode: VNode, container: Element | n
   }
 }
 
-export function patchNative(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
+export function patchIntrinsic(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
   nextVNode.meta = lastVNode.meta!
 
   const lastChildren = lastVNode.children!
@@ -46,7 +46,7 @@ export function patchNative(kit: RenderKit, lastVNode: VNode, nextVNode: VNode):
   }
 }
 
-export function unmountNative(_kit: RenderKit, vNode: VNode): void {
+export function unmountIntrinsic(_kit: RenderKit, vNode: VNode): void {
   removeAllEventListeners(vNode.native as Element)
 }
 

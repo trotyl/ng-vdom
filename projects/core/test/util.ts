@@ -22,7 +22,7 @@ export function createVoidNode() {
   return n(null)
 }
 
-export function createNativeNode(tag = 'p', props: object = { className: 'foo' }, children: ChildDef = 42) {
+export function createIntrinsicNode(tag = 'p', props: object = { className: 'foo' }, children: ChildDef = 42) {
   return n(h(tag, props, children))
 }
 

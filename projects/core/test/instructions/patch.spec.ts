@@ -6,7 +6,7 @@ import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
 import { COMPONENT_REF, VNode } from '../../src/shared/types'
-import { createClassComponentNode, createFunctionComponentNode, createNativeNode, createTextNode, createVoidNode, setUpContext, EMPTY_COMMENT, TestAngularContent, TestAngularProps, TestModule } from '../util'
+import { createClassComponentNode, createFunctionComponentNode, createIntrinsicNode, createTextNode, createVoidNode, setUpContext, EMPTY_COMMENT, TestAngularContent, TestAngularProps, TestModule } from '../util'
 
 const TEXT_DEFAULT_CONTENT = 'foo'
 const COMPOSITE_DEFAULT_CONTENT = '<p class="foo">42</p>'
@@ -67,14 +67,14 @@ describe('patch instruction', () => {
       })
     })
 
-    describe('Native', () => {
+    describe('Intrinsic', () => {
       beforeEach(() => {
-        previous = createNativeNode()
+        previous = createIntrinsicNode()
         mount(kit, previous, container, null)
       })
 
       it('should change property to different value', () => {
-        next = createNativeNode(undefined, { className: 'bar' })
+        next = createIntrinsicNode(undefined, { className: 'bar' })
 
         patch(kit, previous, next)
 
@@ -83,7 +83,7 @@ describe('patch instruction', () => {
       })
 
       it('should change to different property set', () => {
-        next = createNativeNode(undefined, { title: 'bar' })
+        next = createIntrinsicNode(undefined, { title: 'bar' })
 
         patch(kit, previous, next)
 
@@ -92,7 +92,7 @@ describe('patch instruction', () => {
       })
 
       it('should remove existing propery without new property', () => {
-        next = createNativeNode(undefined, {})
+        next = createIntrinsicNode(undefined, {})
 
         patch(kit, previous, next)
 
@@ -101,7 +101,7 @@ describe('patch instruction', () => {
       })
 
       it('should change to different children', () => {
-        next = createNativeNode(undefined, undefined, 84)
+        next = createIntrinsicNode(undefined, undefined, 84)
 
         patch(kit, previous, next)
 
@@ -110,7 +110,7 @@ describe('patch instruction', () => {
       })
 
       it('should change to different nested children', () => {
-        next = createNativeNode(undefined, undefined, [1, 2, 3])
+        next = createIntrinsicNode(undefined, undefined, [1, 2, 3])
 
         patch(kit, previous, next)
 
@@ -119,7 +119,7 @@ describe('patch instruction', () => {
       })
 
       it('should change to different tag name', () => {
-        next = createNativeNode('span')
+        next = createIntrinsicNode('span')
 
         patch(kit, previous, next)
 
@@ -129,10 +129,10 @@ describe('patch instruction', () => {
 
       it('should apply style changes', () => {
         removeChild(kit, container, previous.native!)
-        previous = createNativeNode(undefined, { style: { fontSize: '12px', height: '10px' } })
+        previous = createIntrinsicNode(undefined, { style: { fontSize: '12px', height: '10px' } })
         mount(kit, previous, container, null)
 
-        next = createNativeNode(undefined, { style: { fontSize: '12px', width: '20px' } })
+        next = createIntrinsicNode(undefined, { style: { fontSize: '12px', width: '20px' } })
         patch(kit, previous, next)
 
         expect(next.native).toBe(previous.native)
@@ -237,7 +237,7 @@ describe('patch instruction', () => {
     const types: Array<{ name: string, factory: () => VNode, html: string }> = [
       { name: 'Text', factory: createTextNode, html: TEXT_DEFAULT_CONTENT },
       { name: 'Void', factory: createVoidNode, html: EMPTY_COMMENT },
-      { name: 'Native', factory: createNativeNode, html: COMPOSITE_DEFAULT_CONTENT },
+      { name: 'Intrinsic', factory: createIntrinsicNode, html: COMPOSITE_DEFAULT_CONTENT },
       { name: 'Class Component', factory: createClassComponentNode, html: COMPOSITE_DEFAULT_CONTENT },
       { name: 'Function Component', factory: createFunctionComponentNode, html: COMPOSITE_DEFAULT_CONTENT },
     ]

@@ -65,7 +65,7 @@ export function normalize(def: NodeDef): VNode {
   }
 
   if (isStr(type)) {
-    flags |= VNodeFlags.Native
+    flags |= VNodeFlags.Intrinsic
   } else if (isNgComp(type)) {
     flags |= VNodeFlags.AngularComponent
   } else if (isClassComp(type)) {

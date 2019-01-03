@@ -79,7 +79,7 @@ export class AppModule { }
 
 ## What can be rendered?
 
-+ Native component (DOM element in browser);
++ Intrinsic elements (DOM element in browser);
 + Class component (not fully react compatible);
 + Function component;
 + Angular component (need to be in `entryComponents`);

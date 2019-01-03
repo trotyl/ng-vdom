@@ -94,7 +94,7 @@ describe('mount instruction', () => {
     })
   })
 
-  describe('Native', () => {
+  describe('Intrinsic', () => {
     it('should mount without container', () => {
       input = n(h('p'))
 

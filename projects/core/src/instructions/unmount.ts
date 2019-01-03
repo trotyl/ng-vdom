@@ -4,14 +4,14 @@ import { VNode } from '../shared/types'
 import { unmountAngularComponent } from './angular-component'
 import { unmountClassComponent } from './class-component'
 import { unmountFunctionComponent } from './function-component'
-import { unmountNative } from './native'
+import { unmountIntrinsic } from './intrinsic'
 import { detach } from './render'
 import { unmountText } from './text'
 import { unmountVoid } from './void'
 
 export function unmount(kit: RenderKit, vNode: VNode): void {
-  if (vNode.flags & VNodeFlags.Native) {
-    unmountNative(kit, vNode)
+  if (vNode.flags & VNodeFlags.Intrinsic) {
+    unmountIntrinsic(kit, vNode)
   } else if (vNode.flags & VNodeFlags.ClassComponent) {
     unmountClassComponent(kit, vNode)
   } else if (vNode.flags & VNodeFlags.FunctionComponent) {

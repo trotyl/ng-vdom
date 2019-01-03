@@ -4,8 +4,8 @@ import { VNode } from '../shared/types'
 import { patchAngularComponent } from './angular-component'
 import { patchClassComponent } from './class-component'
 import { patchFunctionComponent } from './function-component'
+import { patchIntrinsic } from './intrinsic'
 import { mount } from './mount'
-import { patchNative } from './native'
 import { detach, parentNodeOf } from './render'
 import { patchText } from './text'
 import { unmount } from './unmount'
@@ -16,8 +16,8 @@ export function patch(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void 
 
   if (lastVNode.flags !== nextVNode.flags || lastVNode.type !== nextVNode.type || lastVNode.key !== nextVNode.key) {
     replaceWithNewNode(kit, lastVNode, nextVNode)
-  } else if (nextFlags & VNodeFlags.Native) {
-    patchNative(kit, lastVNode, nextVNode)
+  } else if (nextFlags & VNodeFlags.Intrinsic) {
+    patchIntrinsic(kit, lastVNode, nextVNode)
   } else if (nextFlags & VNodeFlags.ClassComponent) {
     patchClassComponent(kit, lastVNode, nextVNode)
   } else if (nextFlags & VNodeFlags.FunctionComponent) {

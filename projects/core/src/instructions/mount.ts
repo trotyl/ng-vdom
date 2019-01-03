@@ -4,15 +4,15 @@ import { VNode } from '../shared/types'
 import { mountAngularComponent } from './angular-component'
 import { mountClassComponent } from './class-component'
 import { mountFunctionComponent } from './function-component'
-import { mountNative } from './native'
+import { mountIntrinsic } from './intrinsic'
 import { mountText } from './text'
 import { mountVoid } from './void'
 
 export function mount(kit: RenderKit, vNode: VNode, container: Element | null, nextNode: Node | null): void {
   const flags = vNode.flags
 
-  if (flags & VNodeFlags.Native) {
-    mountNative(kit, vNode, container, nextNode)
+  if (flags & VNodeFlags.Intrinsic) {
+    mountIntrinsic(kit, vNode, container, nextNode)
   } else if (flags & VNodeFlags.ClassComponent) {
     mountClassComponent(kit, vNode, container, nextNode)
   } else if (flags & VNodeFlags.FunctionComponent) {
