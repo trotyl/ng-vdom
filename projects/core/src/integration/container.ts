@@ -1,6 +1,6 @@
 import { mount } from '../instructions/mount'
 import { patch } from '../instructions/patch'
-import { unmount } from '../instructions/unmount'
+import { destroy } from '../instructions/unmount'
 import { Component } from '../shared/component'
 import { isFunc } from '../shared/lang'
 import { normalize } from '../shared/node'
@@ -69,7 +69,7 @@ export abstract class Container implements UpdateQueue {
       }
     } else {
       if (this.__def == null) {
-        unmount(renderKit, this.__vNode!)
+        destroy(renderKit, this.__vNode!)
       } else if (this.__def !== this.__lastDef) {
         const lastVNode = this.__vNode!
         this.__vNode = normalize(this.__def)

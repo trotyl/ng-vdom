@@ -5,6 +5,7 @@ import { unmountAngularComponent } from './angular-component'
 import { unmountClassComponent } from './class-component'
 import { unmountFunctionComponent } from './function-component'
 import { unmountNative } from './native'
+import { detach } from './render'
 import { unmountText } from './text'
 import { unmountVoid } from './void'
 
@@ -22,4 +23,10 @@ export function unmount(kit: RenderKit, vNode: VNode): void {
   } else if (vNode.flags & VNodeFlags.AngularComponent) {
     unmountAngularComponent(kit, vNode)
   }
+}
+
+// TODO: add test
+export function destroy(kit: RenderKit, vNode: VNode): void {
+  unmount(kit, vNode)
+  detach(kit, vNode.native!)
 }
