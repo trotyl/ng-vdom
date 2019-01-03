@@ -1,5 +1,4 @@
 import { ComponentFactoryResolver, DoCheck, ElementRef, Injectable, Injector, IterableDiffers, KeyValueDiffers, Renderer2, RendererFactory2, Type } from '@angular/core'
-import { LifecycleHooks } from '../shared/lifecycle'
 import { createRenderKit, RenderKit } from '../shared/render-kit'
 import { TaskScheduler } from '../shared/schedule'
 import { NodeDef } from '../shared/types'
@@ -16,7 +15,6 @@ export abstract class Renderable extends Container implements DoCheck {
 
   protected __def: NodeDef | null = null
   protected __container: Element
-  protected __hooks!: LifecycleHooks
 
   constructor(injector: Injector) {
     super()
@@ -37,12 +35,10 @@ export abstract class Renderable extends Container implements DoCheck {
 
   ngDoCheck(): void {
     this.__def = this.render()
-
-    this.__hooks = []
     this.__detectChanges()
   }
 
   protected __createRenderKit(): RenderKit {
-    return createRenderKit(this.__cfr, this.__injector, this.__iDiffers, this.__kDiffers, this.__hooks, this.__renderer, this)
+    return createRenderKit(this.__cfr, this.__injector, this.__iDiffers, this.__kDiffers, this.__renderer, this)
   }
 }

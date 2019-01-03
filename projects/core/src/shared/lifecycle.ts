@@ -1,4 +1,3 @@
-import { Component } from './component'
 import { ErrorInfo } from './error'
 import { NodeDef } from './types'
 
@@ -34,5 +33,3 @@ export interface ComponentLifecycle<P = any, S = any> {
 
   render(): NodeDef
 }
-
-export type LifecycleHooks = Array<Component | (() => void)>

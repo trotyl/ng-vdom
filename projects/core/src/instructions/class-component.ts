@@ -1,6 +1,5 @@
-import { Component } from '../shared/component'
 import { createEmptyMeta, normalize } from '../shared/node'
-import { LIFECYCLE_HOOKS, RenderKit } from '../shared/render-kit'
+import { RenderKit } from '../shared/render-kit'
 import { ClassComponentType, COMPONENT_INSTANCE, Properties, RENDER_RESULT, VNode } from '../shared/types'
 import { mount } from './mount'
 import { patch } from './patch'
@@ -16,7 +15,8 @@ export function mountClassComponent(kit: RenderKit, vNode: VNode, container: Ele
 
   mount(kit, inner, container, nextNode)
   vNode.native = inner.native
-  mountClassComponentCallbacks(kit, instance)
+
+  instance.componentDidMount()
 }
 
 export function patchClassComponent(kit: RenderKit, lastVNode: VNode, nextVNode: VNode): void {
@@ -36,12 +36,4 @@ export function patchClassComponent(kit: RenderKit, lastVNode: VNode, nextVNode:
 
 export function unmountClassComponent(kit: RenderKit, vNode: VNode): void {
   unmount(kit, vNode.meta![RENDER_RESULT]!)
-}
-
-function mountClassComponentCallbacks(kit: RenderKit, instance: Component): void {
-  const componentDidMount = instance.componentDidMount
-  if (componentDidMount !== Component.prototype.componentDidMount) {
-    const hooks = kit[LIFECYCLE_HOOKS]
-    hooks.push(componentDidMount, instance)
-  }
 }

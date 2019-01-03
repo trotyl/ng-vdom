@@ -4,7 +4,7 @@ import { Component } from '../../src/shared/component'
 import { createElement as h } from '../../src/shared/factory'
 import { normalize as n } from '../../src/shared/node'
 import { getCurrentRenderKit, RenderKit } from '../../src/shared/render-kit'
-import { COMPONENT_REF, VNode } from '../../src/shared/types'
+import { COMPONENT_INSTANCE, COMPONENT_REF, VNode } from '../../src/shared/types'
 import { isCommentNode, setUpContext, EMPTY_COMMENT, TestAngularContent, TestAngularProps, TestModule } from '../util'
 
 describe('mount instruction', () => {
@@ -229,6 +229,16 @@ describe('mount instruction', () => {
       render() { return h('p', null, this.props.value) }
     }
 
+    class DidMountComponent extends Component<void> {
+      didMount = false
+
+      componentDidMount() {
+        this.didMount = true
+      }
+
+      render() { return h('p') }
+    }
+
     it('should mount without container', () => {
       input = n(h(BasicComponent))
 
@@ -252,6 +262,14 @@ describe('mount instruction', () => {
 
       expect(input.native).not.toBeNull()
       expect(container.innerHTML).toBe(`<p>42</p>`)
+    })
+
+    it('should invoke didMount callback', () => {
+      input = n(h(DidMountComponent))
+      mount(kit, input, container, null)
+
+      const comp: DidMountComponent = input.meta![COMPONENT_INSTANCE]! as any
+      expect(comp.didMount).toBe(true)
     })
   })
 
